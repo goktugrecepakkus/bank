@@ -1,0 +1,525 @@
+openapi: 3.1.0
+info:
+  title: Modern Banking API
+  description: Core Banking System API with Ledger implementation (Moduler Monolith)
+  version: 1.0.0
+paths:
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /customers/:
+    post:
+      tags:
+      - Customers
+      summary: Create Customer
+      operationId: create_customer_customers__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /customers/{customer_id}:
+    get:
+      tags:
+      - Customers
+      summary: Get Customer
+      operationId: get_customer_customers__customer_id__get
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Customer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /accounts/:
+    post:
+      tags:
+      - Accounts
+      summary: Create Account
+      operationId: create_account_accounts__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /accounts/customer/{customer_id}:
+    get:
+      tags:
+      - Accounts
+      summary: Get Customer Accounts
+      description: "Frontend (Dashboard) i\xE7in m\xFC\u015Fteriye ait hesaplar\u0131\
+        \ getiren yard\u0131mc\u0131 endpoint"
+      operationId: get_customer_accounts_accounts_customer__customer_id__get
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Customer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /accounts/{account_id}:
+    get:
+      tags:
+      - Accounts
+      summary: Get Account Balance
+      operationId: get_account_balance_accounts__account_id__get
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Account Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /ledger/transfer:
+    post:
+      tags:
+      - Ledger & Transfers
+      summary: Create Transfer
+      operationId: create_transfer_ledger_transfer_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /ledger/deposit:
+    post:
+      tags:
+      - Ledger & Transfers
+      summary: Deposit Money
+      description: "Sisteme d\u0131\u015F finansal kanallardan (sim\xFCle edilmi\u015F\
+        ) para giri\u015Fi"
+      operationId: deposit_money_ledger_deposit_post
+      parameters:
+      - name: account_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Account Id
+      - name: amount
+        in: query
+        required: true
+        schema:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /ledger/history/{account_id}:
+    get:
+      tags:
+      - Ledger & Transfers
+      summary: Get Account History
+      description: "Belirli bir hesaba ait t\xFCm Ledger (Para giri\u015F/\xE7\u0131\
+        k\u0131\u015F) hareketlerini listeler."
+      operationId: get_account_history_ledger_history__account_id__get
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Account Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LedgerResponse'
+                title: Response Get Account History Ledger History  Account Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /ledger/audit/all:
+    get:
+      tags:
+      - Ledger & Transfers
+      summary: Get Audit Log
+      description: "Sadece Adminlerin eri\u015Febilece\u011Fi, t\xFCm finansal hareketleri\
+        \ kronolojik listeleyen API"
+      operationId: get_audit_log_ledger_audit_all_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LedgerResponse'
+                type: array
+                title: Response Get Audit Log Ledger Audit All Get
+      security:
+      - OAuth2PasswordBearer: []
+  /:
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health Check
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AccountCreate:
+      properties:
+        customer_id:
+          type: string
+          title: Customer Id
+        account_type:
+          anyOf:
+          - $ref: '#/components/schemas/AccountTypeEnum'
+          - type: 'null'
+          default: CHECKING
+      type: object
+      required:
+      - customer_id
+      title: AccountCreate
+    AccountResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        customer_id:
+          type: string
+          title: Customer Id
+        account_type:
+          $ref: '#/components/schemas/AccountTypeEnum'
+        balance:
+          type: string
+          title: Balance
+        status:
+          $ref: '#/components/schemas/AccountStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - customer_id
+      - account_type
+      - balance
+      - status
+      - created_at
+      title: AccountResponse
+    AccountStatusEnum:
+      type: string
+      enum:
+      - ACTIVE
+      - BLOCKED
+      title: AccountStatusEnum
+    AccountTypeEnum:
+      type: string
+      enum:
+      - CHECKING
+      - SAVINGS
+      title: AccountTypeEnum
+    Body_login_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: password
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_auth_login_post
+    CustomerCreate:
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          minLength: 3
+          title: Username
+        password:
+          type: string
+          minLength: 6
+          title: Password
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          - type: 'null'
+          default: customer
+      type: object
+      required:
+      - username
+      - password
+      title: CustomerCreate
+    CustomerResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        username:
+          type: string
+          title: Username
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - username
+      - role
+      - created_at
+      title: CustomerResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LedgerResponse:
+      properties:
+        transaction_id:
+          type: string
+          title: Transaction Id
+        from_account_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Account Id
+        to_account_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To Account Id
+        amount:
+          type: string
+          title: Amount
+        transaction_type:
+          $ref: '#/components/schemas/TransactionTypeEnum'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - transaction_id
+      - from_account_id
+      - to_account_id
+      - amount
+      - transaction_type
+      - created_at
+      title: LedgerResponse
+    RoleEnum:
+      type: string
+      enum:
+      - admin
+      - customer
+      title: RoleEnum
+    TransactionTypeEnum:
+      type: string
+      enum:
+      - DEPOSIT
+      - WITHDRAWAL
+      - TRANSFER
+      title: TransactionTypeEnum
+    TransferRequest:
+      properties:
+        from_account_id:
+          type: string
+          title: From Account Id
+        to_account_id:
+          type: string
+          title: To Account Id
+        amount:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+          title: Amount
+      type: object
+      required:
+      - from_account_id
+      - to_account_id
+      - amount
+      title: TransferRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: auth/login
