@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from database import engine, Base
 from routers import customer, account, ledger, auth
 
@@ -11,7 +12,7 @@ except Exception as e:
     print("Veritabanı bağlantı uyarısı (Docker çalışmıyor olabilir):", e)
 
 app = FastAPI(
-    title="Modern Banking API",
+    title="Rykard Banking API",
     description="Core Banking System API with Ledger implementation (Moduler Monolith)",
     version="1.0.0",
 )
@@ -31,10 +32,8 @@ app.include_router(customer.router)
 app.include_router(account.router)
 app.include_router(ledger.router)
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the Modern Banking System API! Go to /docs for Swagger UI"}
-
 @app.get("/health")
 def health_check():
     return JSONResponse(status_code=200, content={"status": "healthy", "service": "banking-api"})
+
+app.mount("/", StaticFiles(directory="/frontend", html=True), name="frontend")

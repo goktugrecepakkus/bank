@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Modern Banking API
+  title: Rykard Banking API
   description: Core Banking System API with Ledger implementation (Moduler Monolith)
   version: 1.0.0
 paths:

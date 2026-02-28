@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Banking - Dashboard</title>
+    <title>Rykard Banking - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -15,7 +15,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-white font-bold text-xl tracking-tight">Modern Bank</span>
+                    <span class="text-white font-bold text-xl tracking-tight">Rykard Bank</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <a href="admin.html"
@@ -140,7 +140,7 @@
 
         async function fetchAccountData() {
             try {
-                const response = await fetch(`http://localhost:8000/accounts/customer/${userId}`, {
+                const response = await fetch(`/accounts/customer/${userId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -166,7 +166,7 @@
         async function depositMoney(amount) {
             if (!myAccountId) return alert("Account not loaded yet");
             try {
-                const response = await fetch(`http://localhost:8000/ledger/deposit?account_id=${myAccountId}&amount=${amount}`, {
+                const response = await fetch(`/ledger/deposit?account_id=${myAccountId}&amount=${amount}`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -186,7 +186,7 @@
             const msgBox = document.getElementById('transferMsg');
 
             try {
-                const response = await fetch('http://localhost:8000/ledger/transfer', {
+                const response = await fetch('/ledger/transfer', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

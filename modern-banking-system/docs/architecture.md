@@ -1,4 +1,4 @@
-# Modern Banking Architecture
+# Rykard Banking Architecture
 
 ```mermaid
 graph TD
