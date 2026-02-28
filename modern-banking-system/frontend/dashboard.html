@@ -349,8 +349,20 @@
             e.preventDefault();
             const targetId = document.getElementById('targetAccountId').value.trim();
             const amount = document.getElementById('transferAmount').value;
+            const hintElement = document.getElementById('recipientNameHint');
             const msgBox = document.getElementById('transferMsg');
             const submitBtn = document.getElementById('transferSubmitBtn');
+
+            // Extract the recipient name from the hint if available
+            let recipientName = "this account";
+            if (hintElement.textContent && hintElement.textContent.startsWith("Sending to: ")) {
+                recipientName = hintElement.textContent.replace("Sending to: ", "");
+            }
+
+            const isConfirmed = window.confirm(`Are you sure you want to send ₺${amount} to ${recipientName}?`);
+            if (!isConfirmed) {
+                return; // Cancel transfer
+            }
 
             submitBtn.disabled = true;
             submitBtn.textContent = "Processing...";
