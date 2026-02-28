@@ -36,4 +36,4 @@ app.include_router(ledger.router)
 def health_check():
     return JSONResponse(status_code=200, content={"status": "healthy", "service": "banking-api"})
 
-app.mount("/", StaticFiles(directory="/frontend", html=True), name="frontend")
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
