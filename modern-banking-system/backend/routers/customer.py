@@ -22,6 +22,7 @@ def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_
     new_customer = models.Customer(
         username=customer.username,
         password_hash=hashed_password,
+        mothers_maiden_name=customer.mothers_maiden_name,
         role=customer.role
     )
     

@@ -23,7 +23,7 @@ def request(url, method='GET', data=None, headers=None, is_form=False):
 def test_api():
     print('--- Testing Authentication ---')
     login_url = f'{BASE_URL}/auth/login'
-    status, data = request(login_url, method='POST', data={'username': 'johndoe', 'password': 'pass1234'}, is_form=True)
+    status, data = request(login_url, method='POST', data={'username': 'johndoe', 'password': 'pass1234', 'mothers_maiden_name': 'Unknown'}, is_form=True)
     assert status == 200, f'Login failed: {data}'
     token = data['access_token']
     customer_id = data['user_id']
@@ -54,7 +54,7 @@ def test_api():
     print('SUCCESS: Transfer successful')
     
     print('\n--- Testing Audit Logs (Admin) ---')
-    status, admin_data = request(login_url, method='POST', data={'username': 'admin', 'password': 'admin123'}, is_form=True)
+    status, admin_data = request(login_url, method='POST', data={'username': 'admin', 'password': 'admin123', 'mothers_maiden_name': 'Unknown'}, is_form=True)
     assert status == 200, f'Admin login failed: {admin_data}'
     admin_token = admin_data['access_token']
     admin_headers = {'Authorization': f'Bearer {admin_token}'}

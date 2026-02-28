@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database import get_db
@@ -11,7 +11,11 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    mothers_maiden_name: str = Form(...),
+    db: Session = Depends(get_db)
+):
     # Kullanıcıyı veritabanında bul (OAuth2 Password flow'da username alanı emaili de temsil edebilir)
     user = db.query(models.Customer).filter(models.Customer.username == form_data.username).first()
     
@@ -20,6 +24,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    # Güvenlik sorusunu (anne kızlık soyadı) kontrol et
+    if user.mothers_maiden_name.lower() != mothers_maiden_name.lower():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect security question answer (Mother's maiden name).",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

@@ -8,6 +8,7 @@ from models import RoleEnum, AccountTypeEnum, AccountStatusEnum, TransactionType
 class CustomerCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=6)
+    mothers_maiden_name: str = Field(..., min_length=2)
     role: Optional[RoleEnum] = RoleEnum.customer
 
 class CustomerUpdatePassword(BaseModel):
