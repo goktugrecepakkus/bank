@@ -91,7 +91,11 @@
                     errorBox.classList.remove('hidden');
                 }
             } catch (error) {
-                errorBox.textContent = "Cannot connect to server.";
+                if (error.message === "Failed to fetch") {
+                    errorBox.textContent = "Cannot connect to server. Please ensure the backend is running on http://localhost:8000";
+                } else {
+                    errorBox.textContent = error.message || "An unexpected error occurred.";
+                }
                 errorBox.classList.remove('hidden');
             }
         });

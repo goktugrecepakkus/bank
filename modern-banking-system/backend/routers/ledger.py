@@ -29,6 +29,10 @@ def create_transfer(transfer: schemas.TransferRequest, db: Session = Depends(get
     if from_account.balance < transfer.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds")
 
+    # 4. HESAP BAKIYELERINI GUNCELLE (Önce bakiye güncellenir)
+    from_account.balance -= transfer.amount
+    to_account.balance += transfer.amount
+
     # 3. LEDGER KAYDI OLUSTUR (Single Source of Truth)
     new_ledger_entry = models.Ledger(
         from_account_id=from_account.id,
@@ -37,10 +41,6 @@ def create_transfer(transfer: schemas.TransferRequest, db: Session = Depends(get
         transaction_type=models.TransactionTypeEnum.transfer
     )
     db.add(new_ledger_entry)
-
-    # 4. HESAP BAKIYELERINI GUNCELLE
-    from_account.balance -= transfer.amount
-    to_account.balance += transfer.amount
 
     # Tüm işlemleri veritabanına tek bir Transaction (Commit) olarak yaz!
     # Eğer bu satırlardan birinde hata çıkarsa, hiçbir şey veritabanına yazılmaz (Güvenlik)

@@ -5,11 +5,13 @@ from fastapi.staticfiles import StaticFiles
 from database import engine, Base
 from routers import customer, account, ledger, auth
 
-# Uygulama başlarken veritabanı tablolarını oluşturur
+# Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
+print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
 try:
     Base.metadata.create_all(bind=engine)
+    print("Database connection and table creation successful.")
 except Exception as e:
-    print("Veritabanı bağlantı uyarısı (Docker çalışmıyor olabilir):", e)
+    print("Veritabanı bağlantı hatası:", e)
 
 app = FastAPI(
     title="Rykard Banking API",

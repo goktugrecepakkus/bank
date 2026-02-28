@@ -35,7 +35,8 @@
                     class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white shadow-sm placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">Mother's Maiden Name (Security Question)</label>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Mother's Maiden Name (Security
+                    Question)</label>
                 <input type="text" id="mothers_maiden_name" required minlength="2"
                     class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white shadow-sm placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors">
             </div>
@@ -107,7 +108,11 @@
                 }, 2000);
 
             } catch (error) {
-                errorBox.textContent = error.message || "Cannot connect to server.";
+                if (error.message === "Failed to fetch") {
+                    errorBox.textContent = "Cannot connect to server. Please ensure the backend is running on http://localhost:8000 (uvicorn main:app --reload)";
+                } else {
+                    errorBox.textContent = error.message || "An unexpected error occurred.";
+                }
                 errorBox.classList.remove('hidden');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Register';
