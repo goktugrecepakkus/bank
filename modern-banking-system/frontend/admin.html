@@ -29,6 +29,27 @@
             <h1 class="text-2xl font-semibold text-gray-900 mb-6">System Audit Log (Ledger)</h1>
             <div id="errorBox" class="hidden bg-red-100 text-red-700 p-4 rounded mb-4"></div>
 
+            <!-- Dashboard Analytics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-indigo-500">
+                    <div class="text-sm font-medium text-gray-500 truncate">Total Users</div>
+                    <div class="mt-1 text-3xl font-semibold text-gray-900" id="metricUsers">...</div>
+                </div>
+                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-emerald-500">
+                    <div class="text-sm font-medium text-gray-500 truncate">Total Active Accounts</div>
+                    <div class="mt-1 text-3xl font-semibold text-gray-900" id="metricAccounts">...</div>
+                </div>
+                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-amber-500">
+                    <div class="text-sm font-medium text-gray-500 truncate">Total System Liquidity</div>
+                    <div class="mt-1 text-3xl font-semibold text-amber-600 truncate" id="metricLiquidity">...</div>
+                </div>
+                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-rose-500">
+                    <div class="text-sm font-medium text-gray-500 truncate">Total Transactions</div>
+                    <div class="mt-1 text-3xl font-semibold text-gray-900" id="metricTransactions">...</div>
+                </div>
+            </div>
+
+            <h2 class="text-xl font-medium text-gray-900 mb-4">Recent Transactions (Global)</h2>
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -71,6 +92,23 @@
             window.location.href = 'index.html';
         }
 
+        async function fetchSummary() {
+            try {
+                const response = await fetch('/ledger/audit/summary', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const summary = await response.json();
+                    document.getElementById('metricUsers').textContent = summary.total_users;
+                    document.getElementById('metricAccounts').textContent = summary.total_accounts;
+                    document.getElementById('metricLiquidity').textContent = '₺' + parseFloat(summary.total_liquidity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById('metricTransactions').textContent = summary.total_transactions;
+                }
+            } catch (err) {
+                console.error("Failed to fetch summary:", err);
+            }
+        }
+
         async function fetchLogs() {
             try {
                 const response = await fetch(`/ledger/audit/all`, {
@@ -110,7 +148,10 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', fetchLogs);
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSummary();
+            fetchLogs();
+        });
     </script>
 </body>
 

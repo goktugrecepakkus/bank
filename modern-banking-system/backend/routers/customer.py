@@ -4,6 +4,7 @@ from database import get_db
 import models
 import schemas
 from passlib.context import CryptContext
+from security import get_current_user
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -35,3 +36,24 @@ def get_customer(customer_id: str, db: Session = Depends(get_db)):
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
     return customer
+
+@router.put("/password")
+def change_password(
+    password_data: schemas.CustomerUpdatePassword,
+    db: Session = Depends(get_db),
+    current_user: models.Customer = Depends(get_current_user)
+):
+    """Kullanıcının şifresini güvenli bir şekilde günceller"""
+    # 1. Eski şifreyi doğrula
+    if not pwd_context.verify(password_data.old_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect old password")
+        
+    # 2. Yeni şifre eskisinin aynısı olamaz
+    if pwd_context.verify(password_data.new_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="New password cannot be the same as the old password")
+        
+    # 3. Şifreyi güncelle ve kaydet
+    current_user.password_hash = pwd_context.hash(password_data.new_password)
+    db.commit()
+    
+    return {"message": "Password updated successfully"}

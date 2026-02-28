@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from decimal import Decimal
 from typing import List
 from database import get_db
@@ -84,5 +85,20 @@ def get_account_history(account_id: str, db: Session = Depends(get_db)):
 @router.get("/audit/all", response_model=List[schemas.LedgerResponse])
 def get_audit_log(admin_user: models.Customer = Depends(get_current_admin), db: Session = Depends(get_db)):
     """Sadece Adminlerin erişebileceği, tüm finansal hareketleri kronolojik listeleyen API"""
-    audit = db.query(models.Ledger).order_by(models.Ledger.created_at.desc()).all()
+    audit = db.query(models.Ledger).order_by(models.Ledger.created_at.desc()).limit(100).all()
     return audit
+
+@router.get("/audit/summary", response_model=schemas.AuditSummaryResponse)
+def get_audit_summary(admin_user: models.Customer = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Sadece Adminlerin erişebileceği, bankanın genel özet metriklerini döndüren API"""
+    total_users = db.query(models.Customer).count()
+    total_accounts = db.query(models.Account).count()
+    total_liquidity = db.query(func.sum(models.Account.balance)).scalar() or 0
+    total_transactions = db.query(models.Ledger).count()
+    
+    return {
+        "total_users": total_users,
+        "total_accounts": total_accounts,
+        "total_liquidity": total_liquidity,
+        "total_transactions": total_transactions
+    }

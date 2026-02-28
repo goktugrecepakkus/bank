@@ -10,6 +10,10 @@ class CustomerCreate(BaseModel):
     password: str = Field(..., min_length=6)
     role: Optional[RoleEnum] = RoleEnum.customer
 
+class CustomerUpdatePassword(BaseModel):
+    old_password: str
+    new_password: str = Field(..., min_length=6)
+
 class CustomerResponse(BaseModel):
     id: str
     username: str
@@ -51,3 +55,9 @@ class LedgerResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AuditSummaryResponse(BaseModel):
+    total_users: int
+    total_accounts: int
+    total_liquidity: Decimal
+    total_transactions: int

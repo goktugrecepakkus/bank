@@ -30,6 +30,26 @@ def get_customer_accounts(customer_id: str, db: Session = Depends(get_db)):
     accounts = db.query(models.Account).filter(models.Account.customer_id == customer_id).all()
     return accounts
 
+@router.get("/validate/{account_id}")
+def validate_account(account_id: str, db: Session = Depends(get_db)):
+    """Girilen Hesap Numarasının (Account ID) kime ait olduğunu güvenli (maskeli) bir şekilde döndürür"""
+    account = db.query(models.Account).filter(models.Account.id == account_id).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+        
+    owner = db.query(models.Customer).filter(models.Customer.id == account.customer_id).first()
+    if not owner:
+        raise HTTPException(status_code=404, detail="Owner not found")
+        
+    username = owner.username
+    # Güvenlik için ismin sadece ilk ve son harfini göster, arasını maskele (örn: J***e)
+    if len(username) > 2:
+        masked_username = username[0] + "*" * (len(username) - 2) + username[-1]
+    else:
+        masked_username = username[0] + "*"
+        
+    return {"account_id": account.id, "masked_owner": masked_username}
+
 @router.get("/{account_id}", response_model=schemas.AccountResponse)
 def get_account_balance(account_id: str, db: Session = Depends(get_db)):
     account = db.query(models.Account).filter(models.Account.id == account_id).first()

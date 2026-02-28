@@ -1,4 +1,4 @@
-# Modern Banking System
+# Rykard Banking System
 
 Bu proje, finansal teknolojiler (FinTech) prensiplerine uygun olarak geliştirilmiş tam donanımlı bir çekirdek bankacılık sistemidir. İçerisinde güvenli para transferleri, hesap yönetimi ve yönetici denetim logları (Audit) bulunur.
 
