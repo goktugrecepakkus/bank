@@ -29,6 +29,14 @@ class Customer(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     username = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    
+    # KYC Fields added
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+    phone_number = Column(String, nullable=False)
+    national_id = Column(String, unique=True, nullable=False)
+
     mothers_maiden_name = Column(String, nullable=False, server_default="Unknown")
     role = Column(Enum(RoleEnum), default=RoleEnum.customer, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -11,10 +11,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
 def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db)):
-    # Kullanıcı adı daha önce alınmış mı kontrol et
+    # Kullanıcı adı veya TC Kimlik numarası daha önce alınmış mı kontrol et
     db_customer = db.query(models.Customer).filter(models.Customer.username == customer.username).first()
     if db_customer:
         raise HTTPException(status_code=400, detail="Username already registered")
+        
+    db_national_id = db.query(models.Customer).filter(models.Customer.national_id == customer.national_id).first()
+    if db_national_id:
+        raise HTTPException(status_code=400, detail="National ID already registered")
     
     # Şifreyi hashle
     hashed_password = pwd_context.hash(customer.password)
@@ -22,6 +26,11 @@ def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_
     new_customer = models.Customer(
         username=customer.username,
         password_hash=hashed_password,
+        first_name=customer.first_name,
+        last_name=customer.last_name,
+        address=customer.address,
+        phone_number=customer.phone_number,
+        national_id=customer.national_id,
         mothers_maiden_name=customer.mothers_maiden_name,
         role=customer.role
     )

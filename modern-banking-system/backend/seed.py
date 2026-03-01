@@ -1,12 +1,14 @@
 import os
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from database import SessionLocal, engine
 import models
+import database
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def seed_database():
+    models.Base.metadata.create_all(bind=database.engine)
     db: Session = SessionLocal()
     
     # Veritabanında zaten admin var mı kontrol et
@@ -22,6 +24,11 @@ def seed_database():
     admin = models.Customer(
         username="admin",
         password_hash=pwd_context.hash("admin123"),
+        first_name="System",
+        last_name="Administrator",
+        address="Bank HQ",
+        phone_number="0000000000",
+        national_id="00000000000",
         role=models.RoleEnum.admin
     )
     db.add(admin)
@@ -30,6 +37,11 @@ def seed_database():
     customer1 = models.Customer(
         username="johndoe",
         password_hash=pwd_context.hash("pass1234"),
+        first_name="John",
+        last_name="Doe",
+        address="123 Bank Street",
+        phone_number="5551234567",
+        national_id="12345678901",
         role=models.RoleEnum.customer
     )
     db.add(customer1)
@@ -65,9 +77,9 @@ def seed_database():
     db.add(account2)
     db.commit()
 
-    print(f"✅ johndoe kullanıcısı oluşturuldu. Şifre: pass1234")
-    print(f"✅ johndoe'nun Ana Hesabı (ID): {account1.id} Bakiye: ₺5000")
-    print(f"✅ johndoe'nun Yan Hesabı (ID): {account2.id} Bakiye: ₺0")
+    print(f"SUCCESS: johndoe kullanıcısı oluşturuldu. Şifre: pass1234")
+    print(f"SUCCESS: johndoe'nun Ana Hesabı (ID): {account1.id} Bakiye: 5000")
+    print(f"SUCCESS: johndoe'nun Yan Hesabı (ID): {account2.id} Bakiye: 0")
 
     db.close()
 

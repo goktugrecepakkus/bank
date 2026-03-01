@@ -1,24 +1,32 @@
 import urllib.request
 import urllib.parse
+import urllib.error
 import json
+from typing import Any
 
 BASE_URL = 'http://localhost:8000'
 
-def request(url, method='GET', data=None, headers=None, is_form=False):
-    headers = headers or {}
+def request(url: str, method: str = 'GET', data: Any = None, headers: dict[str, str] | None = None, is_form: bool = False) -> tuple[int, Any]:
+    req_headers = dict(headers) if headers else {}
     if data and is_form:
-        data = urllib.parse.urlencode(data).encode('utf-8')
-        headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        req_data = urllib.parse.urlencode(data).encode('utf-8')
+        req_headers['Content-Type'] = 'application/x-www-form-urlencoded'
     elif data:
-        data = json.dumps(data).encode('utf-8')
-        headers['Content-Type'] = 'application/json'
+        req_data = json.dumps(data).encode('utf-8')
+        req_headers['Content-Type'] = 'application/json'
+    else:
+        req_data = None
         
-    req = urllib.request.Request(url, data=data, method=method, headers=headers)
+    req = urllib.request.Request(url, data=req_data, method=method, headers=req_headers)
     try:
         with urllib.request.urlopen(req) as response:
             return response.status, json.loads(response.read().decode())
     except urllib.error.HTTPError as e:
-        return e.code, json.loads(e.read().decode()) if e.read() else str(e)
+        body = e.read()
+        try:
+            return e.code, json.loads(body.decode()) if body else {"detail": str(e)}
+        except json.JSONDecodeError:
+            return e.code, {"detail": body.decode() if body else str(e)}
 
 def test_api():
     print('--- Testing Authentication ---')
