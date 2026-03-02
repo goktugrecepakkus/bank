@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 import schemas
+from typing import Optional
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
@@ -12,10 +13,20 @@ def create_account(account: schemas.AccountCreate, db: Session = Depends(get_db)
     customer = db.query(models.Customer).filter(models.Customer.id == account.customer_id).first()
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
+
+    # Müşterinin bu para biriminde zaten hesabı var mı kontrolü
+    existing_account = db.query(models.Account).filter(
+        models.Account.customer_id == account.customer_id,
+        models.Account.currency == account.currency
+    ).first()
+
+    if existing_account:
+        raise HTTPException(status_code=400, detail=f"User already has a {account.currency} account.")
         
     new_account = models.Account(
         customer_id=account.customer_id,
         account_type=account.account_type,
+        currency=account.currency,
         balance=0.00 # Yeni açılan hesap sıfır bakiye ile başlar
     )
     
@@ -25,9 +36,12 @@ def create_account(account: schemas.AccountCreate, db: Session = Depends(get_db)
     return new_account
 
 @router.get("/customer/{customer_id}")
-def get_customer_accounts(customer_id: str, db: Session = Depends(get_db)):
-    """Frontend (Dashboard) için müşteriye ait hesapları getiren yardımcı endpoint"""
-    accounts = db.query(models.Account).filter(models.Account.customer_id == customer_id).all()
+def get_customer_accounts(customer_id: str, currency: Optional[models.CurrencyEnum] = None, db: Session = Depends(get_db)):
+    """Frontend (Dashboard) için müşteriye ait hesapları getiren yardımcı endpoint. Currency ile filtrelenebilir."""
+    query = db.query(models.Account).filter(models.Account.customer_id == customer_id)
+    if currency:
+        query = query.filter(models.Account.currency == currency)
+    accounts = query.all()
     return accounts
 
 @router.get("/validate/{account_id}")

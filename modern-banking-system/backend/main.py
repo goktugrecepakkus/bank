@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from database import engine, Base
-from routers import customer, account, ledger, auth
+from routers import customer, account, ledger, auth, trading
 
 # Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
 print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
@@ -33,6 +33,7 @@ app.include_router(auth.router)
 app.include_router(customer.router)
 app.include_router(account.router)
 app.include_router(ledger.router)
+app.include_router(trading.router)
 
 @app.get("/health")
 def health_check():

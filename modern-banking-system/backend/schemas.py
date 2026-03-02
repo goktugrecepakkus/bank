@@ -38,17 +38,30 @@ class CustomerResponse(BaseModel):
 class AccountCreate(BaseModel):
     customer_id: str
     account_type: Optional[AccountTypeEnum] = AccountTypeEnum.checking
+    currency: Optional[str] = "TRY"
 
 class AccountResponse(BaseModel):
     id: str
     customer_id: str
     account_type: AccountTypeEnum
+    currency: str
     balance: Decimal
     status: AccountStatusEnum
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+# --- TRADING SCHEMAS ---
+class TradeRequest(BaseModel):
+    from_currency: str
+    to_currency: str
+    amount: Decimal = Field(..., gt=0) # Alınmak/Satılmak istenen tutar
+
+class MarketPriceResponse(BaseModel):
+    currency: str
+    price_in_try: Decimal
+    last_updated: datetime
 
 # --- LEDGER / TRANSFER SCHEMAS ---
 class TransferRequest(BaseModel):

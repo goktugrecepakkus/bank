@@ -22,6 +22,16 @@ class TransactionTypeEnum(str, enum.Enum):
     withdrawal = "WITHDRAWAL"
     transfer = "TRANSFER"
 
+class CurrencyEnum(str, enum.Enum):
+    TRY = "TRY"
+    USD = "USD"
+    EUR = "EUR"
+    BTC = "BTC"
+    ETH = "ETH"
+    SOL = "SOL"
+    XAU = "XAU" # Gold
+    XAG = "XAG" # Silver
+
 # --- MODELS ---
 class Customer(Base):
     __tablename__ = "customers"
@@ -50,6 +60,7 @@ class Account(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     customer_id = Column(String, ForeignKey("customers.id"), nullable=False)
     account_type = Column(Enum(AccountTypeEnum), default=AccountTypeEnum.checking, nullable=False)
+    currency = Column(String, default=CurrencyEnum.TRY.value, nullable=False)
     
     # Paralarla çalışırken her zaman Numeric (Decimal) kullanılır, Float hatalara neden olabilir!
     balance = Column(Numeric(precision=15, scale=2), default=0.00, nullable=False)
