@@ -7,6 +7,7 @@ import yfinance as yf
 from datetime import datetime
 from decimal import Decimal
 from security import get_current_user
+import math
 
 router = APIRouter(prefix="/trading", tags=["Trading"])
 
@@ -14,9 +15,9 @@ router = APIRouter(prefix="/trading", tags=["Trading"])
 TICKER_MAP = {
     "USD": "TRY=X",      # USD to TRY
     "EUR": "EURTRY=X",
-    "BTC": "BTC-TRY",
-    "ETH": "ETH-TRY",
-    "SOL": "SOL-TRY",
+    "BTC": "BTC-USD",
+    "ETH": "ETH-USD",
+    "SOL": "SOL-USD",
     "XAU": "GC=F",       # Gold Futures (USD)
     "XAG": "SI=F",       # Silver Futures (USD)
 }
@@ -33,11 +34,13 @@ def get_live_price_in_try(currency: str) -> Decimal:
         data = yf.Ticker(ticker)
         # Using history to get the latest close price
         price = data.history(period="1d")['Close'].iloc[-1]
+        if math.isnan(price):
+            raise ValueError(f"NaN price for {ticker}")
         
         # Determine if we need to convert to TRY.
         # USD-based: XAU, XAG, and any S&P 500 stock (no .IS suffix and not EUR/Crypto/USD).
         needs_usd_conversion = False
-        if currency in ["XAU", "XAG"] or (not ticker.endswith(".IS") and currency not in ["EUR", "BTC", "ETH", "SOL", "TRY", "USD"]):
+        if currency in ["XAU", "XAG", "BTC", "ETH", "SOL"] or (not ticker.endswith(".IS") and currency not in ["EUR", "TRY", "USD"]):
             needs_usd_conversion = True
             
         if needs_usd_conversion:
@@ -118,6 +121,8 @@ def fetch_prices_for_tickers(tickers: list[str], is_usd: bool):
                 
                 # Convert to scalar python float if it's a pandas/numpy object
                 price = float(price)
+                if math.isnan(price):
+                    raise ValueError(f"NaN price for {t}")
 
                 if is_usd:
                     price = price * usd_to_try
