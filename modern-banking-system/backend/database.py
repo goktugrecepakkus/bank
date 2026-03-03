@@ -33,6 +33,9 @@ try:
     engine.connect().close()
 except Exception as e:
     print(f"Database connection error with {DATABASE_URL}: {e}")
+    if DATABASE_URL.startswith("postgresql"):
+        raise Exception(f"Supabase/PostgreSQL Connection Failed: {e}")
+    
     print("Falling back to local SQLite...")
     if os.getenv("VERCEL") == "1":
         import shutil
@@ -45,6 +48,7 @@ except Exception as e:
         DATABASE_URL = f"sqlite:///{tmp_db_path}"
     else:
         DATABASE_URL = "sqlite:///./bank.db"
+    
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

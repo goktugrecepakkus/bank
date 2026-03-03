@@ -7,11 +7,15 @@ from .routers import customer, account, ledger, auth, trading
 
 # Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
 print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
-try:
-    Base.metadata.create_all(bind=engine)
-    print("Database connection and table creation successful.")
-except Exception as e:
-    print("Veritabanı bağlantı hatası:", e)
+
+@app.on_event("startup")
+def startup_event():
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database connection and table creation successful.")
+    except Exception as e:
+        print("Veritabanı bağlantı hatası:", e)
+
 
 app = FastAPI(
     title="Rykard Banking API",
