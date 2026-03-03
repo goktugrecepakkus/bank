@@ -371,9 +371,9 @@
             try {
                 tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-medium text-indigo-500 animate-pulse">Connecting to Exchange Database...<br/><span class="text-[10px] text-gray-400">Loading live asset prices</span></td></tr>';
 
-                let endpoint = '/trading/prices';
-                if (activeTab === 'bist100') endpoint = '/trading/stocks/bist100';
-                if (activeTab === 'sp500') endpoint = '/trading/stocks/sp500';
+                let endpoint = '/api/trading/prices';
+                if (activeTab === 'bist100') endpoint = '/api/trading/stocks/bist100';
+                if (activeTab === 'sp500') endpoint = '/api/trading/stocks/sp500';
 
                 const response = await fetch(endpoint);
                 if (!response.ok) throw new Error("Failed to fetch prices.");
