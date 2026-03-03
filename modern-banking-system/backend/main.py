@@ -61,6 +61,45 @@ app.include_router(api_router)
 def health_check():
     return JSONResponse(status_code=200, content={"status": "healthy", "service": "banking-api"})
 
+@app.get("/api/debug")
+def debug_info():
+    """Vercel deployment debug endpoint"""
+    import sys
+    info = {
+        "python_version": sys.version,
+        "platform": sys.platform,
+        "vercel": os.getenv("VERCEL", "not set"),
+    }
+    
+    # Test database
+    try:
+        from .database import engine
+        info["db_url"] = engine.url.render_as_string(hide_password=True)
+        with engine.connect() as conn:
+            conn.close()
+        info["db_status"] = "connected"
+    except Exception as e:
+        info["db_status"] = f"FAILED: {e}"
+    
+    # Test bcrypt
+    try:
+        from passlib.context import CryptContext
+        pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        hashed = pwd.hash("test123")
+        verified = pwd.verify("test123", hashed)
+        info["bcrypt_status"] = f"OK (verified={verified})"
+    except Exception as e:
+        info["bcrypt_status"] = f"FAILED: {e}"
+    
+    # Test bcrypt version
+    try:
+        import bcrypt
+        info["bcrypt_version"] = bcrypt.__version__
+    except Exception as e:
+        info["bcrypt_version"] = f"FAILED: {e}"
+        
+    return JSONResponse(status_code=200, content=info)
+
 import os
 
 # Dynamically construct frontend path and mount safely
