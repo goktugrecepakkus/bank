@@ -131,6 +131,10 @@
                 }
 
                 if (!resCustomer.ok) {
+                    if (customerResult.traceback) {
+                        console.error("BACKEND TRACEBACK:", customerResult.traceback);
+                        throw new Error("Sunucu çöktü! Hata detayı: " + customerResult.traceback.substring(0, 300) + "...");
+                    }
                     throw new Error(customerResult.detail || "Registration failed. Username might be taken.");
                 }
 

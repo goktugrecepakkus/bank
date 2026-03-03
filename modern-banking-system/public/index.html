@@ -95,7 +95,12 @@
                     // Redirect to dashboard
                     window.location.href = 'dashboard.html';
                 } else {
-                    errorBox.textContent = result.detail || "Login failed";
+                    if (result.traceback) {
+                        console.error("BACKEND TRACEBACK:", result.traceback);
+                        errorBox.textContent = "Sunucu çöktü! Hata detayı: " + result.traceback.substring(0, 300) + "...";
+                    } else {
+                        errorBox.textContent = result.detail || "Login failed";
+                    }
                     errorBox.classList.remove('hidden');
                 }
             } catch (error) {
