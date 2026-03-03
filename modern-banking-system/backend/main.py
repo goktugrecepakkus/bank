@@ -21,6 +21,15 @@ def startup_event():
         print("Database connection and table creation successful.")
     except Exception as e:
         print("Veritabanı bağlantı hatası:", e)
+        
+# CORS Ayarları (Frontend'in Backend'e bağlanabilmesi için zorunlu güvenlik ayarı)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Geliştirme aşaması için herkese açık, prod'da domain yazılır
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 from fastapi import Request
 import traceback
@@ -32,15 +41,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"detail": str(exc), "traceback": traceback.format_exc()}
     )
-
-# CORS Ayarları (Frontend'in Backend'e bağlanabilmesi için zorunlu güvenlik ayarı)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # Geliştirme aşaması için herkese açık, prod'da domain yazılır
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 from fastapi import APIRouter
 
