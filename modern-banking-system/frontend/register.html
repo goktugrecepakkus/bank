@@ -111,7 +111,7 @@
 
             try {
                 // 1. Kullanıcıyı oluştur
-                const resCustomer = await fetch('/customers/', {
+                const resCustomer = await fetch('/api/customers/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

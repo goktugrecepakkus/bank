@@ -28,15 +28,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API Yollarını (Routers) Ana Uygulamaya Bağlama
-app.include_router(auth.router)
-app.include_router(customer.router)
-app.include_router(account.router)
-app.include_router(ledger.router)
-app.include_router(trading.router)
+from fastapi import APIRouter
+
+# Create a master API router strictly for Vercel prefixing
+api_router = APIRouter(prefix="/api")
+
+# Attach all sub-routers to the master /api router
+api_router.include_router(auth.router)
+api_router.include_router(customer.router)
+api_router.include_router(account.router)
+api_router.include_router(ledger.router)
+api_router.include_router(trading.router)
+
+# Include the master router into the main FastAPI application
+app.include_router(api_router)
 
 @app.get("/health")
 def health_check():
     return JSONResponse(status_code=200, content={"status": "healthy", "service": "banking-api"})
 
-app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
+import os
+
+# Dynamically construct frontend path and mount safely
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+else:
+    print(f"Warning: Frontend directory not found at {frontend_path}. Static files will not be served.")
