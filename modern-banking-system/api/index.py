@@ -11,6 +11,13 @@ root_dir = os.path.abspath(os.path.join(current_dir, '..'))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
+# Load .env before importing backend (Vercel uses dashboard env vars, this is a safety net)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(root_dir, "backend", ".env"))
+except ImportError:
+    pass
+
 # Catch import errors directly on Vercel boot
 try:
     from backend.main import app

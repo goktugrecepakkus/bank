@@ -9,5 +9,5 @@ python-jose[cryptography]
 python-multipart
 aiofiles
 bcrypt
-yfinance==1.2.0
+yfinance==0.2.37
 slowapi
