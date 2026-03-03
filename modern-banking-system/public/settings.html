@@ -154,7 +154,7 @@
             submitBtn.textContent = 'Updating...';
 
             try {
-                const response = await fetch('/customers/password', {
+                const response = await fetch('/api/customers/password', {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,

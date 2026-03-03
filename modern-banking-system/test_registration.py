@@ -32,7 +32,7 @@ def test_registration():
         "role": "customer"
     }
     print("Creating customer...")
-    res_customer = client.post("/customers/", json=customer_data)
+    res_customer = client.post("/api/customers/", json=customer_data)
     print("Customer res:", res_customer.status_code, res_customer.text)
     
     if res_customer.status_code != 201:
@@ -48,7 +48,7 @@ def test_registration():
     }
     
     print("Creating account...")
-    res_account = client.post("/accounts/", json=account_data)
+    res_account = client.post("/api/accounts/", json=account_data)
     print("Account res:", res_account.status_code, res_account.text)
 
 if __name__ == "__main__":

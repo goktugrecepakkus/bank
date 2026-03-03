@@ -416,7 +416,7 @@
 
         async function fetchAccountData() {
             try {
-                const response = await fetch(`/accounts/customer/${userId}`, {
+                const response = await fetch(`/api/accounts/customer/${userId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -489,7 +489,7 @@
             const tbody = document.getElementById('transactionHistoryBody');
 
             try {
-                const response = await fetch(`/ledger/history/${primaryTryAccountId}`, {
+                const response = await fetch(`/api/ledger/history/${primaryTryAccountId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -557,7 +557,7 @@
         async function depositMoney(amount) {
             if (!primaryTryAccountId) return alert("Account not loaded yet");
             try {
-                const response = await fetch(`/ledger/deposit?account_id=${primaryTryAccountId}&amount=${amount}`, {
+                const response = await fetch(`/api/ledger/deposit?account_id=${primaryTryAccountId}&amount=${amount}`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -590,7 +590,7 @@
                 hintElement.classList.remove('hidden');
 
                 try {
-                    const response = await fetch(`/accounts/validate/${targetId}`);
+                    const response = await fetch(`/api/accounts/validate/${targetId}`);
                     if (response.ok) {
                         const data = await response.json();
                         hintElement.textContent = `✓ Target: ${data.masked_owner}`;

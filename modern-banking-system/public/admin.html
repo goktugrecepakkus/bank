@@ -111,7 +111,7 @@
 
         async function fetchLogs() {
             try {
-                const response = await fetch(`/ledger/audit/all`, {
+                const response = await fetch(`/api/ledger/audit/all`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 

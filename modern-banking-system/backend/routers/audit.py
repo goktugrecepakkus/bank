@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-import models
-import schemas
-from security import get_current_user, get_current_admin
+from backend.database import get_db
+from backend import models
+from backend import schemas
+from backend.security import get_current_user, get_current_admin
 from typing import List
 
 # Extending the ledger router

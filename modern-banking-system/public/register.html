@@ -127,7 +127,7 @@
                 }
 
                 // 2. Müşteri oluştu, otomatik olarak bir hesap (Checking) aç.
-                const resAccount = await fetch('/accounts/', {
+                const resAccount = await fetch('/api/accounts/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ customer_id: customerResult.id, account_type: "CHECKING" })
