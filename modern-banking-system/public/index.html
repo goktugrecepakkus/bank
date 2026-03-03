@@ -78,7 +78,15 @@
                     body: formData
                 });
 
-                const result = await response.json();
+                let result;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    result = await response.json();
+                } else {
+                    const errTxt = await response.text();
+                    console.error("Non-JSON Response", errTxt);
+                    throw new Error("Sunucu JSON döndürmedi. Lütfen siteye Live Server yerine direkt http://localhost:8000 üzerinden girdiğinize emin olun.");
+                }
 
                 if (response.ok) {
                     // Save token to localStorage

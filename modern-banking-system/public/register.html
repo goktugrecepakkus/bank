@@ -120,7 +120,15 @@
                     })
                 });
 
-                const customerResult = await resCustomer.json();
+                let customerResult;
+                const contentType = resCustomer.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    customerResult = await resCustomer.json();
+                } else {
+                    const errorText = await resCustomer.text();
+                    console.error("Non-JSON Server Output:", errorText);
+                    throw new Error("Sunucu JSON döndürmedi. Lütfen siteye Live Server yerine direkt http://localhost:8000 üzerinden (veya geçerli bir Vercel URL'sinden) bağlandığınıza emin olun. Hata detayı konsola yazıldı.");
+                }
 
                 if (!resCustomer.ok) {
                     throw new Error(customerResult.detail || "Registration failed. Username might be taken.");
@@ -134,7 +142,9 @@
                 });
 
                 if (!resAccount.ok) {
-                    throw new Error("User created, but failed to create default bank account.");
+                    const accErr = await resAccount.text();
+                    console.error("Account Error", accErr);
+                    throw new Error("User created, but failed to create default bank account. " + accErr.substring(0, 100));
                 }
 
                 successBox.textContent = "Registration successful! Redirecting to login...";
