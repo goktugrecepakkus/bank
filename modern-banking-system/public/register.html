@@ -111,7 +111,7 @@
 
             try {
                 // 1. Kullanıcıyı oluştur
-                const resCustomer = await fetch('/api/customers/', {
+                const resCustomer = await fetch('/api/customers', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -139,7 +139,7 @@
                 }
 
                 // 2. Müşteri oluştu, otomatik olarak bir hesap (Checking) aç.
-                const resAccount = await fetch('/api/accounts/', {
+                const resAccount = await fetch('/api/accounts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ customer_id: customerResult.id, account_type: "CHECKING" })
