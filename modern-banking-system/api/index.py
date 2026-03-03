@@ -20,13 +20,18 @@ except Exception as e:
     
     async def err_app(scope, receive, send):
         if scope['type'] == 'http':
+            import json
             await send({
                 'type': 'http.response.start',
                 'status': 500,
-                'headers': [[b'content-type', b'text/plain']],
+                'headers': [[b'content-type', b'application/json']],
             })
+            err_payload = json.dumps({
+                "detail": "Vercel Import Error.",
+                "traceback": err_msg
+            }).encode()
             await send({
                 'type': 'http.response.body',
-                'body': f"Vercel Import Error:\n{err_msg}".encode(),
+                'body': err_payload,
             })
     app = err_app
