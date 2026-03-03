@@ -7,7 +7,7 @@ from typing import Optional
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
-@router.post("/", response_model=schemas.AccountResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=schemas.AccountResponse, status_code=status.HTTP_201_CREATED)
 def create_account(account: schemas.AccountCreate, db: Session = Depends(get_db)):
     # Müşteri var mı diye kontrol et
     customer = db.query(models.Customer).filter(models.Customer.id == account.customer_id).first()

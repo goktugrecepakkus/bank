@@ -9,7 +9,7 @@ from backend.security import get_current_user
 router = APIRouter(prefix="/customers", tags=["Customers"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.post("/", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
 def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db)):
     # Kullanıcı adı veya TC Kimlik numarası daha önce alınmış mı kontrol et
     db_customer = db.query(models.Customer).filter(models.Customer.username == customer.username).first()
