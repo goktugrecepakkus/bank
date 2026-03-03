@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+SQLAlchemy
+psycopg2-binary
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+aiofiles
+bcrypt
+yfinance==1.2.0
+slowapi

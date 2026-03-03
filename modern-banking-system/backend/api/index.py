@@ -1,7 +1,8 @@
 import os
 import sys
 
-# In Vercel, the root is the project root. Add `backend` to sys.path so modules like `database` load properly.
+# Vercel Serverless Function entry point
+# Add the backend directory to sys.path so the module imports work correctly
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from main import app
