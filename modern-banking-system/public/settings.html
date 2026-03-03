@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rykard Banking - Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .cursor-copy {
+            cursor: copy;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-indigo-900 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-white font-bold text-xl tracking-tight">Rykard Bank</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html"
+                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Back to
+                        Dashboard</a>
+                    <button onclick="logout()"
+                        class="text-indigo-100 border border-indigo-700 hover:bg-indigo-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto py-10 sm:px-6 lg:px-8">
+
+        <div class="px-4 py-4 sm:px-0 mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
+            <p class="mt-2 text-sm text-gray-600">Manage your security preferences and profile details.</p>
+        </div>
+
+        <!-- Security and Password Section -->
+        <div class="bg-white shadow sm:rounded-lg overflow-hidden border border-gray-100 mb-8">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Security</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your password to keep your account secure.</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <form id="passwordForm" class="space-y-6">
+                    <div>
+                        <label for="oldPassword" class="block text-sm font-medium text-gray-700">Current
+                            Password</label>
+                        <div class="mt-1">
+                            <input type="password" id="oldPassword" required
+                                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="newPassword" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <div class="mt-1">
+                            <input type="password" id="newPassword" required minlength="6"
+                                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                            <p class="mt-2 text-xs text-gray-500" id="passwordHint">Must be at least 6 characters.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm New
+                            Password</label>
+                        <div class="mt-1">
+                            <input type="password" id="confirmPassword" required minlength="6"
+                                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                        </div>
+                    </div>
+
+                    <div id="passwordMsgBox" class="hidden rounded-md p-4 text-sm" role="alert"></div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" id="pwdSubmitBtn"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="bg-red-50 shadow sm:rounded-lg overflow-hidden border border-red-100">
+            <div class="px-4 py-5 sm:px-6 border-b border-red-200">
+                <h3 class="text-lg leading-6 font-medium text-red-800">Danger Zone</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900">Freeze Account</h3>
+                        <div class="mt-2 max-w-xl text-sm text-gray-500">
+                            <p>Temporarily lock your account. You will not be able to send or receive transfers until
+                                you contact support to unfreeze it.</p>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+                        <button type="button"
+                            onclick="alert('This feature is currently disabled for self-service. Please contact Rykard Support.')"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm transition-colors">
+                            Freeze Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id');
+
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const msgBox = document.getElementById('passwordMsgBox');
+            const submitBtn = document.getElementById('pwdSubmitBtn');
+
+            // Reset message box
+            msgBox.className = 'hidden rounded-md p-4 text-sm mb-4';
+
+            if (newPassword !== confirmPassword) {
+                msgBox.textContent = "New passwords do not match.";
+                msgBox.classList.add('bg-red-50', 'text-red-800');
+                msgBox.classList.remove('hidden');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+
+            try {
+                const response = await fetch('/customers/password', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.textContent = "Password successfully updated! Please log in again.";
+                    msgBox.classList.add('bg-green-50', 'text-green-800');
+                    msgBox.classList.remove('hidden');
+                    document.getElementById('passwordForm').reset();
+
+                    // Force re-login after password change
+                    setTimeout(() => {
+                        logout();
+                    }, 3000);
+                } else {
+                    msgBox.textContent = data.detail || "Failed to update password.";
+                    msgBox.classList.add('bg-red-50', 'text-red-800');
+                    msgBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                msgBox.textContent = "Network error. Could not connect to the server.";
+                msgBox.classList.add('bg-red-50', 'text-red-800');
+                msgBox.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Password';
+            }
+        });
+    </script>
+</body>
+
+</html>

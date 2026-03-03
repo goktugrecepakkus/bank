@@ -50,8 +50,8 @@ def health_check():
 import os
 
 # Dynamically construct frontend path and mount safely
-frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public"))
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 else:
-    print(f"Warning: Frontend directory not found at {frontend_path}. Static files will not be served.")
+    print(f"Warning: Public directory not found at {frontend_path}. Static files will not be served.")
