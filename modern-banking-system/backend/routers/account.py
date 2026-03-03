@@ -5,9 +5,9 @@ from backend import models
 from backend import schemas
 from typing import Optional
 
-router = APIRouter(prefix="/accounts", tags=["Accounts"])
+router = APIRouter(tags=["Accounts"])
 
-@router.post("", response_model=schemas.AccountResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/accounts", response_model=schemas.AccountResponse, status_code=status.HTTP_201_CREATED)
 def create_account(account: schemas.AccountCreate, db: Session = Depends(get_db)):
     # Müşteri var mı diye kontrol et
     customer = db.query(models.Customer).filter(models.Customer.id == account.customer_id).first()
@@ -35,7 +35,7 @@ def create_account(account: schemas.AccountCreate, db: Session = Depends(get_db)
     db.refresh(new_account)
     return new_account
 
-@router.get("/customer/{customer_id}")
+@router.get("/accounts/customer/{customer_id}")
 def get_customer_accounts(customer_id: str, currency: Optional[models.CurrencyEnum] = None, db: Session = Depends(get_db)):
     """Frontend (Dashboard) için müşteriye ait hesapları getiren yardımcı endpoint. Currency ile filtrelenebilir."""
     query = db.query(models.Account).filter(models.Account.customer_id == customer_id)
@@ -44,7 +44,7 @@ def get_customer_accounts(customer_id: str, currency: Optional[models.CurrencyEn
     accounts = query.all()
     return accounts
 
-@router.get("/validate/{account_id}")
+@router.get("/accounts/validate/{account_id}")
 def validate_account(account_id: str, db: Session = Depends(get_db)):
     """Girilen Hesap Numarasının (Account ID) kime ait olduğunu güvenli (maskeli) bir şekilde döndürür"""
     account = db.query(models.Account).filter(models.Account.id == account_id).first()
@@ -64,7 +64,7 @@ def validate_account(account_id: str, db: Session = Depends(get_db)):
         
     return {"account_id": account.id, "masked_owner": masked_username}
 
-@router.get("/{account_id}", response_model=schemas.AccountResponse)
+@router.get("/accounts/{account_id}", response_model=schemas.AccountResponse)
 def get_account_balance(account_id: str, db: Session = Depends(get_db)):
     account = db.query(models.Account).filter(models.Account.id == account_id).first()
     if not account:

@@ -21,6 +21,7 @@ app = FastAPI(
 
 from fastapi import Request
 import traceback
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     print(f"Global exception: {exc}")

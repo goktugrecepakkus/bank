@@ -6,11 +6,12 @@ from backend import schemas
 from passlib.context import CryptContext
 from backend.security import get_current_user
 
-router = APIRouter(prefix="/customers", tags=["Customers"])
+router = APIRouter(tags=["Customers"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.post("", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/customers", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
 def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db)):
+    print("======> CREATE CUSTOMER HIT")
     # Kullanıcı adı veya TC Kimlik numarası daha önce alınmış mı kontrol et
     db_customer = db.query(models.Customer).filter(models.Customer.username == customer.username).first()
     if db_customer:
@@ -40,14 +41,14 @@ def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_
     db.refresh(new_customer)
     return new_customer
 
-@router.get("/{customer_id}", response_model=schemas.CustomerResponse)
+@router.get("/customers/{customer_id}", response_model=schemas.CustomerResponse)
 def get_customer(customer_id: str, db: Session = Depends(get_db)):
     customer = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
     return customer
 
-@router.put("/password")
+@router.put("/customers/password")
 def change_password(
     password_data: schemas.CustomerUpdatePassword,
     db: Session = Depends(get_db),
