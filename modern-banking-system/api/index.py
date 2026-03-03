@@ -1,11 +1,11 @@
 import os
 import sys
 
-# Define the absolute path to the backend directory
-backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+# Ensure Vercel Python runtime can find the root package
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.abspath(os.path.join(current_dir, '..'))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
 
-if backend_path not in sys.path:
-    sys.path.insert(0, backend_path)
-
-# Now import the app directly from main
-from main import app
+# Vercel entrypoint
+from backend.main import app

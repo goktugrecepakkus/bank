@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
-from models import RoleEnum, AccountTypeEnum, AccountStatusEnum, TransactionTypeEnum
+from backend.models import RoleEnum, AccountTypeEnum, AccountStatusEnum, TransactionTypeEnum
 
 # --- CUSTOMER SCHEMAS ---
 class CustomerCreate(BaseModel):

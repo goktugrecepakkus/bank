@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from database import engine, Base
-from routers import customer, account, ledger, auth, trading
+from .database import engine, Base
+from .routers import customer, account, ledger, auth, trading
 
 # Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
 print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
