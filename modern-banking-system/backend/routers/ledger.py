@@ -25,6 +25,13 @@ def create_transfer(transfer: schemas.TransferRequest, db: Session = Depends(get
     if from_account.id == to_account.id:
         raise HTTPException(status_code=400, detail="Cannot transfer to the same account")
 
+    # Global AML & MASAK Compliance Limit (e.g., max 100,000 TRY)
+    if transfer.amount > 100000:
+        raise HTTPException(
+            status_code=403, 
+            detail="Transaction exceeds MASAK/AML limits of 100,000 TRY. Please contact your branch for large transactions."
+        )
+
     # 2. Bakiye kontrolü (Yetersiz Bakiye mi?)
     if from_account.balance < transfer.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds")

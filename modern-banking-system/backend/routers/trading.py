@@ -49,7 +49,7 @@ def get_live_price_in_try(currency: str) -> Decimal:
             usd_to_try = usd_data.history(period="1d")['Close'].iloc[-1]
             price = price * usd_to_try
             
-        return Decimal(str(round(price, 2)))
+        return Decimal(f"{price:.2f}")
     
     except Exception as e:
         print(f"Error fetching price for {currency} (ticker: {ticker}): {e}")
@@ -98,57 +98,35 @@ def get_sp500_prices():
 
 def fetch_prices_for_tickers(tickers: list[str], is_usd: bool):
     prices = []
-    try:
-        # yf.download is much faster for batches but returns a DataFrame that's trickier to parse.
-        # Using threads or just downloading directly:
-        data = yf.download(tickers, period="1d", group_by='ticker', progress=False)
-        
-        usd_to_try = 1.0
-        if is_usd:
+    usd_to_try = 1.0
+    if is_usd:
+        try:
             usd_data = yf.Ticker("TRY=X")
-            usd_to_try = usd_data.history(period="1d")['Close'].iloc[-1]
+            usd_to_try = float(usd_data.history(period="1d")['Close'].iloc[-1])
+        except Exception as e:
+            print(f"Error fetching USD to TRY rate: {e}")
+            usd_to_try = 32.50
             
-        for t in tickers:
-            try:
-                if len(tickers) == 1:
-                    price = data['Close'].iloc[-1]
-                else:
-                    # Depending on yfinance version, the MultiIndex might differ
-                    if ('Close', t) in data.columns:
-                        price = data['Close', t].iloc[-1]
-                    else:
-                        price = data[t]['Close'].iloc[-1]
-                
-                # Convert to scalar python float if it's a pandas/numpy object
-                price = float(price)
-                if math.isnan(price):
-                    raise ValueError(f"NaN price for {t}")
+    for t in tickers:
+        try:
+            data = yf.Ticker(t)
+            price = float(data.history(period="1d")['Close'].iloc[-1])
+            if math.isnan(price):
+                raise ValueError(f"NaN price for {t}")
 
-                if is_usd:
-                    price = price * usd_to_try
-                    
-                prices.append(
-                    schemas.MarketPriceResponse(
-                        currency=t,
-                        price_in_try=Decimal(str(round(price, 2))),
-                        last_updated=datetime.now()
-                    )
+            if is_usd:
+                price = price * usd_to_try
+                
+            prices.append(
+                schemas.MarketPriceResponse(
+                    currency=t,
+                    price_in_try=Decimal(f"{price:.2f}"),
+                    last_updated=datetime.now()
                 )
-            except Exception as e:
-                print(f"Error parsing dataframe for {t}: {e}")
-                # Fallback to sequential if dataframe parsing fails for one
-                prices.append(
-                    schemas.MarketPriceResponse(
-                        currency=t,
-                        price_in_try=get_live_price_in_try(t),
-                        last_updated=datetime.now()
-                    )
-                )
-        return prices
-    except Exception as e:
-        print(f"Batch download failed: {e}")
-        # Complete fallback
-        for t in tickers:
+            )
+        except Exception as e:
+            print(f"Error fetching price for {t}: {e}")
+            # Fallback to get_live_price_in_try or generic
             prices.append(
                 schemas.MarketPriceResponse(
                     currency=t,
@@ -156,7 +134,9 @@ def fetch_prices_for_tickers(tickers: list[str], is_usd: bool):
                     last_updated=datetime.now()
                 )
             )
-        return prices
+    return prices
+
+
 
 @router.post("/trade", response_model=schemas.LedgerResponse)
 def execute_trade(trade: schemas.TradeRequest, current_user: models.Customer = Depends(get_current_user), db: Session = Depends(get_db)):

@@ -13,18 +13,31 @@ try:
 except Exception as e:
     print("Veritabanı bağlantı hatası:", e)
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+# Define Rate Limiter (IP based)
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
+
 app = FastAPI(
     title="Rykard Banking API",
     description="Core Banking System API with Ledger implementation (Moduler Monolith)",
     version="1.0.0",
 )
 
+# Register Limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # CORS Ayarları (Frontend'in Backend'e bağlanabilmesi için zorunlu güvenlik ayarı)
+# In production on Vercel, this should ideally be strict.
+# Allowing * for easy local test, but strict methods/headers according to security guidelines.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Geliştirme aşaması için herkese açık, prod'da domain yazılır
+    allow_origins=["*"], # Expand this to actual Vercel domains later
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
