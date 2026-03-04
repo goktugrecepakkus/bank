@@ -19,6 +19,36 @@ def startup_event():
     try:
         Base.metadata.create_all(bind=engine)
         print("Database connection and table creation successful.")
+        
+        # IBAN migration: Mevcut hesaplara IBAN ata
+        try:
+            from sqlalchemy import text, inspect
+            inspector = inspect(engine)
+            columns = [col['name'] for col in inspector.get_columns('accounts')]
+            if 'iban' not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE accounts ADD COLUMN iban VARCHAR(26) UNIQUE;"))
+                    conn.commit()
+                    print("[Migration] Added iban column to accounts table.")
+            
+            # NULL IBAN'lara değer ata
+            from models import generate_iban
+            from database import SessionLocal
+            db = SessionLocal()
+            try:
+                from sqlalchemy import text as sql_text
+                null_ibans = db.execute(sql_text("SELECT id FROM accounts WHERE iban IS NULL")).fetchall()
+                if null_ibans:
+                    for row in null_ibans:
+                        iban = generate_iban()
+                        db.execute(sql_text("UPDATE accounts SET iban = :iban WHERE id = :id"), {"iban": iban, "id": row[0]})
+                    db.commit()
+                    print(f"[Migration] Assigned IBAN to {len(null_ibans)} existing accounts.")
+            finally:
+                db.close()
+        except Exception as mig_err:
+            print(f"[Migration] IBAN migration note: {mig_err}")
+            
     except Exception as e:
         print("Veritabanı bağlantı hatası:", e)
         

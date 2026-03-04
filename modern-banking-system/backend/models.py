@@ -1,8 +1,21 @@
 import uuid
 import enum
+import random
 from sqlalchemy import Column, String, Numeric, ForeignKey, DateTime, Enum, func
 from sqlalchemy.orm import relationship
 from database import Base
+
+
+def generate_iban():
+    """Türk bankacılık standardına uygun rastgele IBAN üretir (TR + 24 rakam = 26 karakter)"""
+    bank_code = "00061"  # RykardBank kodu
+    account_number = ''.join([str(random.randint(0, 9)) for _ in range(16)])
+    # IBAN kontrol rakamı hesaplama (ISO 13616)
+    bban = bank_code + account_number
+    # TR00 + BBAN -> sayısal forma çevir (T=29, R=27)
+    numeric_str = bban + "292700"
+    check_digits = 98 - (int(numeric_str) % 97)
+    return f"TR{check_digits:02d}{bban}"
 
 # --- ENUMS ---
 class RoleEnum(str, enum.Enum):
@@ -67,6 +80,7 @@ class Account(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     customer_id = Column(String, ForeignKey("customers.id"), nullable=False)
+    iban = Column(String(26), unique=True, index=True, nullable=True, default=generate_iban)
     account_type = Column(Enum(AccountTypeEnum), default=AccountTypeEnum.checking, nullable=False)
     currency = Column(String, default=CurrencyEnum.TRY.value, nullable=False)
     

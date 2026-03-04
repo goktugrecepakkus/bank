@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 import schemas
+from models import generate_iban
 from typing import Optional
 
 router = APIRouter(tags=["Accounts"])
@@ -22,11 +23,17 @@ def create_account(account: schemas.AccountCreate, db: Session = Depends(get_db)
 
     if existing_account:
         raise HTTPException(status_code=400, detail=f"User already has a {account.currency} account.")
-        
+
+    # Benzersiz IBAN üret
+    iban = generate_iban()
+    while db.query(models.Account).filter(models.Account.iban == iban).first():
+        iban = generate_iban()
+
     new_account = models.Account(
         customer_id=account.customer_id,
         account_type=account.account_type,
         currency=account.currency,
+        iban=iban,
         balance=0.00 # Yeni açılan hesap sıfır bakiye ile başlar
     )
     
@@ -44,6 +51,25 @@ def get_customer_accounts(customer_id: str, currency: Optional[models.CurrencyEn
     accounts = query.all()
     return accounts
 
+@router.get("/accounts/validate-iban/{iban}")
+def validate_account_by_iban(iban: str, db: Session = Depends(get_db)):
+    """IBAN ile hesap doğrulama - Transfer yaparken kullanılır"""
+    account = db.query(models.Account).filter(models.Account.iban == iban).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="IBAN not found")
+        
+    owner = db.query(models.Customer).filter(models.Customer.id == account.customer_id).first()
+    if not owner:
+        raise HTTPException(status_code=404, detail="Owner not found")
+        
+    username = owner.username
+    if len(username) > 2:
+        masked_username = username[0] + "*" * (len(username) - 2) + username[-1]
+    else:
+        masked_username = username[0] + "*"
+        
+    return {"account_id": account.id, "iban": account.iban, "masked_owner": masked_username}
+
 @router.get("/accounts/validate/{account_id}")
 def validate_account(account_id: str, db: Session = Depends(get_db)):
     """Girilen Hesap Numarasının (Account ID) kime ait olduğunu güvenli (maskeli) bir şekilde döndürür"""
@@ -56,13 +82,12 @@ def validate_account(account_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Owner not found")
         
     username = owner.username
-    # Güvenlik için ismin sadece ilk ve son harfini göster, arasını maskele (örn: J***e)
     if len(username) > 2:
         masked_username = username[0] + "*" * (len(username) - 2) + username[-1]
     else:
         masked_username = username[0] + "*"
         
-    return {"account_id": account.id, "masked_owner": masked_username}
+    return {"account_id": account.id, "iban": account.iban, "masked_owner": masked_username}
 
 @router.get("/accounts/{account_id}", response_model=schemas.AccountResponse)
 def get_account_balance(account_id: str, db: Session = Depends(get_db)):

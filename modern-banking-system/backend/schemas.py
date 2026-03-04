@@ -43,6 +43,7 @@ class AccountCreate(BaseModel):
 class AccountResponse(BaseModel):
     id: str
     customer_id: str
+    iban: Optional[str] = None
     account_type: AccountTypeEnum
     currency: str
     balance: Decimal
