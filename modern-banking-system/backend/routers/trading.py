@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend import models
-from backend import schemas
+from database import get_db
+import models
+import schemas
 import yfinance as yf
 from datetime import datetime
 from decimal import Decimal
-from backend.security import get_current_user
+from security import get_current_user
 import math
 
 router = APIRouter(prefix="/trading", tags=["Trading"])

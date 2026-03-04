@@ -10,7 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ../backend:/app
-      - ../frontend:/frontend
+      - ../public:/public
     environment:
       - DATABASE_URL=postgresql://bankadmin:securepassword@db:5432/banking_db
     depends_on:

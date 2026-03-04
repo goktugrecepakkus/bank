@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
-from backend import models
-from backend.database import get_db
+import models
+from database import get_db
 from sqlalchemy.orm import Session
 
 # SECRET_KEY environment variable'dan alınmalı. Yoksa varsayılanı kullan

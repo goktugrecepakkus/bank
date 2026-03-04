@@ -8,9 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .glassmorphism {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #FAF9F7;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .gradient-text {
@@ -22,11 +22,10 @@
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen font-sans text-gray-800"
-    style="background-image: radial-gradient(circle at 10% 20%, rgb(240, 240, 255) 0%, rgb(255, 250, 255) 90%);">
+<body class="bg-[#F5F0E6] min-h-screen font-sans text-gray-800">
 
     <!-- Navigation -->
-    <nav class="bg-indigo-900 shadow-lg text-white">
+    <nav class="bg-indigo-900 shadow-lg text-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -35,11 +34,12 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <a href="settings.html"
-                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Settings</a>
+                        class="text-indigo-200 hover:text-gray-900 text-sm font-medium transition-colors">Settings</a>
                     <a href="admin.html"
-                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Admin Panel</a>
+                        class="text-indigo-200 hover:text-gray-900 text-sm font-medium transition-colors">Admin
+                        Panel</a>
                     <button onclick="logout()"
-                        class="text-white border border-indigo-500 hover:bg-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm">
+                        class="text-gray-900 border border-indigo-500 hover:bg-[#0f9688] px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm">
                         Logout
                     </button>
                 </div>
@@ -54,7 +54,7 @@
         <div class="px-4 py-4 sm:px-0 flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold tracking-tight text-gray-900">Portfolio Dashboard</h1>
             <div class="text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full shadow-sm border">
-                Welcome, Ref <span id="userIdDisplay" class="font-mono text-xs text-indigo-600 font-bold"></span>
+                Welcome, Ref <span id="userIdDisplay" class="font-mono text-xs text-[#14B8A6] font-bold"></span>
             </div>
         </div>
 
@@ -161,7 +161,7 @@
                                 <table class="min-w-full divide-y divide-gray-100">
                                     <tbody id="marketPricesBody" class="divide-y divide-gray-50">
                                         <tr>
-                                            <td colspan="2" class="px-4 py-8 text-center text-sm text-gray-400">Loading
+                                            <td colspan="2" class="px-4 py-8 text-center text-sm text-gray-500">Loading
                                                 market data...</td>
                                         </tr>
                                     </tbody>
@@ -182,7 +182,7 @@
                                         <select id="tradeAction" required
                                             class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm border-gray-200 text-gray-700 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 shadow-sm bg-white/80 transition-all hover:bg-white cursor-pointer hover:border-indigo-300 outline-none">
                                             <option value="BUY" class="text-green-600 font-bold">BUY Asset</option>
-                                            <option value="SELL" class="text-red-500 font-bold">SELL Asset</option>
+                                            <option value="SELL" class="text-[#14B8A6] font-bold">SELL Asset</option>
                                         </select>
                                     </div>
                                     <div>
@@ -216,7 +216,7 @@
                                 <div id="tradeMsg" class="hidden text-sm p-3 rounded-lg font-medium" role="alert"></div>
 
                                 <button type="submit" id="tradeSubmitBtn"
-                                    class="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform active:scale-95">
+                                    class="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-gray-900 bg-gradient-to-r from-[#14B8A6] to-[#0f9688] hover:from-[#14B8A6] hover:to-[#0f9688] shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform active:scale-95">
                                     Execute Trade
                                 </button>
                             </form>
@@ -270,7 +270,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <button type="submit" id="transferSubmitBtn" disabled
-                                        class="w-full h-[46px] mt-1 justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-xl text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 opacity-50 cursor-not-allowed transition-all">
+                                        class="w-full h-[46px] mt-1 justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-xl text-gray-900 bg-[#14B8A6] hover:bg-[#0f9688] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 opacity-50 cursor-not-allowed transition-all">
                                         Send ->
                                     </button>
                                 </div>
@@ -319,7 +319,7 @@
                         <tbody id="transactionHistoryBody" class="bg-white/80 divide-y divide-gray-50">
                             <tr>
                                 <td colspan="4"
-                                    class="px-6 py-8 whitespace-nowrap text-sm text-gray-400 text-center animate-pulse">
+                                    class="px-6 py-8 whitespace-nowrap text-sm text-gray-500 text-center animate-pulse">
                                     Loading history...</td>
                             </tr>
                         </tbody>
@@ -369,7 +369,7 @@
             const assetSelect = document.getElementById('tradeAsset');
 
             try {
-                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-medium text-indigo-500 animate-pulse">Connecting to Exchange Database...<br/><span class="text-[10px] text-gray-400">Loading live asset prices</span></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-medium text-indigo-500 animate-pulse">Connecting to Exchange Database...<br/><span class="text-[10px] text-gray-500">Loading live asset prices</span></td></tr>';
 
                 let endpoint = '/api/trading/prices';
                 if (activeTab === 'bist100') endpoint = '/api/trading/stocks/bist100';
@@ -389,7 +389,7 @@
                     let formattedPrice = parseFloat(p.price_in_try).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                     // Adding subtle asset type styling based on ticker prefix/type
-                    let iconColor = 'text-gray-400';
+                    let iconColor = 'text-gray-500';
                     if (['BTC', 'ETH', 'SOL'].includes(p.currency)) iconColor = 'text-yellow-500';
                     if (['XAU', 'XAG'].includes(p.currency)) iconColor = 'text-amber-600';
                     if (['USD', 'EUR'].includes(p.currency)) iconColor = 'text-green-500';
@@ -410,7 +410,7 @@
                 calculateEstimate();
 
             } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center text-sm font-medium text-red-500 bg-red-50">Exchange Offline</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center text-sm font-medium text-[#14B8A6] bg-red-50">Exchange Offline</td></tr>';
             }
         }
 
@@ -455,11 +455,11 @@
                                         </div>
                                         <div class="flex items-baseline gap-2 mt-2">
                                             <span class="text-3xl font-black text-gray-900 tracking-tight">${displayBalance}</span>
-                                            <span class="text-sm font-bold text-gray-400 align-baseline">${account.currency}</span>
+                                            <span class="text-sm font-bold text-gray-500 align-baseline">${account.currency}</span>
                                         </div>
                                         <div class="mt-4 pt-4 border-t border-gray-50 flex flex-col gap-2">
                                             <div class="flex items-center justify-between">
-                                                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Account ID</span>
+                                                <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Account ID</span>
                                                 <span class="font-mono text-xs bg-gray-50 px-2 py-1 rounded-md text-gray-600 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700 transition border border-gray-100"
                                                     onclick="navigator.clipboard.writeText('${account.id}')" title="Copy">${account.id.substring(0, 18)}...</span>
                                             </div>
@@ -474,7 +474,7 @@
 
                         fetchTransactionHistory();
                     } else {
-                        container.innerHTML = '<div class="glassmorphism p-6 rounded-2xl text-center font-bold text-red-400">Error reading wallets.</div>';
+                        container.innerHTML = '<div class="glassmorphism p-6 rounded-2xl text-center font-bold text-red-600">Error reading wallets.</div>';
                     }
                 } else if (response.status === 401) {
                     logout();
@@ -498,7 +498,7 @@
                     tbody.innerHTML = '';
 
                     if (history.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-sm font-medium text-gray-400">No activity logged for this account.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-sm font-medium text-gray-500">No activity logged for this account.</td></tr>';
                         return;
                     }
 
@@ -518,7 +518,7 @@
                             details = 'System Funding';
                         } else if (tx.transaction_type === 'WITHDRAWAL') {
                             typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-orange-50 text-orange-600 border border-orange-100 uppercase tracking-wide">Withdraw</span>';
-                            amountClass = 'text-red-600 font-bold';
+                            amountClass = 'text-[#14B8A6] font-bold';
                             amountPrefix = '-';
                             details = 'Cash Out';
                         } else if (tx.transaction_type === 'TRANSFER') {
@@ -550,7 +550,7 @@
                 }
             } catch (err) {
                 console.error("Failed to fetch history", err);
-                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-red-500">Failed to load transaction history.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-[#14B8A6]">Failed to load transaction history.</td></tr>';
             }
         }
 
@@ -581,7 +581,7 @@
             hintElement.className = "mt-1 text-xs font-medium italic hidden";
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            submitBtn.classList.remove('hover:bg-slate-700');
+            submitBtn.classList.remove('hover:bg-[#0f9688]');
 
             if (targetId.length < 10) return;
 
@@ -597,14 +597,14 @@
                         hintElement.className = "mt-1 text-xs font-bold text-emerald-500";
                         submitBtn.disabled = false;
                         submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        submitBtn.classList.add('hover:bg-slate-700');
+                        submitBtn.classList.add('hover:bg-[#0f9688]');
                     } else {
                         hintElement.textContent = "x Target Invalid.";
-                        hintElement.className = "mt-1 text-xs font-bold text-red-500";
+                        hintElement.className = "mt-1 text-xs font-bold text-[#14B8A6]";
                     }
                 } catch (e) {
                     hintElement.textContent = "Network Error.";
-                    hintElement.className = "mt-1 text-xs font-bold text-red-500";
+                    hintElement.className = "mt-1 text-xs font-bold text-[#14B8A6]";
                 }
             }, 500);
         });
@@ -636,7 +636,7 @@
                 });
 
                 const result = await response.json();
-                msgBox.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
+                msgBox.classList.remove('hidden', 'bg-red-50', 'text-[#14B8A6]', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
 
                 if (response.ok) {
                     msgBox.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
@@ -645,12 +645,12 @@
                     document.getElementById('recipientNameHint').classList.add('hidden');
                     fetchAccountData();
                 } else {
-                    msgBox.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+                    msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
                     msgBox.textContent = `Declined: ${result.detail}`;
                 }
             } catch (err) {
                 msgBox.classList.remove('hidden');
-                msgBox.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+                msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
                 msgBox.textContent = "Communication Failure.";
             } finally {
                 submitBtn.disabled = false;
@@ -673,7 +673,7 @@
 
                 if (action === 'BUY') {
                     display.textContent = `- ₺${est.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    display.className = "text-xl font-black text-red-500 tracking-tight";
+                    display.className = "text-xl font-black text-[#14B8A6] tracking-tight";
                 } else {
                     display.textContent = `+ ₺${est.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                     display.className = "text-xl font-black text-green-500 tracking-tight";
@@ -706,7 +706,7 @@
             }
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-gray-900" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
             try {
                 const response = await fetch('/api/trading/trade', {
@@ -723,7 +723,7 @@
                 });
 
                 const result = await response.json();
-                msgBox.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
+                msgBox.classList.remove('hidden', 'bg-red-50', 'text-[#14B8A6]', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
 
                 if (response.ok) {
                     msgBox.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
@@ -732,12 +732,12 @@
                     calculateEstimate();
                     fetchAccountData();
                 } else {
-                    msgBox.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+                    msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
                     msgBox.textContent = `Order Rejected: ${result.detail}`;
                 }
             } catch (err) {
                 msgBox.classList.remove('hidden');
-                msgBox.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+                msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
                 msgBox.textContent = "Exchange Sync Error.";
             } finally {
                 submitBtn.disabled = false;

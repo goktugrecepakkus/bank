@@ -2,7 +2,7 @@ import uuid
 import enum
 from sqlalchemy import Column, String, Numeric, ForeignKey, DateTime, Enum, func
 from sqlalchemy.orm import relationship
-from backend.database import Base
+from database import Base
 
 # --- ENUMS ---
 class RoleEnum(str, enum.Enum):

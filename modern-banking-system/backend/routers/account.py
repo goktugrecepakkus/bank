@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend import models
-from backend import schemas
+from database import get_db
+import models
+import schemas
 from typing import Optional
 
 router = APIRouter(tags=["Accounts"])
