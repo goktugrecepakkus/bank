@@ -8,13 +8,15 @@ from datetime import datetime
 from decimal import Decimal
 from security import get_current_user
 import math
+import time
+import requests
 
 router = APIRouter(prefix="/trading", tags=["Trading"])
 
 # Mapping of our internal string codes to Yahoo Finance tickers
 TICKER_MAP = {
-    "USD": "TRY=X",      # USD to TRY
-    "EUR": "EURTRY=X",
+    "USD": "USDTRY=X",   # USD to TRY
+    "EUR": "EURTRY=X",   # EUR to TRY
     "BTC": "BTC-USD",
     "ETH": "ETH-USD",
     "SOL": "SOL-USD",
@@ -22,54 +24,134 @@ TICKER_MAP = {
     "XAG": "SI=F",       # Silver Futures (USD)
 }
 
+# In-memory cache to avoid repeated API calls
+_price_cache = {}
+_CACHE_TTL = 120  # 2 dakika cache
+
+def _get_from_cache(key: str):
+    """Cache'den fiyat çek, TTL dolmuşsa None döndür"""
+    if key in _price_cache:
+        val, ts = _price_cache[key]
+        if time.time() - ts < _CACHE_TTL:
+            return val
+    return None
+
+def _set_cache(key: str, value):
+    """Cache'e fiyat yaz"""
+    _price_cache[key] = (value, time.time())
+
+def _fetch_yahoo_price_raw(ticker: str) -> float:
+    """Yahoo Finance'den fiyat çek - birden fazla yöntemle dene"""
+    
+    # Yöntem 1: Yahoo Finance v8 API (requests ile direkt)
+    try:
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        params = {"interval": "1d", "range": "1d"}
+        resp = requests.get(url, headers=headers, params=params, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            result = data.get("chart", {}).get("result", [])
+            if result:
+                meta = result[0].get("meta", {})
+                price = meta.get("regularMarketPrice", 0)
+                if price and price > 0:
+                    print(f"[Yahoo API] {ticker} = {price}")
+                    return float(price)
+    except Exception as e:
+        print(f"[Yahoo API] v8 failed for {ticker}: {e}")
+    
+    # Yöntem 2: yfinance fast_info
+    try:
+        t = yf.Ticker(ticker)
+        fi = t.fast_info
+        price = fi.get("lastPrice", 0) or fi.get("last_price", 0)
+        if price and not math.isnan(price) and price > 0:
+            print(f"[yfinance fast_info] {ticker} = {price}")
+            return float(price)
+    except Exception as e:
+        print(f"[yfinance fast_info] failed for {ticker}: {e}")
+    
+    # Yöntem 3: yfinance history (en yavaş)
+    try:
+        t = yf.Ticker(ticker)
+        hist = t.history(period="5d")
+        if not hist.empty:
+            price = hist['Close'].iloc[-1]
+            if not math.isnan(price) and price > 0:
+                print(f"[yfinance history] {ticker} = {price}")
+                return float(price)
+    except Exception as e:
+        print(f"[yfinance history] failed for {ticker}: {e}")
+    
+    return 0.0
+
+def _get_usd_try_rate() -> float:
+    """USDTRY kurunu çek, cache'li"""
+    cached = _get_from_cache("USDTRY")
+    if cached:
+        return cached
+    
+    rate = _fetch_yahoo_price_raw("USDTRY=X")
+    if rate > 0:
+        _set_cache("USDTRY", rate)
+        return rate
+    
+    # Fallback
+    return 38.0
+
 def get_live_price_in_try(currency: str) -> Decimal:
     if currency == "TRY":
         return Decimal('1.00')
+    
+    # Cache kontrolü
+    cached = _get_from_cache(f"price_try_{currency}")
+    if cached:
+        return cached
 
-    # If it's a known crypto/forex, use the mapped ticker. 
-    # Otherwise, assume the currency string IS the stock ticker.
     ticker = TICKER_MAP.get(currency, currency)
     
     try:
-        data = yf.Ticker(ticker)
-        # Using history to get the latest close price
-        price = data.history(period="1d")['Close'].iloc[-1]
-        if math.isnan(price):
-            raise ValueError(f"NaN price for {ticker}")
+        price = _fetch_yahoo_price_raw(ticker)
         
-        # Determine if we need to convert to TRY.
-        # USD-based: XAU, XAG, and any S&P 500 stock (no .IS suffix and not EUR/Crypto/USD).
-        needs_usd_conversion = False
-        if currency in ["XAU", "XAG", "BTC", "ETH", "SOL"] or (not ticker.endswith(".IS") and currency not in ["EUR", "TRY", "USD"]):
-            needs_usd_conversion = True
-            
-        if needs_usd_conversion:
-            # Fetch USDTRY rate
-            usd_data = yf.Ticker("TRY=X")
-            usd_to_try = usd_data.history(period="1d")['Close'].iloc[-1]
-            price = price * usd_to_try
-            
-        return Decimal(str(round(price, 2)))
+        if price <= 0:
+            raise ValueError(f"Could not fetch price for {ticker}")
+        
+        # USD veya EUR/TRY direkt pariteler zaten TRY cinsinden
+        if currency in ["USD", "EUR"]:
+            # USDTRY=X ve EURTRY=X zaten TRY cinsinden döner
+            result = Decimal(str(round(price, 4)))
+        elif currency in ["XAU", "XAG", "BTC", "ETH", "SOL"]:
+            # Bunlar USD cinsinden, TRY'ye çevir
+            usd_try = _get_usd_try_rate()
+            result = Decimal(str(round(price * usd_try, 2)))
+        elif ticker.endswith(".IS"):
+            # BIST hisseleri zaten TRY cinsinden
+            result = Decimal(str(round(price, 2)))
+        else:
+            # S&P 500 ve diğer USD hisseleri
+            usd_try = _get_usd_try_rate()
+            result = Decimal(str(round(price * usd_try, 2)))
+        
+        _set_cache(f"price_try_{currency}", result)
+        return result
     
     except Exception as e:
-        print(f"Error fetching price for {currency} (ticker: {ticker}): {e}")
-        # In case API fails (weekends, rate limits), provide generic fallbacks
+        print(f"[PRICE ERROR] {currency} (ticker: {ticker}): {e}")
         fallbacks = {
-            "USD": Decimal('32.50'),
-            "EUR": Decimal('35.10'),
-            "BTC": Decimal('2050000.00'),
-            "ETH": Decimal('100000.00'),
-            "SOL": Decimal('4500.00'),
-            "XAU": Decimal('80000.00'),
-            "XAG": Decimal('1000.00')
+            "USD": Decimal('38.00'),
+            "EUR": Decimal('41.50'),
+            "BTC": Decimal('3200000.00'),
+            "ETH": Decimal('135000.00'),
+            "SOL": Decimal('5600.00'),
+            "XAU": Decimal('110000.00'),
+            "XAG": Decimal('1250.00')
         }
-        # Generic fallback for unmapped stocks
         return fallbacks.get(currency, Decimal('100.00'))
 
 @router.get("/prices", response_model=list[schemas.MarketPriceResponse])
 def get_all_prices():
     prices = []
-    # Core crypto/forex assets
     core_assets = ["USD", "EUR", "BTC", "ETH", "SOL", "XAU", "XAG"]
     for currency in core_assets:
         price = get_live_price_in_try(currency)
@@ -98,65 +180,41 @@ def get_sp500_prices():
 
 def fetch_prices_for_tickers(tickers: list[str], is_usd: bool):
     prices = []
-    try:
-        # yf.download is much faster for batches but returns a DataFrame that's trickier to parse.
-        # Using threads or just downloading directly:
-        data = yf.download(tickers, period="1d", group_by='ticker', progress=False)
-        
-        usd_to_try = 1.0
-        if is_usd:
-            usd_data = yf.Ticker("TRY=X")
-            usd_to_try = usd_data.history(period="1d")['Close'].iloc[-1]
-            
-        for t in tickers:
-            try:
-                if len(tickers) == 1:
-                    price = data['Close'].iloc[-1]
-                else:
-                    # Depending on yfinance version, the MultiIndex might differ
-                    if ('Close', t) in data.columns:
-                        price = data['Close', t].iloc[-1]
-                    else:
-                        price = data[t]['Close'].iloc[-1]
+    usd_to_try = _get_usd_try_rate() if is_usd else 1.0
+    
+    for t in tickers:
+        try:
+            cached = _get_from_cache(f"stock_{t}")
+            if cached:
+                prices.append(cached)
+                continue
                 
-                # Convert to scalar python float if it's a pandas/numpy object
-                price = float(price)
-                if math.isnan(price):
-                    raise ValueError(f"NaN price for {t}")
-
-                if is_usd:
-                    price = price * usd_to_try
-                    
-                prices.append(
-                    schemas.MarketPriceResponse(
-                        currency=t,
-                        price_in_try=Decimal(str(round(price, 2))),
-                        last_updated=datetime.now()
-                    )
-                )
-            except Exception as e:
-                print(f"Error parsing dataframe for {t}: {e}")
-                # Fallback to sequential if dataframe parsing fails for one
-                prices.append(
-                    schemas.MarketPriceResponse(
-                        currency=t,
-                        price_in_try=get_live_price_in_try(t),
-                        last_updated=datetime.now()
-                    )
-                )
-        return prices
-    except Exception as e:
-        print(f"Batch download failed: {e}")
-        # Complete fallback
-        for t in tickers:
+            price = _fetch_yahoo_price_raw(t)
+            
+            if price <= 0:
+                raise ValueError(f"Zero/negative price for {t}")
+            
+            if is_usd:
+                price = price * usd_to_try
+            
+            entry = schemas.MarketPriceResponse(
+                currency=t,
+                price_in_try=Decimal(str(round(price, 2))),
+                last_updated=datetime.now()
+            )
+            _set_cache(f"stock_{t}", entry)
+            prices.append(entry)
+            
+        except Exception as e:
+            print(f"[STOCK ERROR] {t}: {e}")
             prices.append(
                 schemas.MarketPriceResponse(
                     currency=t,
-                    price_in_try=get_live_price_in_try(t),
+                    price_in_try=Decimal('0.00'),
                     last_updated=datetime.now()
                 )
             )
-        return prices
+    return prices
 
 @router.post("/trade", response_model=schemas.LedgerResponse)
 def execute_trade(trade: schemas.TradeRequest, current_user: models.Customer = Depends(get_current_user), db: Session = Depends(get_db)):
