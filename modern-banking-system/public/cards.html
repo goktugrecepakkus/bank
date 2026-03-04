@@ -53,24 +53,32 @@
     </style>
 </head>
 
-<body class="bg-[#F5F0E6] min-h-screen font-sans text-gray-800">
-
-    <!-- Navigation -->
-    <nav class="bg-indigo-900 shadow-lg text-white">
+<body class="bg-[#0F2A1D] min-h-screen font-sans text-[#F2F2F2]">
+    <!-- Navbar -->
+    <nav class="bg-[#163D2C] border-b border-white/5 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between h-20">
                 <div class="flex items-center">
-                    <span class="font-extrabold text-2xl tracking-tighter">RYKARD<span
-                            class="text-pink-400">PRO</span></span>
+                    <span class="text-2xl font-black text-[#F2F2F2] tracking-tighter uppercase italic">Rykard<span
+                            class="text-[#B08D57]">Bank</span></span>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-8">
+                        <a href="dashboard.html"
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Vault</a>
+                        <a href="cards.html"
+                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Relics</a>
+                        <a href="settings.html"
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Cipher</a>
+                        <div id="adminLink" class="hidden">
+                            <a href="admin.html"
+                                class="border-transparent text-[#B08D57] hover:text-[#C9A76C] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Overseer</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="cards.html" class="text-white font-bold text-sm border-b-2 border-pink-400">Cards</a>
-                    <a href="dashboard.html"
-                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Dashboard</a>
-                    <a href="settings.html"
-                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Settings</a>
+                <div class="flex items-center">
                     <button onclick="logout()"
-                        class="text-white border border-indigo-400 hover:bg-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Logout</button>
+                        class="inline-flex items-center px-6 py-2 border border-[#B08D57]/30 text-[10px] font-bold rounded-full text-[#B08D57] hover:bg-[#B08D57] hover:text-[#0F2A1D] transition-all uppercase tracking-widest">
+                        Depart
+                    </button>
                 </div>
             </div>
         </div>
@@ -83,7 +91,7 @@
                 <p class="text-gray-500 mt-2">Manage your physical and virtual payment methods.</p>
             </div>
             <button onclick="openModal()"
-                class="bg-[#14B8A6] hover:bg-[#0f9688] text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2">
+                class="bg-[#B08D57] hover:bg-[#C9A76C] text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -98,44 +106,87 @@
         </div>
     </main>
 
-    <!-- Modal for Card Settings (Internet Toggles + Limit Request) -->
+    <!-- Modal for Card Settings (Improved Split Layout) -->
     <div id="settingsModal"
         class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
-            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-[#FAF9F7]">
-                <h3 class="text-xl font-bold text-gray-900">Card Settings</h3>
-                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
-                </button>
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col md:flex-row">
+            <!-- Left Panel: Card Preview -->
+            <div id="modalPreviewSide"
+                class="w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden">
+                <!-- Background Decoration -->
+                <div class="absolute inset-0 opacity-10" id="modalPreviewBg"></div>
+
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-8 relative z-10">Digital Twin
+                </h4>
+
+                <div id="miniCard"
+                    class="w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between transition-all">
+                    <div class="flex justify-between items-start">
+                        <div class="chip w-10 h-8"></div>
+                        <div id="miniCardBrand" class="font-bold italic text-lg"></div>
+                    </div>
+                    <div class="mt-4">
+                        <div id="miniCardNumber" class="text-lg font-bold tracking-[0.15em] font-mono"></div>
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-[8px] uppercase font-bold text-white/60 mb-1">Holder</div>
+                            <div id="miniCardHolder" class="font-bold text-xs tracking-wider"></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[8px] uppercase font-bold text-white/60 mb-1">Expires</div>
+                            <div id="miniCardExpiry" class="font-bold text-xs font-mono"></div>
+                        </div>
+                        <div class="text-right ml-2 lg:ml-4">
+                            <div class="text-[8px] uppercase font-bold text-white/60 mb-1">CVV</div>
+                            <div id="miniCardCVV" class="font-bold text-xs font-mono text-yellow-400">---</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="mt-8 text-xs text-gray-400 text-center leading-relaxed">
+                    This is your secure digital representation.<br>Sensitivity: <span
+                        class="text-red-500 font-bold uppercase">Private Data</span>
+                </p>
             </div>
 
-            <div class="p-8 space-y-8">
+            <!-- Right Panel: Settings -->
+            <div class="w-full md:w-7/12 p-10 bg-white space-y-8 border-l border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-black text-gray-900">Manage Card</h3>
+                    <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-900 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Internet Shopping Toggles -->
                 <div class="space-y-4">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Security & Usage</h4>
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Authorizations</h4>
 
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div
+                        class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-[#FAF9F7] transition-colors border border-transparent hover:border-gray-100">
                         <div>
-                            <p class="font-bold text-gray-900">Domestic Online Shopping</p>
-                            <p class="text-[10px] text-gray-500">Allow internet purchases within Turkey</p>
+                            <p class="font-bold text-sm text-gray-900">Domestic Online Shopping</p>
+                            <p class="text-[10px] text-gray-500">Enable usage for local internet transactions</p>
                         </div>
                         <button id="toggleDomestic" onclick="toggleSetting('domestic')"
-                            class="w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all">
+                            class="w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all shadow-inner">
                             <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-all"
                                 id="dotDomestic"></div>
                         </button>
                     </div>
 
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div
+                        class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-[#FAF9F7] transition-colors border border-transparent hover:border-gray-100">
                         <div>
-                            <p class="font-bold text-gray-900">International Online Shopping</p>
-                            <p class="text-[10px] text-gray-500">Allow internet purchases abroad</p>
+                            <p class="font-bold text-sm text-gray-900">International Online Shopping</p>
+                            <p class="text-[10px] text-gray-500">Enable usage for global commerce</p>
                         </div>
                         <button id="toggleInternational" onclick="toggleSetting('international')"
-                            class="w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all">
+                            class="w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all shadow-inner">
                             <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-all"
                                 id="dotInternational"></div>
                         </button>
@@ -143,21 +194,24 @@
                 </div>
 
                 <!-- Limit Increase Request (For Credit Cards Only) -->
-                <div id="limitRequestSection" class="hidden space-y-4 border-t border-gray-100 pt-6">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Credit Limit</h4>
-                    <div class="bg-indigo-50 p-4 rounded-2xl">
-                        <div class="flex justify-between text-indigo-900 mb-2">
-                            <span class="text-xs font-medium">Current Limit</span>
-                            <span class="font-bold" id="currentLimitDisplay">₺0.00</span>
+                <div id="limitRequestSection" class="hidden space-y-4 pt-4">
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Limit Management</h4>
+                    <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+                        <div class="flex justify-between text-indigo-900 mb-3 items-end">
+                            <span class="text-xs font-medium text-indigo-600">Current Limit</span>
+                            <span class="font-black text-xl" id="currentLimitDisplay">₺0.00</span>
                         </div>
-                        <input type="number" id="requestedLimit" placeholder="New Requested Limit"
-                            class="w-full px-4 py-3 bg-white border border-indigo-100 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                        <div class="relative group">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₺</span>
+                            <input type="number" id="requestedLimit" placeholder="New Target Limit"
+                                class="w-full pl-8 pr-4 py-3 bg-white border border-indigo-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-300">
+                        </div>
                         <button onclick="submitLimitRequest()"
-                            class="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-sm">
-                            Submit Limit Request
+                            class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-xl shadow-[0_10px_20px_-10px_rgba(79,70,229,0.5)] transition-all text-sm active:scale-95">
+                            Apply for New Limit
                         </button>
                     </div>
-                    <div id="settingsMsg" class="hidden p-3 text-xs rounded-lg text-center"></div>
+                    <div id="settingsMsg" class="hidden p-3 text-xs rounded-lg text-center font-bold"></div>
                 </div>
             </div>
         </div>
@@ -253,29 +307,26 @@
                 cards.forEach(card => {
                     const typeClass = card.card_type.toLowerCase();
                     const formattedNum = card.card_number.match(/.{1,4}/g).join(' ');
+                    const brandLabel = card.card_type === 'DEBIT' ? 'BANK CARD' : 'Mastercard';
 
                     const cardHtml = `
-                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit})" class="credit-card ${typeClass} text-white p-8 rounded-3xl shadow-2xl flex flex-col justify-between cursor-pointer">
+                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit}, '${formattedNum}', '${card.card_holder_name}', '${card.expiry_date}', '${card.cvv}')" class="credit-card ${typeClass} text-white p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col justify-between cursor-pointer border border-white/10 group">
                             <div class="flex justify-between items-start">
                                 <div class="chip"></div>
-                                <div class="font-bold italic text-xl">${card.card_type === 'DEBIT' ? 'VISA' : 'Mastercard'}</div>
+                                <div class="font-bold italic text-white/80 text-xl tracking-tighter">${brandLabel}</div>
                             </div>
                             <div class="mt-8">
-                                <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">Card Number</div>
-                                <div class="text-2xl font-bold tracking-[0.2em] font-mono">${formattedNum}</div>
+                                <div class="text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-1">Card Number</div>
+                                <div class="text-2xl font-bold tracking-[0.2em] font-mono group-hover:tracking-[0.25em] transition-all">${formattedNum}</div>
                             </div>
                             <div class="flex justify-between items-end mt-4">
-                                <div>
-                                    <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">Card Holder</div>
-                                    <div class="font-bold text-sm tracking-widest">${card.card_holder_name}</div>
+                                <div class="w-1/2">
+                                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest mb-1">Card Holder</div>
+                                    <div class="font-bold text-sm tracking-widest truncate">${card.card_holder_name}</div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">Expires</div>
+                                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest mb-1">Expires</div>
                                     <div class="font-bold text-sm font-mono">${card.expiry_date}</div>
-                                </div>
-                                <div class="text-right ml-4">
-                                    <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">CVV</div>
-                                    <div class="font-bold text-sm font-mono">***</div>
                                 </div>
                             </div>
                         </div>
@@ -290,9 +341,31 @@
         let activeCardId = null;
         let cardSettings = { domestic: 'TRUE', international: 'TRUE' };
 
-        function openSettingsModal(id, type, domestic, international, limit) {
+        function openSettingsModal(id, type, domestic, international, limit, number, holder, expiry, cvv) {
             activeCardId = id;
             cardSettings = { domestic, international };
+
+            // Update Mini Card Design
+            const mini = document.getElementById('miniCard');
+            const side = document.getElementById('modalPreviewSide');
+            const bg = document.getElementById('modalPreviewBg');
+
+            if (type === 'DEBIT') {
+                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#14B8A6] to-[#0d9488]';
+                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-teal-50/50';
+                bg.className = 'absolute inset-0 opacity-10 bg-[#14B8A6]';
+                document.getElementById('miniCardBrand').textContent = 'BANK CARD';
+            } else {
+                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#4f46e5] to-[#3730a3]';
+                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-indigo-50/50';
+                bg.className = 'absolute inset-0 opacity-10 bg-[#4f46e5]';
+                document.getElementById('miniCardBrand').textContent = 'Mastercard';
+            }
+
+            document.getElementById('miniCardNumber').textContent = number;
+            document.getElementById('miniCardHolder').textContent = holder;
+            document.getElementById('miniCardExpiry').textContent = expiry;
+            document.getElementById('miniCardCVV').textContent = cvv;
 
             updateToggleUI('domestic', domestic === 'TRUE');
             updateToggleUI('international', international === 'TRUE');

@@ -8,18 +8,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-[#F5F0E6] min-h-screen font-sans text-gray-800">
-    <nav class="bg-red-900 shadow-md">
+<body class="bg-[#0F2A1D] min-h-screen font-sans text-[#F2F2F2]">
+    <!-- Navbar -->
+    <nav class="bg-[#163D2C] border-b border-white/5 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between h-20">
                 <div class="flex items-center">
-                    <span class="text-gray-900 font-bold text-xl tracking-tight">Rykard Bank - ADMIN PANEL</span>
+                    <span class="text-2xl font-black text-[#F2F2F2] tracking-tighter uppercase italic">Rykard<span
+                            class="text-[#B08D57]">Bank</span></span>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-8">
+                        <a href="dashboard.html"
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Vault</a>
+                        <a href="admin.html"
+                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Overseer</a>
+                    </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="cards.html" class="text-red-100 hover:text-gray-900 text-sm">Cards</a>
-                    <a href="dashboard.html" class="text-red-100 hover:text-gray-900 text-sm">Back to Dashboard</a>
+                <div class="flex items-center">
                     <button onclick="logout()"
-                        class="bg-red-800 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-[#14B8A6]">Logout</button>
+                        class="inline-flex items-center px-6 py-2 border border-[#B08D57]/30 text-[10px] font-bold rounded-full text-[#B08D57] hover:bg-[#B08D57] hover:text-[#0F2A1D] transition-all uppercase tracking-widest">
+                        Depart
+                    </button>
                 </div>
             </div>
         </div>
@@ -27,80 +35,92 @@
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="px-4 py-4 sm:px-0">
-            <h1 class="text-2xl font-semibold text-gray-900 mb-6">System Audit Log (Ledger)</h1>
+            <h1 class="text-3xl font-black text-[#F2F2F2] tracking-tight mb-6">Overseer's Ledger</h1>
             <div id="errorBox" class="hidden bg-red-100 text-red-700 p-4 rounded mb-4"></div>
 
             <!-- Dashboard Analytics -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-indigo-500">
-                    <div class="text-sm font-medium text-gray-500 truncate">Total Users</div>
-                    <div class="mt-1 text-3xl font-semibold text-gray-900" id="metricUsers">...</div>
+                <div
+                    class="bg-[#163D2C] p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <h3 class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-4">Total Population
+                    </h3>
+                    <p id="totalUsers" class="text-4xl font-black text-[#F2F2F2]">...</p>
+                    <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-[#B08D57]/5 blur-3xl rounded-full"></div>
                 </div>
-                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-emerald-500">
-                    <div class="text-sm font-medium text-gray-500 truncate">Total Active Accounts</div>
-                    <div class="mt-1 text-3xl font-semibold text-gray-900" id="metricAccounts">...</div>
+                <div
+                    class="bg-[#163D2C] p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <h3 class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-4">Vessels
+                        Established</h3>
+                    <p id="totalAccounts" class="text-4xl font-black text-[#F2F2F2]">...</p>
+                    <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full"></div>
                 </div>
-                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-amber-500">
-                    <div class="text-sm font-medium text-gray-500 truncate">Total System Liquidity</div>
-                    <div class="mt-1 text-3xl font-semibold text-amber-600 truncate" id="metricLiquidity">...</div>
+                <div
+                    class="bg-[#163D2C] p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <h3 class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-4">Total Essence
+                    </h3>
+                    <p id="totalLiquidity" class="text-4xl font-black text-[#F2F2F2]">...</p>
+                    <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-[#B08D57]/5 blur-3xl rounded-full"></div>
                 </div>
-                <div class="bg-white shadow rounded-lg p-5 border-l-4 border-rose-500">
-                    <div class="text-sm font-medium text-gray-500 truncate">Total Transactions</div>
-                    <div class="mt-1 text-3xl font-semibold text-gray-900" id="metricTransactions">...</div>
+                <div
+                    class="bg-[#163D2C] p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <h3 class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-4">Essence Shifts
+                    </h3>
+                    <p id="totalTransactions" class="text-4xl font-black text-[#F2F2F2]">...</p>
+                    <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-rose-500/5 blur-3xl rounded-full"></div>
                 </div>
             </div>
 
-            <h2 class="text-xl font-medium text-gray-900 mb-4">Recent Transactions (Global)</h2>
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-10">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+            <h2 class="text-xl font-medium text-[#F2F2F2] mb-4">Recent Essence Shifts (Global)</h2>
+            <div class="bg-[#163D2C] shadow overflow-hidden rounded-[2rem] border border-white/5 mb-10">
+                <table class="min-w-full divide-y divide-white/5">
+                    <thead class="bg-[#163D2C]">
                         <tr>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Time</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Transaction ID</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Type</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                From Account</th>
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
+                                From Vessel</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                To Account</th>
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
+                                To Vessel</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Amount</th>
                         </tr>
                     </thead>
-                    <tbody id="logTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="logTableBody" class="bg-[#163D2C] divide-y divide-white/5">
                         <!-- Logs will be injected here -->
                     </tbody>
                 </table>
             </div>
 
-            <h2 class="text-xl font-medium text-gray-900 mb-4">Pending Credit Limit Requests</h2>
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+            <h2 class="text-xl font-medium text-[#F2F2F2] mb-4">Pending Limit Augmentations</h2>
+            <div class="bg-[#163D2C] shadow overflow-hidden rounded-[2rem] border border-white/5">
+                <table class="min-w-full divide-y divide-white/5">
+                    <thead class="bg-[#163D2C]">
                         <tr>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Card ID</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Requested Limit</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 User ID</th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-left text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-wider">
                                 Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="limitTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="limitTableBody" class="bg-[#163D2C] divide-y divide-white/5">
                         <!-- Requests will be injected here -->
                     </tbody>
                 </table>
@@ -125,10 +145,10 @@
                 });
                 if (response.ok) {
                     const summary = await response.json();
-                    document.getElementById('metricUsers').textContent = summary.total_users;
-                    document.getElementById('metricAccounts').textContent = summary.total_accounts;
-                    document.getElementById('metricLiquidity').textContent = '₺' + parseFloat(summary.total_liquidity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    document.getElementById('metricTransactions').textContent = summary.total_transactions;
+                    document.getElementById('totalUsers').textContent = summary.total_users;
+                    document.getElementById('totalAccounts').textContent = summary.total_accounts;
+                    document.getElementById('totalLiquidity').textContent = '₺' + parseFloat(summary.total_liquidity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById('totalTransactions').textContent = summary.total_transactions;
                 }
             } catch (err) {
                 console.error("Failed to fetch summary:", err);
@@ -147,21 +167,22 @@
                     tbody.innerHTML = '';
 
                     logs.forEach(log => {
-                        const tr = document.createElement('tr');
                         // Formatting Colors depending on transaction type
                         let typeColor = 'bg-gray-100 text-gray-800';
                         if (log.transaction_type === 'TRANSFER') typeColor = 'bg-blue-100 text-blue-800';
                         if (log.transaction_type === 'DEPOSIT') typeColor = 'bg-green-100 text-green-800';
 
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-[#B08D57]/5 transition-colors';
                         tr.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(log.created_at).toLocaleString()}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900">${log.transaction_id.substring(0, 8)}...</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-[#F2F2F2]/60 uppercase tracking-wider">${new Date(log.created_at).toLocaleString()}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-[#F2F2F2]">${log.transaction_id.substring(0, 8)}...</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeColor}">${log.transaction_type}</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-500">${log.from_account_id || 'EXTERNAL_SYSTEM'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-500">${log.to_account_id}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">₺${log.amount}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-[#F2F2F2]/60">${log.from_account_id || 'EXTERNAL_SYSTEM'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-[#F2F2F2]/60">${log.to_account_id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#F2F2F2]">₺${parseFloat(log.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -185,28 +206,29 @@
                     tbody.innerHTML = '';
 
                     if (requests.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">No pending limit requests.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-sm text-[#F2F2F2]/60 text-center">No pending limit requests.</td></tr>';
                         return;
                     }
 
-                    requests.forEach(req => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900">${req.card_id}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">₺${parseFloat(req.requested_limit).toLocaleString()}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">${req.customer_id}</td>
+                    requests.forEach(request => {
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-[#B08D57]/5 transition-colors';
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-[#F2F2F2]">${request.card_id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#B08D57]">₺${parseFloat(request.requested_limit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-[#F2F2F2]/60">${request.customer_id}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
-                                <button onclick="reviewRequest('${req.id}', 'APPROVED')" class="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700">Approve</button>
-                                <button onclick="reviewRequest('${req.id}', 'REJECTED')" class="bg-red-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-red-700">Reject</button>
+                                <button onclick="updateRequest('${request.id}', 'APPROVED')" class="bg-emerald-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-emerald-700">Approve</button>
+                                <button onclick="updateRequest('${request.id}', 'REJECTED')" class="bg-rose-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-rose-700">Reject</button>
                             </td>
                         `;
-                        tbody.appendChild(tr);
+                        tbody.appendChild(row);
                     });
                 }
             } catch (err) { console.error(err); }
         }
 
-        async function reviewRequest(id, status) {
+        async function updateRequest(id, status) {
             try {
                 const res = await fetch(`/api/cards/limit-requests/${id}`, {
                     method: 'PUT',

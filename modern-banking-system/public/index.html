@@ -9,50 +9,58 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .glass-panel {
-            background: #FAF9F7;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: #163D2C;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 
-<body class="bg-[#F5F0E6] min-h-screen flex items-center justify-center font-sans text-gray-800">
+<body class="bg-[#0F2A1D] min-h-screen flex items-center justify-center font-sans text-[#F2F2F2]">
 
-    <div class="glass-panel p-8 rounded-2xl w-full max-w-md">
-        <h1 class="text-3xl font-bold text-center text-[#14B8A6] mb-2">Rykard Bank</h1>
-        <p class="text-center text-gray-500 mb-6">Enter your credentials to access your account</p>
+    <div class="glass-panel p-10 rounded-[2.5rem] w-full max-w-md border border-white/5 relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#B08D57]/10 blur-[100px] rounded-full"></div>
 
-        <form id="loginForm" class="space-y-4">
+        <h1 class="text-4xl font-black text-center text-[#F2F2F2] mb-2 tracking-tighter uppercase italic">Rykard<span
+                class="text-[#B08D57]">Bank</span></h1>
+        <p class="text-center text-[#F2F2F2]/60 mb-10 text-sm font-medium">Enter the Eternal Reserve</p>
+
+        <form id="loginForm" class="space-y-6 relative z-10">
             <div>
-                <label class="block text-sm font-medium text-gray-700">Username</label>
-                <input type="text" id="username" required class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 shadow-sm placeholder-gray-400
-                    focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6] transition-colors">
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Identity</label>
+                <input type="text" id="username" required placeholder="Username" class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] shadow-sm placeholder-[#F2F2F2]/20
+                    focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-all">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" required class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 shadow-sm placeholder-gray-400
-                    focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6] transition-colors">
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Keyphrase</label>
+                <input type="password" id="password" required placeholder="••••••••" class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] shadow-sm placeholder-[#F2F2F2]/20
+                    focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-all">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Mother's Maiden Name</label>
-                <input type="text" id="mothers_maiden_name" required class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 shadow-sm placeholder-gray-400
-                    focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6] transition-colors">
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Security
+                    Question</label>
+                <input type="text" id="mothers_maiden_name" required placeholder="Mother's Maiden Name" class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] shadow-sm placeholder-[#F2F2F2]/20
+                    focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-all">
             </div>
 
             <div id="errorBox"
-                class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative text-sm"
+                class="hidden bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl relative text-xs font-bold text-center"
                 role="alert"></div>
 
             <button type="submit"
-                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#14B8A6] hover:bg-[#0f9688] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#14B8A6] transition-all duration-200">
-                Sign in
+                class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-[0_10px_20px_-10px_rgba(176,141,87,0.5)] text-sm font-black text-[#0F2A1D] bg-[#B08D57] hover:bg-[#C9A76C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B08D57] transition-all duration-200 uppercase tracking-widest active:scale-95">
+                Open Vault
             </button>
         </form>
 
-        <p class="mt-4 text-center text-sm text-gray-500">
-            Don't have an account? <a href="register.html"
-                class="font-medium text-[#14B8A6] hover:text-[#0f9688] transition-colors">Register
-                here</a> (Demo)
+        <p class="mt-8 text-center text-[10px] text-[#F2F2F2]/30 uppercase tracking-[0.1em]">
+            Don't have an inheritance? <a href="register.html"
+                class="font-bold text-[#B08D57] hover:underline transition-colors uppercase">Register
+                here</a>
         </p>
     </div>
 
