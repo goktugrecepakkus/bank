@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rykard Bank - My Cards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glassmorphism {
+            background: #FAF9F7;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .credit-card {
+            aspect-ratio: 1.586 / 1;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .credit-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .credit-card.debit {
+            background: linear-gradient(135deg, #14B8A6 0%, #0d9488 100%);
+        }
+
+        .credit-card.credit {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+        }
+
+        .chip {
+            width: 50px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .chip::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 10px, rgba(0, 0, 0, 0.1) 11px);
+        }
+    </style>
+</head>
+
+<body class="bg-[#F5F0E6] min-h-screen font-sans text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-indigo-900 shadow-lg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-extrabold text-2xl tracking-tighter">RYKARD<span
+                            class="text-pink-400">PRO</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="cards.html" class="text-white font-bold text-sm border-b-2 border-pink-400">Cards</a>
+                    <a href="dashboard.html"
+                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Dashboard</a>
+                    <a href="settings.html"
+                        class="text-indigo-200 hover:text-white text-sm font-medium transition-colors">Settings</a>
+                    <button onclick="logout()"
+                        class="text-white border border-indigo-400 hover:bg-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+            <div>
+                <h1 class="text-4xl font-black tracking-tight text-gray-900">Card Management</h1>
+                <p class="text-gray-500 mt-2">Manage your physical and virtual payment methods.</p>
+            </div>
+            <button onclick="openModal()"
+                class="bg-[#14B8A6] hover:bg-[#0f9688] text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Create New Card
+            </button>
+        </div>
+
+        <!-- Cards Grid -->
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Dynamic Cards Here -->
+        </div>
+    </main>
+
+    <!-- Modal for Card Settings (Internet Toggles + Limit Request) -->
+    <div id="settingsModal"
+        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-[#FAF9F7]">
+                <h3 class="text-xl font-bold text-gray-900">Card Settings</h3>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-8 space-y-8">
+                <!-- Internet Shopping Toggles -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Security & Usage</h4>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                        <div>
+                            <p class="font-bold text-gray-900">Domestic Online Shopping</p>
+                            <p class="text-[10px] text-gray-500">Allow internet purchases within Turkey</p>
+                        </div>
+                        <button id="toggleDomestic" onclick="toggleSetting('domestic')"
+                            class="w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-all"
+                                id="dotDomestic"></div>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                        <div>
+                            <p class="font-bold text-gray-900">International Online Shopping</p>
+                            <p class="text-[10px] text-gray-500">Allow internet purchases abroad</p>
+                        </div>
+                        <button id="toggleInternational" onclick="toggleSetting('international')"
+                            class="w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-all"
+                                id="dotInternational"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Limit Increase Request (For Credit Cards Only) -->
+                <div id="limitRequestSection" class="hidden space-y-4 border-t border-gray-100 pt-6">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Credit Limit</h4>
+                    <div class="bg-indigo-50 p-4 rounded-2xl">
+                        <div class="flex justify-between text-indigo-900 mb-2">
+                            <span class="text-xs font-medium">Current Limit</span>
+                            <span class="font-bold" id="currentLimitDisplay">₺0.00</span>
+                        </div>
+                        <input type="number" id="requestedLimit" placeholder="New Requested Limit"
+                            class="w-full px-4 py-3 bg-white border border-indigo-100 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                        <button onclick="submitLimitRequest()"
+                            class="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-sm">
+                            Submit Limit Request
+                        </button>
+                    </div>
+                    <div id="settingsMsg" class="hidden p-3 text-xs rounded-lg text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Card -->
+    <div id="cardModal"
+        class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-[#FAF9F7]">
+                <h3 class="text-xl font-bold text-gray-900">Issue New Card</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <form id="createCardForm" class="p-8 space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Card
+                        Type</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="card_type" value="DEBIT" class="peer sr-only" checked
+                                onchange="toggleAccountSelect(true)">
+                            <div
+                                class="p-4 border-2 border-gray-100 rounded-2xl peer-checked:border-[#14B8A6] peer-checked:bg-teal-50 transition-all text-center">
+                                <span class="block font-bold text-gray-900">Debit Card</span>
+                                <span class="text-[10px] text-gray-500">Linked to Account</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="card_type" value="CREDIT" class="peer sr-only"
+                                onchange="toggleAccountSelect(false)">
+                            <div
+                                class="p-4 border-2 border-gray-100 rounded-2xl peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all text-center">
+                                <span class="block font-bold text-gray-900">Credit Card</span>
+                                <span class="text-[10px] text-gray-500">Fixed Limit</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="accountSelectGroup">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Link to Bank
+                        Account</label>
+                    <select id="account_id"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-[#14B8A6] focus:border-[#14B8A6] outline-none transition-all">
+                        <!-- Populated dynamically with TRY accounts -->
+                    </select>
+                </div>
+
+                <div id="modalError" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200">
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95">
+                    Confirm & Generate Card
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id');
+
+        if (!token) window.location.href = 'index.html';
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            window.location.href = 'index.html';
+        }
+
+        async function fetchCards() {
+            const grid = document.getElementById('cardsGrid');
+            try {
+                const res = await fetch(`/api/cards/customer/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const cards = await res.json();
+
+                if (!res.ok) throw new Error(cards.detail || "Failed to fetch cards");
+
+                grid.innerHTML = '';
+                if (cards.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full border-2 border-dashed border-gray-200 rounded-3xl p-20 text-center"><div class="text-gray-400 mb-4">You have no active cards yet.</div><button onclick="openModal()" class="text-[#14B8A6] font-bold hover:underline">Get your first card now</button></div>';
+                    return;
+                }
+
+                cards.forEach(card => {
+                    const typeClass = card.card_type.toLowerCase();
+                    const formattedNum = card.card_number.match(/.{1,4}/g).join(' ');
+
+                    const cardHtml = `
+                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit})" class="credit-card ${typeClass} text-white p-8 rounded-3xl shadow-2xl flex flex-col justify-between cursor-pointer">
+                            <div class="flex justify-between items-start">
+                                <div class="chip"></div>
+                                <div class="font-bold italic text-xl">${card.card_type === 'DEBIT' ? 'VISA' : 'Mastercard'}</div>
+                            </div>
+                            <div class="mt-8">
+                                <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">Card Number</div>
+                                <div class="text-2xl font-bold tracking-[0.2em] font-mono">${formattedNum}</div>
+                            </div>
+                            <div class="flex justify-between items-end mt-4">
+                                <div>
+                                    <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">Card Holder</div>
+                                    <div class="font-bold text-sm tracking-widest">${card.card_holder_name}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">Expires</div>
+                                    <div class="font-bold text-sm font-mono">${card.expiry_date}</div>
+                                </div>
+                                <div class="text-right ml-4">
+                                    <div class="text-[10px] uppercase font-bold text-white/60 tracking-widest mb-1">CVV</div>
+                                    <div class="font-bold text-sm font-mono">***</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            } catch (err) {
+                grid.innerHTML = `<div class="col-span-full p-4 bg-red-50 text-red-600 rounded-xl border border-red-200">${err.message}</div>`;
+            }
+        }
+
+        let activeCardId = null;
+        let cardSettings = { domestic: 'TRUE', international: 'TRUE' };
+
+        function openSettingsModal(id, type, domestic, international, limit) {
+            activeCardId = id;
+            cardSettings = { domestic, international };
+
+            updateToggleUI('domestic', domestic === 'TRUE');
+            updateToggleUI('international', international === 'TRUE');
+
+            const limitSection = document.getElementById('limitRequestSection');
+            if (type === 'CREDIT') {
+                limitSection.classList.remove('hidden');
+                document.getElementById('currentLimitDisplay').textContent = `₺${limit.toLocaleString()}`;
+            } else {
+                limitSection.classList.add('hidden');
+            }
+
+            document.getElementById('settingsModal').classList.remove('hidden');
+            document.getElementById('settingsMsg').classList.add('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+            activeCardId = null;
+        }
+
+        function updateToggleUI(type, isActive) {
+            const btn = document.getElementById(`toggle${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            const dot = document.getElementById(`dot${type.charAt(0).toUpperCase() + type.slice(1)}`);
+
+            if (isActive) {
+                btn.className = 'w-12 h-6 bg-[#14B8A6] rounded-full relative transition-all shadow-inner';
+                dot.style.right = '4px';
+                dot.style.left = 'auto';
+            } else {
+                btn.className = 'w-12 h-6 bg-gray-300 rounded-full relative transition-all shadow-inner';
+                dot.style.left = '4px';
+                dot.style.right = 'auto';
+            }
+        }
+
+        async function toggleSetting(type) {
+            const newVal = cardSettings[type] === 'TRUE' ? 'FALSE' : 'TRUE';
+            cardSettings[type] = newVal;
+
+            updateToggleUI(type, newVal === 'TRUE');
+
+            try {
+                await fetch(`/api/cards/${activeCardId}/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_domestic_online: cardSettings.domestic,
+                        is_international_online: cardSettings.international
+                    })
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function submitLimitRequest() {
+            const limit = document.getElementById('requestedLimit').value;
+            const msg = document.getElementById('settingsMsg');
+
+            if (!limit || limit <= 0) return;
+
+            try {
+                const res = await fetch(`/api/cards/${activeCardId}/limit-request`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        card_id: activeCardId,
+                        requested_limit: parseFloat(limit)
+                    })
+                });
+
+                if (res.ok) {
+                    msg.textContent = "Limit request submitted to admin!";
+                    msg.className = "p-3 text-xs rounded-lg text-center bg-green-50 text-green-700 block mt-4";
+                    document.getElementById('requestedLimit').value = '';
+                } else {
+                    throw new Error("Failed to submit");
+                }
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.className = "p-3 text-xs rounded-lg text-center bg-red-50 text-red-700 block mt-4";
+            }
+            msg.classList.remove('hidden');
+        }
+
+        async function fetchUserAccounts() {
+            const select = document.getElementById('account_id');
+            try {
+                const res = await fetch(`/api/accounts/customer/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const accounts = await res.json();
+
+                // Only show TRY accounts for linked debit cards
+                const tryAccounts = accounts.filter(a => a.currency === 'TRY');
+                select.innerHTML = tryAccounts.map(a => `<option value="${a.id}">${a.account_type} Account - ${a.id.substring(0, 8)}... (₺${parseFloat(a.balance).toLocaleString()})</option>`).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        function openModal() { document.getElementById('cardModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('cardModal').classList.add('hidden'); }
+
+        function toggleAccountSelect(show) {
+            document.getElementById('accountSelectGroup').style.display = show ? 'block' : 'none';
+        }
+
+        document.getElementById('createCardForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const card_type = document.querySelector('input[name="card_type"]:checked').value;
+            const account_id = document.getElementById('account_id').value;
+            const errorBox = document.getElementById('modalError');
+
+            errorBox.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/cards/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        customer_id: userId,
+                        card_type,
+                        account_id: card_type === 'DEBIT' ? account_id : null
+                    })
+                });
+
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || "Card generation failed");
+
+                closeModal();
+                fetchCards();
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.classList.remove('hidden');
+            }
+        });
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCards();
+            fetchUserAccounts();
+        });
+    </script>
+</body>
+
+</html>

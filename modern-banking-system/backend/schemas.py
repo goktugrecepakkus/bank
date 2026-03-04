@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
-from models import RoleEnum, AccountTypeEnum, AccountStatusEnum, TransactionTypeEnum
+from models import RoleEnum, AccountTypeEnum, AccountStatusEnum, TransactionTypeEnum, CardTypeEnum, CardStatusEnum
 
 # --- CUSTOMER SCHEMAS ---
 class CustomerCreate(BaseModel):
@@ -51,6 +51,53 @@ class AccountResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- CARD SCHEMAS ---
+class CardCreate(BaseModel):
+    customer_id: str
+    card_type: CardTypeEnum
+    account_id: Optional[str] = None # Mandatory for Debit cards
+
+class CardResponse(BaseModel):
+    id: str
+    customer_id: str
+    account_id: Optional[str]
+    card_number: str
+    card_holder_name: str
+    expiry_date: str
+    cvv: str
+    card_type: CardTypeEnum
+    status: CardStatusEnum
+    credit_limit: Decimal
+    current_debt: Decimal
+    is_domestic_online: str
+    is_international_online: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class CardSettingsUpdate(BaseModel):
+    is_domestic_online: str
+    is_international_online: str
+
+class LimitRequestCreate(BaseModel):
+    card_id: str
+    requested_limit: Decimal
+
+class LimitRequestResponse(BaseModel):
+    id: str
+    card_id: str
+    customer_id: str
+    requested_limit: Decimal
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class LimitRequestReview(BaseModel):
+    status: str # APPROVED or REJECTED
 
 # --- TRADING SCHEMAS ---
 class TradeRequest(BaseModel):

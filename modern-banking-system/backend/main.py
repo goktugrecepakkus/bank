@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from database import engine, Base
-from routers import customer, account, ledger, auth, trading
+from routers import customer, account, ledger, auth, trading, cards
 
 # Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
 print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
@@ -53,6 +53,7 @@ api_router.include_router(customer.router)
 api_router.include_router(account.router)
 api_router.include_router(ledger.router)
 api_router.include_router(trading.router)
+api_router.include_router(cards.router)
 
 # Include the master router into the main FastAPI application
 app.include_router(api_router)
