@@ -1,17 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Form, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database import get_db
 import models
 from passlib.context import CryptContext
 from security import create_access_token
+from rate_limiter import limiter, LOGIN_LIMIT
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/login")
+@limiter.limit(LOGIN_LIMIT)
 def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     mothers_maiden_name: str = Form(...),
     db: Session = Depends(get_db)

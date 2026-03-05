@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from decimal import Decimal
@@ -7,11 +7,13 @@ from database import get_db
 import models
 import schemas
 from security import get_current_user, get_current_admin
+from rate_limiter import limiter, TRANSFER_LIMIT
 
 router = APIRouter(prefix="/ledger", tags=["Ledger & Transfers"])
 
 @router.post("/transfer", response_model=schemas.LedgerResponse)
-def create_transfer(transfer: schemas.TransferRequest, db: Session = Depends(get_db)):
+@limiter.limit(TRANSFER_LIMIT)
+def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Session = Depends(get_db)):
     # 1. Hesapların var olup olmadığını kontrol et
     from_account = db.query(models.Account).filter(models.Account.id == transfer.from_account_id).first()
     to_account = db.query(models.Account).filter(models.Account.id == transfer.to_account_id).first()

@@ -10,6 +10,27 @@ from database import get_db
 import models
 import schemas
 from security import get_current_user
+from card_encryption import encrypt_card_field, decrypt_card_field
+
+
+def _decrypt_card_response(card: models.Card) -> dict:
+    """Kart verisini API response için çözümle"""
+    return {
+        "id": card.id,
+        "customer_id": card.customer_id,
+        "account_id": card.account_id,
+        "card_number": decrypt_card_field(card.card_number),
+        "card_holder_name": card.card_holder_name,
+        "expiry_date": card.expiry_date,
+        "cvv": decrypt_card_field(card.cvv),
+        "card_type": card.card_type,
+        "status": card.status,
+        "credit_limit": card.credit_limit,
+        "current_debt": card.current_debt,
+        "is_domestic_online": card.is_domestic_online,
+        "is_international_online": card.is_international_online,
+        "created_at": card.created_at,
+    }
 
 router = APIRouter(
     prefix="/cards",
@@ -65,13 +86,17 @@ def create_card(card: schemas.CardCreate, db: Session = Depends(get_db), current
         credit_limit = 50000.00 # Default limit for demo
         card.account_id = None # Credit cards might not link directly to a checking account out-of-the-box
 
+    # PCI-DSS: Kart numarası ve CVV şifrelenerek saklanır
+    encrypted_card_number = encrypt_card_field(new_card_number)
+    encrypted_cvv = encrypt_card_field(new_cvv)
+
     db_card = models.Card(
         customer_id=card.customer_id,
         account_id=card.account_id,
-        card_number=new_card_number,
+        card_number=encrypted_card_number,
         card_holder_name=f"{customer.first_name} {customer.last_name}".upper(),
         expiry_date=new_expiry,
-        cvv=new_cvv,
+        cvv=encrypted_cvv,
         card_type=card.card_type,
         status=models.CardStatusEnum.active,
         credit_limit=credit_limit,
@@ -81,7 +106,7 @@ def create_card(card: schemas.CardCreate, db: Session = Depends(get_db), current
     db.add(db_card)
     db.commit()
     db.refresh(db_card)
-    return db_card
+    return _decrypt_card_response(db_card)
 
 
 @router.get("/customer/{customer_id}", response_model=List[schemas.CardResponse])
@@ -91,7 +116,7 @@ def get_customer_cards(customer_id: str, db: Session = Depends(get_db), current_
         raise HTTPException(status_code=403, detail="Not authorized to view these cards")
 
     cards = db.query(models.Card).filter(models.Card.customer_id == customer_id).all()
-    return cards
+    return [_decrypt_card_response(c) for c in cards]
 
 @router.put("/{card_id}/settings", response_model=schemas.CardResponse)
 def update_card_settings(card_id: str, settings: schemas.CardSettingsUpdate, db: Session = Depends(get_db), current_user: models.Customer = Depends(get_current_user)):
@@ -107,7 +132,7 @@ def update_card_settings(card_id: str, settings: schemas.CardSettingsUpdate, db:
     card.is_international_online = settings.is_international_online
     db.commit()
     db.refresh(card)
-    return card
+    return _decrypt_card_response(card)
 
 @router.post("/{card_id}/limit-request", response_model=schemas.LimitRequestResponse)
 def create_limit_request(card_id: str, req: schemas.LimitRequestCreate, db: Session = Depends(get_db), current_user: models.Customer = Depends(get_current_user)):

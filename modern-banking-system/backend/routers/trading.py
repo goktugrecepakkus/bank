@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from database import get_db
 import models
@@ -10,6 +10,7 @@ from security import get_current_user
 import math
 import time
 import requests
+from rate_limiter import limiter, TRADE_LIMIT
 
 router = APIRouter(prefix="/trading", tags=["Trading"])
 
@@ -217,7 +218,8 @@ def fetch_prices_for_tickers(tickers: list[str], is_usd: bool):
     return prices
 
 @router.post("/trade", response_model=schemas.LedgerResponse)
-def execute_trade(trade: schemas.TradeRequest, current_user: models.Customer = Depends(get_current_user), db: Session = Depends(get_db)):
+@limiter.limit(TRADE_LIMIT)
+def execute_trade(request: Request, trade: schemas.TradeRequest, current_user: models.Customer = Depends(get_current_user), db: Session = Depends(get_db)):
     """User wants to buy `to_currency` using `from_currency`. Amount is in `to_currency`."""
     
     if trade.from_currency == trade.to_currency:

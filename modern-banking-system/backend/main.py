@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from database import engine, Base
+from rate_limiter import limiter
 from routers import customer, account, ledger, auth, trading, cards
 
 # Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
@@ -13,6 +16,10 @@ app = FastAPI(
     description="Core Banking System API with Ledger implementation (Moduler Monolith)",
     version="1.0.0",
 )
+
+# Rate Limiting setup
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.on_event("startup")
 def startup_event():
@@ -53,9 +60,12 @@ def startup_event():
         print("Veritabanı bağlantı hatası:", e)
         
 # CORS Ayarları (Frontend'in Backend'e bağlanabilmesi için zorunlu güvenlik ayarı)
+# Prod'da CORS_ORIGINS env variable'ında domain listesi tutulmalı (virgülle ayrılmış)
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:8000,http://localhost:3000,http://127.0.0.1:8000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Geliştirme aşaması için herkese açık, prod'da domain yazılır
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

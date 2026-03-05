@@ -11,3 +11,4 @@ aiofiles
 bcrypt==4.0.1
 yfinance==0.2.37
 slowapi
+cryptography
