@@ -1,4 +1,4 @@
-import os
+import os # Force redeploy to fix backend/main.py NameError
 import sys
 
 # Prevent Vercel read-only filesystem errors for cache dirs
