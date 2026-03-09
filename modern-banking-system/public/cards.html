@@ -8,37 +8,69 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .glassmorphism {
-            background: #FAF9F7;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         .credit-card {
             aspect-ratio: 1.586 / 1;
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .credit-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
+        /* Grok Design (Debit) */
         .credit-card.debit {
-            background: linear-gradient(135deg, #14B8A6 0%, #0d9488 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        .credit-card.debit .logo-overlay {
+            opacity: 0.1;
+            filter: grayscale(1) invert(1);
+        }
+
+        /* ChatGPT Design (Credit) */
         .credit-card.credit {
-            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            background: linear-gradient(135deg, #0a4d44 0%, #10a37f 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .credit-card.credit .logo-overlay {
+            opacity: 0.15;
+        }
+
+        .logo-overlay {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 150px;
+            height: 150px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .chip {
             width: 50px;
             height: 40px;
-            background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+            background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%);
             border-radius: 8px;
             position: relative;
+            z-index: 10;
+        }
+
+        .grok-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.05em;
         }
 
         .chip::after {
@@ -307,26 +339,28 @@
                 cards.forEach(card => {
                     const typeClass = card.card_type.toLowerCase();
                     const formattedNum = card.card_number.match(/.{1,4}/g).join(' ');
-                    const brandLabel = card.card_type === 'DEBIT' ? 'BANK CARD' : 'Mastercard';
+                    const brandLabel = card.card_type === 'DEBIT' ? 'GROK DEBIT' : 'CHATGPT CREDIT';
+                    const logoSrc = card.card_type === 'DEBIT' ? 'grok_logo.jpg' : 'chatgpt_logo.jpg';
 
                     const cardHtml = `
-                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit}, '${formattedNum}', '${card.card_holder_name}', '${card.expiry_date}', '${card.cvv}')" class="credit-card ${typeClass} text-white p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col justify-between cursor-pointer border border-white/10 group">
-                            <div class="flex justify-between items-start">
+                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit}, '${formattedNum}', '${card.card_holder_name}', '${card.expiry_date}', '${card.cvv}')" class="credit-card ${typeClass} text-white p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col justify-between cursor-pointer border border-white/10 group relative">
+                            <img src="${logoSrc}" class="logo-overlay" alt="logo">
+                            <div class="flex justify-between items-start relative z-10 text-white">
                                 <div class="chip"></div>
-                                <div class="font-bold italic text-white/80 text-xl tracking-tighter">${brandLabel}</div>
+                                <div class="font-black italic text-[#F2F2F2] text-xl tracking-tighter uppercase">${brandLabel}</div>
                             </div>
-                            <div class="mt-8">
+                            <div class="mt-8 relative z-10">
                                 <div class="text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-1">Card Number</div>
-                                <div class="text-2xl font-bold tracking-[0.2em] font-mono group-hover:tracking-[0.25em] transition-all">${formattedNum}</div>
+                                <div class="text-2xl font-bold tracking-[0.2em] font-mono group-hover:tracking-[0.25em] transition-all text-[#F2F2F2]">${formattedNum}</div>
                             </div>
-                            <div class="flex justify-between items-end mt-4">
+                            <div class="flex justify-between items-end mt-4 relative z-10">
                                 <div class="w-1/2">
-                                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest mb-1">Card Holder</div>
-                                    <div class="font-bold text-sm tracking-widest truncate">${card.card_holder_name}</div>
+                                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest mb-1 text-white">Card Holder</div>
+                                    <div class="font-bold text-sm tracking-widest truncate text-white">${card.card_holder_name}</div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest mb-1">Expires</div>
-                                    <div class="font-bold text-sm font-mono">${card.expiry_date}</div>
+                                    <div class="text-[10px] uppercase font-bold text-white/40 tracking-widest mb-1 text-white">Expires</div>
+                                    <div class="font-bold text-sm font-mono text-white">${card.expiry_date}</div>
                                 </div>
                             </div>
                         </div>
@@ -351,15 +385,15 @@
             const bg = document.getElementById('modalPreviewBg');
 
             if (type === 'DEBIT') {
-                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#14B8A6] to-[#0d9488]';
-                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-teal-50/50';
-                bg.className = 'absolute inset-0 opacity-10 bg-[#14B8A6]';
-                document.getElementById('miniCardBrand').textContent = 'BANK CARD';
+                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#000000] to-[#1a1a1a] border border-white/10';
+                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-gray-900';
+                bg.className = 'absolute inset-0 opacity-10 bg-white';
+                document.getElementById('miniCardBrand').textContent = 'GROK DEBIT';
             } else {
-                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#4f46e5] to-[#3730a3]';
-                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-indigo-50/50';
-                bg.className = 'absolute inset-0 opacity-10 bg-[#4f46e5]';
-                document.getElementById('miniCardBrand').textContent = 'Mastercard';
+                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#0a4d44] to-[#10a37f] border border-white/20';
+                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-[#0a4d44]';
+                bg.className = 'absolute inset-0 opacity-10 bg-[#10a37f]';
+                document.getElementById('miniCardBrand').textContent = 'CHATGPT CREDIT';
             }
 
             document.getElementById('miniCardNumber').textContent = number;
