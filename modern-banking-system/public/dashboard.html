@@ -341,6 +341,12 @@
         // Check Auth
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('user_id');
+        const userRole = localStorage.getItem('role');
+
+        if (userRole === 'admin') {
+            const adminLinkBtn = document.getElementById('adminLink');
+            if (adminLinkBtn) adminLinkBtn.classList.remove('hidden');
+        }
 
         let userAccounts = [];
         let primaryTryAccountId = null;
