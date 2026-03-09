@@ -150,3 +150,5 @@ if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 else:
     print(f"Warning: Public directory not found at {frontend_path}. Static files will not be served.")
+
+# Trigger Vercel Deploy
