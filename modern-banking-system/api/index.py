@@ -1,4 +1,4 @@
-import os # Force redeploy to fix backend/main.py NameError
+import os # Trigger Vercel deploy 2026-03-10
 import sys
 
 # Prevent Vercel read-only filesystem errors for cache dirs
