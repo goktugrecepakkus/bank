@@ -110,10 +110,10 @@ class Card(Base):
     customer_id = Column(String, ForeignKey("customers.id"), nullable=False)
     account_id = Column(String, ForeignKey("accounts.id"), nullable=True) # Sadece banka kartları (debit) için
     
-    card_number = Column(String(16), unique=True, index=True, nullable=False)
+    card_number = Column(String(255), unique=True, index=True, nullable=False)
     card_holder_name = Column(String, nullable=False)
-    expiry_date = Column(String(5), nullable=False) # MM/YY
-    cvv = Column(String(3), nullable=False)
+    expiry_date = Column(String(10), nullable=False) # MM/YY or encrypted
+    cvv = Column(String(255), nullable=False)
     
     card_type = Column(Enum(CardTypeEnum), nullable=False)
     status = Column(Enum(CardStatusEnum), default=CardStatusEnum.active, nullable=False)

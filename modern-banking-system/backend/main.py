@@ -54,8 +54,30 @@ def startup_event():
                     print(f"[Migration] Assigned IBAN to {len(null_ibans)} existing accounts.")
             finally:
                 db.close()
+            # Card encryption length migration
+            try:
+                with engine.connect() as conn:
+                    # card_number, cvv, expiry_date (increase to allow encrypted data)
+                    card_columns = {col['name']: col['type'] for col in inspector.get_columns('cards')}
+                    
+                    if 'card_number' in card_columns and getattr(card_columns['card_number'], 'length', 0) < 255:
+                        conn.execute(text("ALTER TABLE cards ALTER COLUMN card_number TYPE VARCHAR(255);"))
+                        print("[Migration] Increased cards.card_number length to 255.")
+                    
+                    if 'cvv' in card_columns and getattr(card_columns['cvv'], 'length', 0) < 255:
+                        conn.execute(text("ALTER TABLE cards ALTER COLUMN cvv TYPE VARCHAR(255);"))
+                        print("[Migration] Increased cards.cvv length to 255.")
+                    
+                    if 'expiry_date' in card_columns and getattr(card_columns['expiry_date'], 'length', 0) < 10:
+                        conn.execute(text("ALTER TABLE cards ALTER COLUMN expiry_date TYPE VARCHAR(10);"))
+                        print("[Migration] Increased cards.expiry_date length to 10.")
+                    
+                    conn.commit()
+            except Exception as card_mig_err:
+                print(f"[Migration] Card migration note: {card_mig_err}")
+                
         except Exception as mig_err:
-            print(f"[Migration] IBAN migration note: {mig_err}")
+            print(f"[Migration] migration error: {mig_err}")
             
     except Exception as e:
         print("Veritabanı bağlantı hatası:", e)
@@ -151,4 +173,4 @@ if os.path.exists(frontend_path):
 else:
     print(f"Warning: Public directory not found at {frontend_path}. Static files will not be served.")
 
-# Trigger Vercel Deploy 2026-03-10-2
+# Trigger Vercel Deploy 2026-03-10-3: Database Fix & V1.7.1 Sovereign Elite Sync
