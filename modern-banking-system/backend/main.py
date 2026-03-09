@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -141,7 +142,7 @@ def debug_info():
         
     return JSONResponse(status_code=200, content=info)
 
-import os
+
 
 # Dynamically construct frontend path and mount safely
 frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public"))
