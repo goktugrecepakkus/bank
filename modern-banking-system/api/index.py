@@ -1,4 +1,4 @@
-import os # Trigger Vercel deploy 2026-03-10
+import os # Force redeploy V1.5.0 - Card Redesign Assets Sync (2026-03-10)
 import sys
 
 # Prevent Vercel read-only filesystem errors for cache dirs
