@@ -1,4 +1,4 @@
-import os # Force redeploy V1.5.0 - Card Redesign Assets Sync & Trigger Vercel deploy (2026-03-10)
+import os # Force redeploy V1.7.0 - Emerald Sovereign & Global Luxury Theme Sync & Trigger Vercel deploy (2026-03-10)
 import sys
 
 # Prevent Vercel read-only filesystem errors for cache dirs
