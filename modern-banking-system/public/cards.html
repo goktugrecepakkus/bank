@@ -27,15 +27,39 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Grok Design (Debit) */
+        /* Emerald Elite Design (Debit) */
         .credit-card.debit {
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, #0F2A1D 0%, #163D2C 100%);
+            border: 1px solid rgba(214, 179, 106, 0.2);
         }
 
         .credit-card.debit .logo-overlay {
-            opacity: 0.1;
-            filter: grayscale(1) invert(1);
+            opacity: 0.05;
+            filter: sepia(100%) saturate(300%) hue-rotate(5deg);
+        }
+
+        .monogram {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(214, 179, 106, 0.15);
+            pointer-events: none;
+            z-index: 1;
+            letter-spacing: -0.05em;
+        }
+
+        .credit-card.debit .chip {
+            background: linear-gradient(135deg, #D6B36A 0%, #C7A96B 100%);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .credit-card.debit .brand-text {
+            color: #D6B36A;
+            text-shadow: 0 0 10px rgba(214, 179, 106, 0.3);
         }
 
         /* ChatGPT Design (Credit) */
@@ -343,15 +367,17 @@
                 cards.forEach(card => {
                     const typeClass = card.card_type.toLowerCase();
                     const formattedNum = card.card_number.match(/.{1,4}/g).join(' ');
-                    const brandLabel = card.card_type === 'DEBIT' ? 'GROK DEBIT' : 'CHATGPT CREDIT';
-                    const logoSrc = card.card_type === 'DEBIT' ? 'assets/grok.jpg' : 'assets/chatgpt.jpg';
+                    const brandLabel = card.card_type === 'DEBIT' ? 'EMERALD ELITE' : 'CHATGPT CREDIT';
+                    const logoSrc = card.card_type === 'DEBIT' ? 'assets/emerald_elite.png' : 'assets/chatgpt.jpg';
+                    const monogramHtml = card.card_type === 'DEBIT' ? '<div class="monogram">R</div>' : '';
 
                     const cardHtml = `
-                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit}, '${formattedNum}', '${card.card_holder_name}', '${card.expiry_date}', '${card.cvv}')" class="credit-card ${typeClass} text-white p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col justify-between cursor-pointer border border-white/10 group relative">
+                        <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit}, '${formattedNum}', '${card.card_holder_name}', '${card.expiry_date}', '${card.cvv}')" class="credit-card ${typeClass} text-white p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col justify-between cursor-pointer border border-white/10 group relative overflow-hidden">
+                            ${monogramHtml}
                             <img src="${logoSrc}" class="logo-overlay" alt="logo">
                             <div class="flex justify-between items-start relative z-10 text-white">
                                 <div class="chip"></div>
-                                <div class="font-black italic text-[#F2F2F2] text-xl tracking-tighter uppercase">${brandLabel}</div>
+                                <div class="brand-text font-black italic text-[#F2F2F2] text-xl tracking-tighter uppercase">${brandLabel}</div>
                             </div>
                             <div class="mt-8 relative z-10">
                                 <div class="text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-1">Card Number</div>
@@ -389,10 +415,10 @@
             const bg = document.getElementById('modalPreviewBg');
 
             if (type === 'DEBIT') {
-                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#000000] to-[#1a1a1a] border border-white/10';
-                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-gray-900';
-                bg.className = 'absolute inset-0 opacity-10 bg-white';
-                document.getElementById('miniCardBrand').textContent = 'GROK DEBIT';
+                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#0F2A1D] to-[#163D2C] border border-[#D6B36A]/30';
+                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-[#0F2A1D]';
+                bg.className = 'absolute inset-0 opacity-10 bg-[#D6B36A]';
+                document.getElementById('miniCardBrand').textContent = 'EMERALD ELITE';
             } else {
                 mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#0a4d44] to-[#10a37f] border border-white/20';
                 side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-[#0a4d44]';
