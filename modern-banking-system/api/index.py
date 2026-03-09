@@ -1,4 +1,4 @@
-import os # Trigger Vercel deploy (2026-03-10 00:31)
+import os # Force redeploy V1.7.0 - Emerald Sovereign & Global Luxury Theme Sync & Trigger Vercel deploy (2026-03-10)
 import sys
 
 # Prevent Vercel read-only filesystem errors for cache dirs

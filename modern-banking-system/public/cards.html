@@ -14,6 +14,11 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
+        body {
+            background-color: #081B13;
+            font-family: 'Inter', sans-serif;
+        }
+
         .credit-card {
             aspect-ratio: 1.586 / 1;
             position: relative;
@@ -62,14 +67,64 @@
             text-shadow: 0 0 10px rgba(214, 179, 106, 0.3);
         }
 
-        /* ChatGPT Design (Credit) */
+        /* Emerald Sovereign Design (Credit) */
         .credit-card.credit {
-            background: linear-gradient(135deg, #0a4d44 0%, #10a37f 100%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #061A12 0%, #0B3D2E 100%);
+            border: 1px solid rgba(42, 245, 152, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(42, 245, 152, 0.1);
         }
 
         .credit-card.credit .logo-overlay {
-            opacity: 0.15;
+            opacity: 0.08;
+            filter: hue-rotate(120deg) brightness(1.2);
+        }
+
+        .credit-card.credit .brand-text {
+            color: #2AF598;
+            text-shadow: 0 0 15px rgba(42, 245, 152, 0.5);
+        }
+
+        .credit-card.credit .chip {
+            background: linear-gradient(135deg, #C9CED6 0%, #E8E8E8 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .credit-card.credit .card-number-text {
+            color: #E8E8E8;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Luxury Panels */
+        .bg-white {
+            background-color: #112E22 !important;
+            border: 1px solid rgba(31, 92, 69, 0.3) !important;
+        }
+
+        .text-gray-900 {
+            color: #E8E8E8 !important;
+        }
+
+        .text-gray-500 {
+            color: #2AF598 !important;
+            opacity: 0.7;
+        }
+
+        /* Buttons Update */
+        .bg-indigo-600 {
+            background-color: #1F5C45 !important;
+        }
+
+        .bg-indigo-600:hover {
+            background-color: #2F7A5F !important;
+        }
+
+        button.secondary-btn {
+            background-color: #B08D57 !important;
+            color: white !important;
+        }
+
+        button.secondary-btn:hover {
+            background-color: #C9A76C !important;
         }
 
         .logo-overlay {
@@ -146,7 +201,7 @@
                 <h1 class="text-4xl font-black tracking-tight text-gray-900 flex items-baseline gap-3">
                     Card Management
                     <span
-                        class="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full uppercase tracking-tighter">V1.5.0-REDESIGN</span>
+                        class="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full uppercase tracking-tighter">V1.7.0-SOVEREIGN</span>
                 </h1>
                 <p class="text-gray-500 mt-2">Manage your physical and virtual payment methods.</p>
             </div>
@@ -373,8 +428,8 @@
                 cards.forEach(card => {
                     const typeClass = card.card_type.toLowerCase();
                     const formattedNum = card.card_number.match(/.{1,4}/g).join(' ');
-                    const brandLabel = card.card_type === 'DEBIT' ? 'EMERALD ELITE' : 'CHATGPT CREDIT';
-                    const logoSrc = card.card_type === 'DEBIT' ? 'assets/emerald_elite.png' : 'assets/chatgpt.jpg';
+                    const brandLabel = card.card_type === 'DEBIT' ? 'EMERALD ELITE' : 'SOVEREIGN ELITE';
+                    const logoSrc = card.card_type === 'DEBIT' ? 'assets/emerald_elite.png' : 'assets/emerald_sovereign.png';
                     const monogramHtml = card.card_type === 'DEBIT' ? '<div class="monogram">R</div>' : '';
 
                     const cardHtml = `
@@ -426,10 +481,10 @@
                 bg.className = 'absolute inset-0 opacity-10 bg-[#D6B36A]';
                 document.getElementById('miniCardBrand').textContent = 'EMERALD ELITE';
             } else {
-                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#0a4d44] to-[#10a37f] border border-white/20';
-                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-[#0a4d44]';
-                bg.className = 'absolute inset-0 opacity-10 bg-[#10a37f]';
-                document.getElementById('miniCardBrand').textContent = 'CHATGPT CREDIT';
+                mini.className = 'w-full aspect-[1.586/1] rounded-2xl p-6 text-white shadow-2xl relative z-10 flex flex-col justify-between bg-gradient-to-br from-[#061A12] to-[#0B3D2E] border border-[#2AF598]/30';
+                side.className = 'w-full md:w-5/12 p-10 flex flex-col justify-center items-center relative overflow-hidden bg-[#061A12]';
+                bg.className = 'absolute inset-0 opacity-10 bg-[#2AF598]';
+                document.getElementById('miniCardBrand').textContent = 'SOVEREIGN ELITE';
             }
 
             document.getElementById('miniCardNumber').textContent = number;
