@@ -99,6 +99,7 @@
                     // Save token to localStorage
                     localStorage.setItem('token', result.access_token);
                     localStorage.setItem('user_id', result.user_id);
+                    localStorage.setItem('role', result.role);
                     // Redirect to dashboard
                     window.location.href = 'dashboard.html';
                 } else {
