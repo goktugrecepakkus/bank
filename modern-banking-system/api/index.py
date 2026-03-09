@@ -1,4 +1,4 @@
-import os # Force redeploy to fix backend/main.py NameError
+import os # Force redeploy V1.5.0 - Card Redesign Assets Sync
 import sys
 
 # Prevent Vercel read-only filesystem errors for cache dirs
