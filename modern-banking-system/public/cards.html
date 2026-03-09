@@ -119,7 +119,11 @@
     <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
             <div>
-                <h1 class="text-4xl font-black tracking-tight text-gray-900">Card Management</h1>
+                <h1 class="text-4xl font-black tracking-tight text-gray-900 flex items-baseline gap-3">
+                    Card Management
+                    <span
+                        class="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full uppercase tracking-tighter">V1.5.0-REDESIGN</span>
+                </h1>
                 <p class="text-gray-500 mt-2">Manage your physical and virtual payment methods.</p>
             </div>
             <button onclick="openModal()"
@@ -340,7 +344,7 @@
                     const typeClass = card.card_type.toLowerCase();
                     const formattedNum = card.card_number.match(/.{1,4}/g).join(' ');
                     const brandLabel = card.card_type === 'DEBIT' ? 'GROK DEBIT' : 'CHATGPT CREDIT';
-                    const logoSrc = card.card_type === 'DEBIT' ? 'grok_logo.jpg' : 'chatgpt_logo.jpg';
+                    const logoSrc = card.card_type === 'DEBIT' ? 'assets/grok.jpg' : 'assets/chatgpt.jpg';
 
                     const cardHtml = `
                         <div onclick="openSettingsModal('${card.id}', '${card.card_type}', '${card.is_domestic_online}', '${card.is_international_online}', ${card.credit_limit}, '${formattedNum}', '${card.card_holder_name}', '${card.expiry_date}', '${card.cvv}')" class="credit-card ${typeClass} text-white p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col justify-between cursor-pointer border border-white/10 group relative">
