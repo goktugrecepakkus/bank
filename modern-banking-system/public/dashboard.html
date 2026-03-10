@@ -505,9 +505,19 @@
                             let costBasisTry = parseFloat(account.cost_basis_try || 0);
 
                             let profitStatus = 'neutral';
+                            let pnlHtml = '';
                             if (account.currency !== 'TRY' && account.balance > 0) {
-                                if (currentValueInTry > costBasisTry + 0.01) profitStatus = 'profit';
-                                else if (currentValueInTry < costBasisTry - 0.01) profitStatus = 'loss';
+                                if (currentValueInTry > costBasisTry + 0.01) {
+                                    profitStatus = 'profit';
+                                    let pnlPercent = ((currentValueInTry - costBasisTry) / costBasisTry) * 100;
+                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ml-2" title="Return on Investment">+${pnlPercent.toFixed(2)}%</span>`;
+                                } else if (currentValueInTry < costBasisTry - 0.01) {
+                                    profitStatus = 'loss';
+                                    let pnlPercent = ((costBasisTry - currentValueInTry) / costBasisTry) * 100;
+                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 ml-2" title="Return on Investment">-${pnlPercent.toFixed(2)}%</span>`;
+                                } else {
+                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 ml-2" title="Return on Investment">0.00%</span>`;
+                                }
                             }
 
                             let statusLight = '';
@@ -536,9 +546,10 @@
                                             </div>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">${account.status}</span>
                                         </div>
-                                        <div class="flex items-baseline gap-2 mt-2">
+                                        <div class="flex items-baseline mt-2">
                                             <span class="text-2xl font-black text-gray-900 tracking-tight">${displayBalance}</span>
-                                            <span class="text-xs font-bold text-gray-500 align-baseline">${account.currency}</span>
+                                            <span class="text-xs font-bold text-gray-500 align-baseline ml-2">${account.currency}</span>
+                                            ${pnlHtml}
                                         </div>
                                         <div class="mt-3 pt-3 border-t border-gray-50 flex flex-col gap-1.5">
                                             ${account.iban ? `<div class="flex items-center justify-between">
