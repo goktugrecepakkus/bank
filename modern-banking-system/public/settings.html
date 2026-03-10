@@ -23,11 +23,11 @@
                             class="text-[#B08D57]">Bank</span></span>
                     <div class="hidden sm:ml-10 sm:flex sm:space-x-8">
                         <a href="dashboard.html"
-                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Vault</a>
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Treasury</a>
                         <a href="cards.html"
-                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Relics</a>
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Cards</a>
                         <a href="settings.html"
-                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Cipher</a>
+                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Security</a>
                         <div id="adminLink" class="hidden">
                             <a href="admin.html"
                                 class="border-transparent text-[#B08D57] hover:text-[#C9A76C] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Overseer</a>
@@ -37,7 +37,7 @@
                 <div class="flex items-center">
                     <button onclick="logout()"
                         class="inline-flex items-center px-6 py-2 border border-[#B08D57]/30 text-[10px] font-bold rounded-full text-[#B08D57] hover:bg-[#B08D57] hover:text-[#0F2A1D] transition-all uppercase tracking-widest">
-                        Depart
+                        Exit
                     </button>
                 </div>
             </div>
@@ -57,21 +57,22 @@
             <div class="bg-[#163D2C] overflow-hidden rounded-[2.5rem] border border-white/5 shadow-2xl relative">
                 <div class="p-10">
                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#B08D57]/5 blur-3xl rounded-full"></div>
-                    <h2 class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-10">Security Cipher
+                    <h2 class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-10">Security
+                        Password
                     </h2>
 
                     <form id="passwordForm" class="space-y-6 max-w-md">
                         <div>
                             <label
                                 class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Current
-                                Keyphrase</label>
+                                Password</label>
                             <input type="password" id="currentPassword" required
                                 class="w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
                         </div>
                         <div>
                             <label
                                 class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">New
-                                Keyphrase</label>
+                                Password</label>
                             <input type="password" id="newPassword" required
                                 class="w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
                         </div>
@@ -87,7 +88,7 @@
 
                         <button type="submit"
                             class="w-full py-4 bg-[#B08D57] hover:bg-[#C9A76C] text-[#0F2A1D] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_10px_20px_-10px_rgba(176,141,87,0.5)] active:scale-95">
-                            Re-Forge Keyphrase
+                            Re-Forge Password
                         </button>
                     </form>
                 </div>
@@ -100,7 +101,7 @@
                     <h2 class="text-[10px] font-bold text-rose-500/60 uppercase tracking-[0.2em] mb-6">Danger Protocol
                     </h2>
                     <p class="text-xs text-[#F2F2F2]/60 mb-8 max-w-xl">Initiating account dissolution is permanent. All
-                        relics, essence, and archives will be irrevocably purged from the Eternal Reserve.</p>
+                        cards, essence, and archives will be irrevocably purged from the Eternal Reserve.</p>
                     <button
                         class="px-8 py-3 border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 rounded-full text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
                         Relinquish Account
@@ -144,7 +145,7 @@
             statusBox.className = 'hidden px-5 py-4 rounded-2xl text-xs font-bold text-center';
 
             if (newPassword !== confirmPassword) {
-                statusBox.textContent = "New keyphrases do not match.";
+                statusBox.textContent = "New passwords do not match.";
                 statusBox.classList.add('bg-rose-900/20', 'border', 'border-rose-500/50', 'text-rose-400', 'mb-6', 'block');
                 return;
             }
@@ -167,12 +168,12 @@
 
                 if (response.ok) {
                     statusBox.className = 'block px-5 py-4 rounded-2xl text-xs font-bold text-center bg-emerald-900/20 border border-emerald-500/50 text-emerald-400 mb-6';
-                    statusBox.textContent = 'Keyphrase successfully re-forged.';
+                    statusBox.textContent = 'Password successfully re-forged.';
                     document.getElementById('passwordForm').reset();
                 } else {
                     const data = await response.json();
                     statusBox.className = 'block px-5 py-4 rounded-2xl text-xs font-bold text-center bg-rose-900/20 border border-rose-500/50 text-rose-400 mb-6';
-                    statusBox.textContent = data.detail || 'Failed to update keyphrase.';
+                    statusBox.textContent = data.detail || 'Failed to update password.';
                 }
             } catch (err) {
                 statusBox.textContent = "Network error. Could not connect to the server.";

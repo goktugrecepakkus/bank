@@ -86,6 +86,7 @@ class Account(Base):
     
     # Paralarla çalışırken her zaman Numeric (Decimal) kullanılır, Float hatalara neden olabilir!
     balance = Column(Numeric(precision=15, scale=2), default=0.00, nullable=False)
+    cost_basis_try = Column(Numeric(precision=15, scale=2), default=0.00, nullable=False)
     status = Column(Enum(AccountStatusEnum), default=AccountStatusEnum.active, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

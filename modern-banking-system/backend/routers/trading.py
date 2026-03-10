@@ -250,6 +250,7 @@ def execute_trade(request: Request, trade: schemas.TradeRequest, current_user: m
     
     if not to_account:
         to_account = models.Account(customer_id=current_user.id, currency=trade.to_currency, balance=0)
+        to_account = models.Account(customer_id=current_user.id, currency=trade.to_currency, balance=0, cost_basis_try=0)
         db.add(to_account)
         db.commit()
 
@@ -261,6 +262,7 @@ def execute_trade(request: Request, trade: schemas.TradeRequest, current_user: m
          
          from_account.balance -= cost_in_try
          to_account.balance += trade.amount
+         to_account.cost_basis_try += cost_in_try
          
          # Ledger (Deposit into Asset Account)
          ledger_entry = models.Ledger(
@@ -275,6 +277,13 @@ def execute_trade(request: Request, trade: schemas.TradeRequest, current_user: m
          if from_account.balance < trade.amount:
               raise HTTPException(status_code=400, detail=f"Insufficient funds. You need {trade.amount} {trade.from_currency}, but have {from_account.balance}.")
               
+         original_asset_balance = from_account.balance # Balance before deduction
+         
+         # Proportional cost basis reduction
+         if original_asset_balance > 0: # Avoid division by zero
+             fraction = trade.amount / original_asset_balance
+             from_account.cost_basis_try -= (from_account.cost_basis_try * fraction)
+         
          from_account.balance -= trade.amount
          to_account.balance += cost_in_try
 

@@ -47,6 +47,7 @@ class AccountResponse(BaseModel):
     account_type: AccountTypeEnum
     currency: str
     balance: Decimal
+    cost_basis_try: Decimal
     status: AccountStatusEnum
     created_at: datetime
 

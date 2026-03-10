@@ -32,11 +32,11 @@
                             class="text-[#B08D57]">Bank</span></span>
                     <div class="hidden sm:ml-10 sm:flex sm:space-x-8">
                         <a href="dashboard.html"
-                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Vault</a>
+                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Treasury</a>
                         <a href="cards.html"
-                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Relics</a>
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Cards</a>
                         <a href="settings.html"
-                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Cipher</a>
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Security</a>
                         <div id="adminLink" class="hidden">
                             <a href="admin.html"
                                 class="border-transparent text-[#B08D57] hover:text-[#C9A76C] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Overseer</a>
@@ -48,7 +48,7 @@
                         class="mr-6 text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em]"></span>
                     <button onclick="logout()"
                         class="inline-flex items-center px-6 py-2 border border-[#B08D57]/30 text-[10px] font-bold rounded-full text-[#B08D57] hover:bg-[#B08D57] hover:text-[#0F2A1D] transition-all uppercase tracking-widest">
-                        Depart
+                        Exit
                     </button>
                 </div>
             </div>
@@ -451,6 +451,23 @@
                         userAccounts.forEach(account => {
                             if (account.currency === 'TRY') primaryTryAccountId = account.id;
 
+                            let currentMarketPrice = livePrices[account.currency] || 1;
+                            let currentValueInTry = parseFloat(account.balance) * currentMarketPrice;
+                            let costBasisTry = parseFloat(account.cost_basis_try || 0);
+
+                            let profitStatus = 'neutral';
+                            if (account.currency !== 'TRY' && account.balance > 0) {
+                                if (currentValueInTry > costBasisTry + 0.01) profitStatus = 'profit';
+                                else if (currentValueInTry < costBasisTry - 0.01) profitStatus = 'loss';
+                            }
+
+                            let statusLight = '';
+                            if (profitStatus === 'profit') {
+                                statusLight = '<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" title="Profitable"></div>';
+                            } else if (profitStatus === 'loss') {
+                                statusLight = '<div class="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)] animate-pulse" title="Loss"></div>';
+                            }
+
                             let isFiat = ['TRY', 'USD', 'EUR'].includes(account.currency);
                             let displayBalance = parseFloat(account.balance).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: isFiat ? 2 : 6 });
 
@@ -464,7 +481,10 @@
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${gradient}"></div>
                                     <div class="p-6 pl-8">
                                         <div class="flex justify-between items-center mb-1">
-                                            <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest">${account.currency} Wallet</h2>
+                                            <div class="flex items-center gap-2">
+                                                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest">${account.currency} Wallet</h2>
+                                                ${statusLight}
+                                            </div>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">${account.status}</span>
                                         </div>
                                         <div class="flex items-baseline gap-2 mt-2">
