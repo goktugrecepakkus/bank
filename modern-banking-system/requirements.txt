@@ -13,3 +13,4 @@ yfinance==0.2.37
 requests
 slowapi
 cryptography
+pyotp
