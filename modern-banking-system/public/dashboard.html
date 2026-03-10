@@ -247,6 +247,24 @@
                     <div class="p-6">
                         <form id="transferForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
+                            <div class="col-span-1 md:col-span-2 mb-2">
+                                <label
+                                    class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Transfer
+                                    Type</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="transfer_type" value="internal"
+                                            class="text-indigo-600 focus:ring-indigo-500" checked>
+                                        <span class="text-sm font-bold text-gray-700">Internal (Rykard Bank)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="transfer_type" value="external"
+                                            class="text-indigo-600 focus:ring-indigo-500">
+                                        <span class="text-sm font-bold text-gray-700">External (Other Bank)</span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label
@@ -609,8 +627,27 @@
         }
 
         // --- TRANSFER LOGIC ---
-        let validationTimeout = null;
-        let resolvedTargetAccountId = null; // IBAN'dan çözümlenen gerçek account ID
+        let isExternalMode = false;
+
+        document.querySelectorAll('input[name="transfer_type"]').forEach((elem) => {
+            elem.addEventListener("change", function (event) {
+                isExternalMode = event.target.value === 'external';
+                const targetInput = document.getElementById('targetAccountId');
+                const hintElement = document.getElementById('recipientNameHint');
+
+                targetInput.value = '';
+                hintElement.classList.add('hidden');
+                document.getElementById('transferSubmitBtn').disabled = true;
+                document.getElementById('transferSubmitBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                resolvedTargetAccountId = null;
+
+                if (isExternalMode) {
+                    targetInput.placeholder = "TRXX XXXX XXXX XXXX XXXX XXXX XX";
+                } else {
+                    targetInput.placeholder = "TR00 0006 1XXX XXXX XXXX XXXX XX";
+                }
+            });
+        });
 
         document.getElementById('targetAccountId').addEventListener('input', function () {
             let targetInput = this.value.trim().replace(/\s/g, ''); // Boşlukları temizle
@@ -626,6 +663,23 @@
             resolvedTargetAccountId = null;
 
             if (targetInput.length < 10) return;
+
+            if (isExternalMode) {
+                // For external transfers, we just validate if it looks like an IBAN and enable the button.
+                // We don't resolve against our DB.
+                if (targetInput.toUpperCase().startsWith('TR') && targetInput.length >= 24) {
+                    hintElement.textContent = `✓ Valid External IBAN format`;
+                    hintElement.className = "mt-1 text-xs font-bold text-emerald-500";
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:bg-[#0f9688]');
+                } else {
+                    hintElement.textContent = "✗ Invalid IBAN format.";
+                    hintElement.className = "mt-1 text-xs font-bold text-amber-500";
+                }
+                hintElement.classList.remove('hidden');
+                return;
+            }
 
             validationTimeout = setTimeout(async () => {
                 hintElement.textContent = "Verifying target node...";
@@ -673,17 +727,31 @@
             submitBtn.textContent = "Processing...";
 
             try {
-                const response = await fetch('/api/ledger/transfer', {
+                let endpoint = '/api/ledger/transfer';
+                let payload = {};
+
+                if (isExternalMode) {
+                    endpoint = '/api/external/send';
+                    payload = {
+                        from_account_id: fromId,
+                        to_iban: document.getElementById('targetAccountId').value.trim().replace(/\s/g, ''),
+                        amount: amount
+                    };
+                } else {
+                    payload = {
+                        from_account_id: fromId,
+                        to_account_id: targetId,
+                        amount: amount
+                    };
+                }
+
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        from_account_id: fromId,
-                        to_account_id: targetId,
-                        amount: amount
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const result = await response.json();

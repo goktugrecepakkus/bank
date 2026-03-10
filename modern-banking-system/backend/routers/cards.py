@@ -38,10 +38,26 @@ router = APIRouter(
 )
 
 def generate_card_number(prefix: str = "4") -> str:
-    """Generates a random 16-digit card number (e.g. starting with 4 for Visa)"""
-    # Simply random 15 digits after the prefix (No Luhn algorithm check needed for demo)
-    rest = ''.join(random.choices(string.digits, k=15))
-    return prefix + rest
+    """Generates a random 16-digit card number using the Luhn algorithm"""
+    # Generate 15 digits including the prefix
+    length_without_check = 15
+    rest_length = length_without_check - len(prefix)
+    rest = ''.join(random.choices(string.digits, k=rest_length))
+    partial_number = prefix + rest
+    
+    # Calculate Luhn check digit
+    digits = [int(d) for d in partial_number]
+    
+    # Double every second digit from the rightmost
+    for i in range(len(digits) - 1, -1, -2):
+        digits[i] *= 2
+        if digits[i] > 9:
+            digits[i] -= 9
+            
+    total_sum = sum(digits)
+    check_digit = (10 - (total_sum % 10)) % 10
+    
+    return partial_number + str(check_digit)
 
 def generate_cvv() -> str:
     return ''.join(random.choices(string.digits, k=3))
@@ -177,6 +193,14 @@ def review_limit_request(request_id: str, review: schemas.LimitRequestReview, db
         if card:
             card.credit_limit = req.requested_limit
             
+    audit_log = models.AuditLog(
+        customer_id=current_user.id,
+        action="ADMIN_ACTION",
+        details=f"Reviewed limit request {request_id} to {review.status}",
+        ip_address="Unknown"  # omitted for brevity without Request object
+    )
+    db.add(audit_log)
+
     db.commit()
     db.refresh(req)
     return req

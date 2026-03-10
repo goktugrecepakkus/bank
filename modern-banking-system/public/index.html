@@ -64,6 +64,34 @@
         </p>
     </div>
 
+    <!-- 2FA Modal -->
+    <div id="twoFactorModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-sm border border-white/10 relative">
+            <h2 class="text-2xl font-black text-center text-[#F2F2F2] mb-6 uppercase tracking-wider">Two-Factor Auth
+            </h2>
+            <p class="text-center text-[#F2F2F2]/60 mb-6 text-xs">Enter the 6-digit code from your authenticator app.
+            </p>
+
+            <input type="hidden" id="temp_token">
+
+            <div class="mb-6">
+                <input type="text" id="otpCode" placeholder="000000" maxlength="6"
+                    class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/80 border border-white/10 rounded-xl text-center text-2xl tracking-[0.5em] font-mono text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
+            </div>
+
+            <div id="twoFactorErrorBox"
+                class="hidden bg-red-900/40 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl mb-6 text-xs font-bold text-center">
+            </div>
+
+            <div class="flex gap-4">
+                <button type="button" id="cancel2FaBtn"
+                    class="flex-1 py-3 px-4 border border-white/20 rounded-xl text-xs font-bold text-[#F2F2F2] hover:bg-white/5 transition-all uppercase">Cancel</button>
+                <button type="button" id="verify2FaBtn"
+                    class="flex-1 py-3 px-4 bg-[#B08D57] rounded-xl text-xs font-black text-[#0F2A1D] hover:bg-[#C9A76C] transition-all uppercase shadow-[0_5px_15px_rgba(176,141,87,0.4)]">Verify</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -96,12 +124,19 @@
                 }
 
                 if (response.ok) {
-                    // Save token to localStorage
-                    localStorage.setItem('token', result.access_token);
-                    localStorage.setItem('user_id', result.user_id);
-                    localStorage.setItem('role', result.role);
-                    // Redirect to dashboard
-                    window.location.href = 'dashboard.html';
+                    if (result.requires_2fa) {
+                        // Show 2FA modal
+                        document.getElementById('twoFactorModal').classList.remove('hidden');
+                        document.getElementById('twoFactorModal').classList.add('flex');
+                        document.getElementById('temp_token').value = result.access_token;
+                    } else {
+                        // Save token to localStorage
+                        localStorage.setItem('token', result.access_token);
+                        localStorage.setItem('user_id', result.user_id);
+                        localStorage.setItem('role', result.role);
+                        // Redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    }
                 } else {
                     if (result.traceback) {
                         console.error("BACKEND TRACEBACK:", result.traceback);
@@ -119,6 +154,42 @@
                 }
                 errorBox.classList.remove('hidden');
             }
+        });
+
+        // Handle 2FA submission
+        document.getElementById('verify2FaBtn').addEventListener('click', async () => {
+            const otpCode = document.getElementById('otpCode').value;
+            const tempToken = document.getElementById('temp_token').value;
+            const errorBox = document.getElementById('twoFactorErrorBox');
+
+            try {
+                const verifyResponse = await fetch('/api/auth/login/2fa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temp_token: tempToken, otp_code: otpCode })
+                });
+
+                const verifyResult = await verifyResponse.json();
+
+                if (verifyResponse.ok) {
+                    localStorage.setItem('token', verifyResult.access_token);
+                    localStorage.setItem('user_id', verifyResult.user_id);
+                    localStorage.setItem('role', verifyResult.role);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorBox.textContent = verifyResult.detail || "Invalid 2FA code";
+                    errorBox.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorBox.textContent = error.message || "An unexpected error occurred.";
+                errorBox.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('cancel2FaBtn').addEventListener('click', () => {
+            document.getElementById('twoFactorModal').classList.add('hidden');
+            document.getElementById('twoFactorModal').classList.remove('flex');
+            document.getElementById('otpCode').value = '';
         });
     </script>
 </body>

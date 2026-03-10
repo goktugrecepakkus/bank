@@ -107,6 +107,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 from fastapi import APIRouter
 
+from routers import customer, account, ledger, auth, trading, cards, external
+
 # Create a master API router strictly for Vercel prefixing
 api_router = APIRouter(prefix="/api")
 
@@ -117,6 +119,7 @@ api_router.include_router(account.router)
 api_router.include_router(ledger.router)
 api_router.include_router(trading.router)
 api_router.include_router(cards.router)
+api_router.include_router(external.router)
 
 # Include the master router into the main FastAPI application
 app.include_router(api_router)

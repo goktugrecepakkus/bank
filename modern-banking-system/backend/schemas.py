@@ -34,6 +34,18 @@ class CustomerResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class TwoFactorSetupResponse(BaseModel):
+    secret: str
+    qr_code_url: str
+
+class TwoFactorVerify(BaseModel):
+    user_id: str
+    token: str
+
+class TwoFactorLogin(BaseModel):
+    temp_token: str
+    otp_code: str
+
 # --- ACCOUNT SCHEMAS ---
 class AccountCreate(BaseModel):
     customer_id: str
@@ -117,6 +129,17 @@ class TransferRequest(BaseModel):
     from_account_id: str
     to_account_id: str
     amount: Decimal = Field(..., gt=0) # Tutar her zaman 0'dan büyük olmalı
+
+class ExternalTransferRequest(BaseModel):
+    from_account_id: str
+    to_iban: str
+    amount: Decimal = Field(..., gt=0)
+
+class ExternalReceiveRequest(BaseModel):
+    to_account_iban: str
+    from_iban: str
+    amount: Decimal = Field(..., gt=0)
+    description: Optional[str] = None
 
 class LedgerResponse(BaseModel):
     transaction_id: str

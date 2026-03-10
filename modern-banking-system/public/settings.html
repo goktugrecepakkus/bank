@@ -94,6 +94,53 @@
                 </div>
             </div>
 
+            <!-- 2FA Section -->
+            <div class="bg-[#163D2C] overflow-hidden rounded-[2.5rem] border border-white/5 shadow-2xl relative">
+                <div class="p-10">
+                    <h2 class="text-[10px] font-bold text-[#B08D57] uppercase tracking-[0.2em] mb-4">Two-Factor Security
+                        (2FA)</h2>
+                    <p class="text-xs text-[#F2F2F2]/60 mb-8 max-w-xl">Enhance your account's defense by requiring an
+                        Authenticator code upon entry.</p>
+
+                    <div id="setup2faSection" class="mb-6 hidden">
+                        <button id="startSetupBtn" type="button"
+                            class="px-6 py-3 border border-[#B08D57]/50 text-[#B08D57] hover:bg-[#B08D57] hover:text-[#0F2A1D] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                            Initialize 2FA
+                        </button>
+                    </div>
+
+                    <div id="verify2faSection" class="mb-6 hidden space-y-4">
+                        <div class="bg-white p-4 rounded-xl w-fit inline-block mb-4">
+                            <img id="qrCodeImg" src="" alt="QR Code" class="w-40 h-40 object-contain">
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-[#F2F2F2]/60 mb-2">Scan with Authenticator or use code:
+                                <span id="secretKeyText"
+                                    class="font-mono text-[#F2F2F2] tracking-wider bg-black/20 px-2 py-1 rounded cursor-copy"
+                                    onclick="navigator.clipboard.writeText(this.innerText)"></span></p>
+                            <input type="text" id="setupOtpCode" placeholder="000000" maxlength="6"
+                                class="w-48 px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-center text-xl tracking-[0.3em] font-mono text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all mb-4 block">
+                            <button id="enable2faBtn" type="button"
+                                class="px-6 py-3 bg-[#B08D57] hover:bg-[#C9A76C] text-[#0F2A1D] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                Verify & Enable
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="enabled2faSection" class="mb-6 hidden">
+                        <div
+                            class="flex items-center gap-3 bg-emerald-900/20 border border-emerald-500/50 p-4 rounded-2xl w-fit">
+                            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">2FA is Currently
+                                Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Danger Zone -->
             <div
                 class="bg-[#163D2C] overflow-hidden rounded-[2.5rem] border border-white/5 shadow-2xl relative border-rose-500/20">
@@ -180,8 +227,78 @@
                 statusBox.classList.add('bg-rose-900/20', 'border', 'border-rose-500/50', 'text-rose-400', 'mb-6', 'block');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Update Password';
+                submitBtn.textContent = 'Re-Forge Password';
             }
+        });
+
+        // 2FA Flow
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check current 2FA Profile status securely by polling a backend profile route if one existed
+            // For now, assume Not Setup and show the setup button. Realistically requires backend state.
+            // But we can just show Setup and let backend throw "already enabled" if clicked.
+            document.getElementById('setup2faSection').classList.remove('hidden');
+
+            document.getElementById('startSetupBtn').addEventListener('click', async () => {
+                const btn = document.getElementById('startSetupBtn');
+                btn.disabled = true;
+                btn.textContent = 'Generating...';
+
+                try {
+                    const apiResp = await fetch('/api/auth/2fa/setup', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const apiData = await apiResp.json();
+
+                    if (apiResp.ok) {
+                        document.getElementById('setup2faSection').classList.add('hidden');
+                        document.getElementById('verify2faSection').classList.remove('hidden');
+
+                        // Generate QR code URL using Chart.js Google API
+                        const qrUrl = `https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=${encodeURIComponent(apiData.qr_code_url)}`;
+                        document.getElementById('qrCodeImg').src = qrUrl;
+                        document.getElementById('secretKeyText').textContent = apiData.secret;
+                    } else {
+                        if (apiData.detail === "2FA is already enabled") {
+                            document.getElementById('setup2faSection').classList.add('hidden');
+                            document.getElementById('enabled2faSection').classList.remove('hidden');
+                        } else {
+                            alert(apiData.detail || "Failed to setup 2FA");
+                        }
+                    }
+                } catch (e) {
+                    alert("Connection error.");
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Initialize 2FA';
+                }
+            });
+
+            document.getElementById('enable2faBtn').addEventListener('click', async () => {
+                const code = document.getElementById('setupOtpCode').value;
+                if (!code || code.length !== 6) return alert("Please enter valid 6 digit code.");
+
+                try {
+                    const verifyResp = await fetch('/api/auth/2fa/enable', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ token: code })
+                    });
+
+                    if (verifyResp.ok) {
+                        document.getElementById('verify2faSection').classList.add('hidden');
+                        document.getElementById('enabled2faSection').classList.remove('hidden');
+                    } else {
+                        const err = await verifyResp.json();
+                        alert(err.detail || "Invalid code.");
+                    }
+                } catch (e) {
+                    alert("Connection error");
+                }
+            });
         });
     </script>
 </body>

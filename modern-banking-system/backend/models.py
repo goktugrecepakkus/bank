@@ -70,6 +70,11 @@ class Customer(Base):
 
     mothers_maiden_name = Column(String, nullable=False, server_default="Unknown")
     role = Column(Enum(RoleEnum), default=RoleEnum.customer, nullable=False)
+    
+    # 2FA Fields
+    two_factor_secret = Column(String, nullable=True)
+    is_two_factor_enabled = Column(String, default="FALSE", nullable=False) # Storing as String "TRUE"/"FALSE" for db compatibility
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationship -> Hesapları görebilmek için
@@ -150,4 +155,16 @@ class LimitRequest(Base):
 
     # İlişkiler
     card = relationship("Card")
+    customer = relationship("Customer")
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    customer_id = Column(String, ForeignKey("customers.id"), nullable=True)
+    action = Column(String, nullable=False) # LOGIN_SUCCESS, LOGIN_FAILED, PASSWORD_CHANGE, ADMIN_ACTION, SUSPICIOUS_TRANSFER
+    details = Column(String, nullable=True) # JSON config or simple string
+    ip_address = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
     customer = relationship("Customer")

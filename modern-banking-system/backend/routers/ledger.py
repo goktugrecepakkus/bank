@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from decimal import Decimal
 from typing import List
+from datetime import datetime, timedelta
 from database import get_db
 import models
 import schemas
@@ -11,15 +12,21 @@ from rate_limiter import limiter, TRANSFER_LIMIT
 
 router = APIRouter(prefix="/ledger", tags=["Ledger & Transfers"])
 
+DAILY_TRANSFER_LIMIT = Decimal("100000.00")
+SUSPICIOUS_TRANSFER_THRESHOLD = Decimal("50000.00")
+
 @router.post("/transfer", response_model=schemas.LedgerResponse)
 @limiter.limit(TRANSFER_LIMIT)
-def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Session = Depends(get_db)):
+def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Session = Depends(get_db), current_user: models.Customer = Depends(get_current_user)):
     # 1. Hesapların var olup olmadığını kontrol et
     from_account = db.query(models.Account).filter(models.Account.id == transfer.from_account_id).first()
     to_account = db.query(models.Account).filter(models.Account.id == transfer.to_account_id).first()
 
     if not from_account or not to_account:
         raise HTTPException(status_code=404, detail="One or both accounts not found")
+        
+    if from_account.customer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only transfer from your own accounts")
 
     if from_account.status != models.AccountStatusEnum.active or to_account.status != models.AccountStatusEnum.active:
         raise HTTPException(status_code=400, detail="One or both accounts are not ACTIVE")
@@ -30,6 +37,28 @@ def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Ses
     # 2. Bakiye kontrolü (Yetersiz Bakiye mi?)
     if from_account.balance < transfer.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds")
+
+    # 3. AML KONTROLLERI (Daily Limit Check)
+    today = datetime.utcnow().date()
+    start_of_day = datetime(today.year, today.month, today.day)
+    
+    daily_transfers = db.query(func.sum(models.Ledger.amount)).filter(
+        models.Ledger.from_account_id == from_account.id,
+        models.Ledger.created_at >= start_of_day
+    ).scalar() or Decimal("0.00")
+    
+    if daily_transfers + transfer.amount > DAILY_TRANSFER_LIMIT:
+        raise HTTPException(status_code=400, detail=f"Daily transfer limit of {DAILY_TRANSFER_LIMIT} exceeded")
+
+    # ŞÜPHELİ İŞLEM LOGLAMA
+    if transfer.amount >= SUSPICIOUS_TRANSFER_THRESHOLD:
+        audit_log = models.AuditLog(
+            customer_id=current_user.id,
+            action="SUSPICIOUS_TRANSFER",
+            details=f"Large transfer of {transfer.amount} to {to_account.id}",
+            ip_address=request.client.host if request.client else "Unknown"
+        )
+        db.add(audit_log)
 
     # 4. HESAP BAKIYELERINI GUNCELLE (Önce bakiye güncellenir)
     from_account.balance -= transfer.amount
