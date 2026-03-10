@@ -947,8 +947,8 @@
 
         // Init page
         document.addEventListener('DOMContentLoaded', async () => {
+            await fetchMarketPrices(); // Must fetch live prices FIRST for PnL math
             await fetchAccountData();
-            await fetchMarketPrices();
         });
     </script>
 </body>
