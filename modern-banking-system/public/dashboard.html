@@ -511,7 +511,12 @@
                                     let avgBuyPrice = costBasisTry / parseFloat(account.balance);
                                     let pnlPercent = ((currentMarketPrice - avgBuyPrice) / avgBuyPrice) * 100;
 
-                                    if (pnlPercent > 0.01) {
+                                    if (pnlPercent > 50.0 && ['USD', 'EUR', 'BTC', 'ETH'].includes(account.currency)) {
+                                        // This happens if the user has migrated/free balances (cost basis = 0) mixed with newly bought balances.
+                                        // A >50% abrupt profit on Forex is mathematically almost impossible in normal trading, so we flag it.
+                                        profitStatus = 'profit';
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 ml-2" title="Includes Migrated/Zero-Cost Assets">Mixed Basis</span>`;
+                                    } else if (pnlPercent > 0.01) {
                                         profitStatus = 'profit';
                                         pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ml-2" title="Avg Buy: ₺${avgBuyPrice.toFixed(2)}">+${pnlPercent.toFixed(2)}%</span>`;
                                     } else if (pnlPercent < -0.01) {
