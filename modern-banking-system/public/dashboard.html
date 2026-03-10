@@ -507,16 +507,22 @@
                             let profitStatus = 'neutral';
                             let pnlHtml = '';
                             if (account.currency !== 'TRY' && account.balance > 0) {
-                                if (currentValueInTry > costBasisTry + 0.01) {
-                                    profitStatus = 'profit';
-                                    let pnlPercent = ((currentValueInTry - costBasisTry) / costBasisTry) * 100;
-                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ml-2" title="Return on Investment">+${pnlPercent.toFixed(2)}%</span>`;
-                                } else if (currentValueInTry < costBasisTry - 0.01) {
-                                    profitStatus = 'loss';
-                                    let pnlPercent = ((costBasisTry - currentValueInTry) / costBasisTry) * 100;
-                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 ml-2" title="Return on Investment">-${pnlPercent.toFixed(2)}%</span>`;
+                                if (costBasisTry > 0) {
+                                    if (currentValueInTry > costBasisTry + 0.01) {
+                                        profitStatus = 'profit';
+                                        let pnlPercent = ((currentValueInTry - costBasisTry) / costBasisTry) * 100;
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ml-2" title="Return on Investment">+${pnlPercent.toFixed(2)}%</span>`;
+                                    } else if (currentValueInTry < costBasisTry - 0.01) {
+                                        profitStatus = 'loss';
+                                        let pnlPercent = ((costBasisTry - currentValueInTry) / costBasisTry) * 100;
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 ml-2" title="Return on Investment">-${pnlPercent.toFixed(2)}%</span>`;
+                                    } else {
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 ml-2" title="Return on Investment">0.00%</span>`;
+                                    }
                                 } else {
-                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-200 ml-2" title="Return on Investment">0.00%</span>`;
+                                    // If cost basis is 0 (e.g. from migrations or free drops), we can't calculate a normal percentage. 
+                                    profitStatus = 'profit';
+                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ml-2" title="Return on Investment (Free/Migrated Asset)">100% (N/A)</span>`;
                                 }
                             }
 
