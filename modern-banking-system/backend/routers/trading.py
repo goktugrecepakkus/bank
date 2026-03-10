@@ -261,6 +261,12 @@ def execute_trade(request: Request, trade: schemas.TradeRequest, current_user: m
              raise HTTPException(status_code=400, detail=f"Insufficient funds. You need {cost_in_try} TRY, but have {from_account.balance} TRY.")
          
          from_account.balance -= cost_in_try
+         
+         # ZERO-COST BASIS NORMALIZATION: 
+         # If the account has a balance but 0 cost basis (e.g., migrated), normalize it before adding the new cost
+         if to_account.balance > 0 and (to_account.cost_basis_try is None or to_account.cost_basis_try == 0):
+             to_account.cost_basis_try = to_account.balance * asset_price_in_try
+             
          to_account.balance += trade.amount
          to_account.cost_basis_try += cost_in_try
          
