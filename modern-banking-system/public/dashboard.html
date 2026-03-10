@@ -80,9 +80,8 @@
                     My Assets
                 </h2>
 
-                <div id="accountsContainer" class="flex flex-col gap-4">
-                    <!-- Dynamic Accounts will be injected here. -->
-                    <div class="glassmorphism rounded-2xl p-6 text-center text-gray-500 shadow-sm">
+                <div id="accountsWrapper" class="flex flex-col gap-6">
+                    <div class="glassmorphism rounded-2xl p-6 text-center text-gray-500 shadow-sm" id="loadingAccounts">
                         <div class="animate-pulse flex space-x-4">
                             <div class="flex-1 space-y-4 py-1">
                                 <div class="h-4 bg-slate-200 rounded w-3/4 mx-auto"></div>
@@ -92,6 +91,24 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Crypto & Fiat Wallets -->
+                    <div id="group-crypto-fiat" class="hidden flex-col gap-3">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2">Crypto & Fiat</h3>
+                        <div id="accounts-crypto-fiat" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    <!-- BIST 100 Wallets -->
+                    <div id="group-bist100" class="hidden flex-col gap-3">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2">BIST 100</h3>
+                        <div id="accounts-bist100" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    <!-- S&P 500 Wallets -->
+                    <div id="group-sp500" class="hidden flex-col gap-3">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2">S&P 500</h3>
+                        <div id="accounts-sp500" class="flex flex-col gap-3"></div>
                     </div>
                 </div>
 
@@ -426,12 +443,12 @@
                     if (['XAU', 'XAG'].includes(p.currency)) iconColor = 'text-amber-600';
                     if (['USD', 'EUR'].includes(p.currency)) iconColor = 'text-green-500';
 
-                    const row = `<tr class="hover:bg-gray-50/50 transition-colors">
-                           <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2">
+                    const row = `<tr class="hover:bg-indigo-50/50 transition-colors cursor-pointer group" onclick="selectTradeAsset('${p.currency}')">
+                           <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2 group-hover:text-indigo-700 transition-colors">
                                <div class="w-2 h-2 rounded-full bg-current ${iconColor}"></div>
                                ${p.currency}
                            </td>
-                           <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-mono font-bold text-gray-700">₺${formattedPrice}</td>
+                           <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-mono font-bold text-gray-700 group-hover:text-indigo-900 transition-colors">₺${formattedPrice}</td>
                      </tr>`;
                     tbody.insertAdjacentHTML('beforeend', row);
 
@@ -455,10 +472,24 @@
                 if (response.ok) {
                     userAccounts = await response.json();
 
-                    const container = document.getElementById('accountsContainer');
+                    const loadingDiv = document.getElementById('loadingAccounts');
+                    const wrapper = document.getElementById('accountsWrapper');
                     const fromAccountSelect = document.getElementById('transferFromAccount');
 
-                    container.innerHTML = '';
+                    if (loadingDiv) loadingDiv.remove();
+
+                    // Containers
+                    const cryptoFiatList = document.getElementById('accounts-crypto-fiat');
+                    const bist100List = document.getElementById('accounts-bist100');
+                    const sp500List = document.getElementById('accounts-sp500');
+
+                    const groupCryptoFiat = document.getElementById('group-crypto-fiat');
+                    const groupBist100 = document.getElementById('group-bist100');
+                    const groupSp500 = document.getElementById('group-sp500');
+
+                    cryptoFiatList.innerHTML = '';
+                    bist100List.innerHTML = '';
+                    sp500List.innerHTML = '';
                     fromAccountSelect.innerHTML = '';
 
                     if (userAccounts.length > 0) {
@@ -497,7 +528,7 @@
                             const cardHtml = `
                                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative group hover:shadow-md transition-all">
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${gradient}"></div>
-                                    <div class="p-6 pl-8">
+                                    <div class="p-5 pl-7">
                                         <div class="flex justify-between items-center mb-1">
                                             <div class="flex items-center gap-2">
                                                 <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest">${account.currency} Wallet</h2>
@@ -506,10 +537,10 @@
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">${account.status}</span>
                                         </div>
                                         <div class="flex items-baseline gap-2 mt-2">
-                                            <span class="text-3xl font-black text-gray-900 tracking-tight">${displayBalance}</span>
-                                            <span class="text-sm font-bold text-gray-500 align-baseline">${account.currency}</span>
+                                            <span class="text-2xl font-black text-gray-900 tracking-tight">${displayBalance}</span>
+                                            <span class="text-xs font-bold text-gray-500 align-baseline">${account.currency}</span>
                                         </div>
-                                        <div class="mt-4 pt-4 border-t border-gray-50 flex flex-col gap-2">
+                                        <div class="mt-3 pt-3 border-t border-gray-50 flex flex-col gap-1.5">
                                             ${account.iban ? `<div class="flex items-center justify-between">
                                                 <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">IBAN</span>
                                                 <span class="font-mono text-xs bg-indigo-50 px-2 py-1 rounded-md text-indigo-700 cursor-pointer hover:bg-indigo-100 transition border border-indigo-100"
@@ -524,14 +555,28 @@
                                     </div>
                                 </div>
                              `;
-                            container.insertAdjacentHTML('beforeend', cardHtml);
+
+                            // Determine which list to append to
+                            if (account.currency.endsWith('.IS')) {
+                                bist100List.insertAdjacentHTML('beforeend', cardHtml);
+                                groupBist100.classList.remove('hidden');
+                                groupBist100.classList.add('flex');
+                            } else if (account.currency === 'AAPL' || account.currency === 'TSLA' || account.currency === 'MSFT' || account.currency === 'GOOGL' || account.currency === 'AMZN' || account.currency === 'NVDA') {
+                                sp500List.insertAdjacentHTML('beforeend', cardHtml);
+                                groupSp500.classList.remove('hidden');
+                                groupSp500.classList.add('flex');
+                            } else {
+                                cryptoFiatList.insertAdjacentHTML('beforeend', cardHtml);
+                                groupCryptoFiat.classList.remove('hidden');
+                                groupCryptoFiat.classList.add('flex');
+                            }
 
                             fromAccountSelect.insertAdjacentHTML('beforeend', `<option value="${account.id}">${account.currency} - Available: ${displayBalance}</option>`);
                         });
 
                         fetchTransactionHistory();
                     } else {
-                        container.innerHTML = '<div class="glassmorphism p-6 rounded-2xl text-center font-bold text-red-600">Error reading wallets.</div>';
+                        wrapper.innerHTML = '<div class="glassmorphism p-6 rounded-2xl text-center font-bold text-red-600">Error reading wallets.</div>';
                     }
                 } else if (response.status === 401) {
                     logout();
@@ -781,6 +826,24 @@
 
 
         // --- TRADING LOGIC ---
+        function selectTradeAsset(currency) {
+            const select = document.getElementById('tradeAsset');
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === currency) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+
+            // Add a brief highlight flash to the select box
+            select.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500');
+            setTimeout(() => {
+                select.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500');
+            }, 500);
+
+            calculateEstimate();
+        }
+
         function calculateEstimate() {
             const action = document.getElementById('tradeAction').value;
             const asset = document.getElementById('tradeAsset').value;
