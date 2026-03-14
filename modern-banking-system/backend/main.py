@@ -176,4 +176,4 @@ if os.path.exists(frontend_path):
 else:
     print(f"Warning: Public directory not found at {frontend_path}. Static files will not be served.")
 
-# Trigger Vercel Deploy 2026-03-10-3: Database Fix & V1.7.1 Sovereign Elite Sync
+# Trigger Vercel Deploy 2026-03-14-1: Triggering new deployment for friend's update
