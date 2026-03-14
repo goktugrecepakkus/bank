@@ -49,7 +49,15 @@ def get_customer_accounts(customer_id: str, currency: Optional[models.CurrencyEn
     if currency:
         query = query.filter(models.Account.currency == currency)
     accounts = query.all()
-    return accounts
+    
+    # Hide zero-balance accounts unless they are TRY (base fiat) or BTC (user requested exception)
+    filtered_accounts = []
+    for acc in accounts:
+        if acc.balance <= 0 and acc.currency not in ["TRY", "BTC"]:
+            continue
+        filtered_accounts.append(acc)
+        
+    return filtered_accounts
 
 @router.get("/accounts/validate-iban/{iban}")
 def validate_account_by_iban(iban: str, db: Session = Depends(get_db)):
