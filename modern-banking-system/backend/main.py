@@ -28,16 +28,30 @@ def startup_event():
         Base.metadata.create_all(bind=engine)
         print("Database connection and table creation successful.")
         
-        # Enforce Row Level Security (RLS) on audit_logs
+        # Enforce Row Level Security (RLS) on audit_logs with policy
         try:
             from sqlalchemy import text
             from database import engine
             if engine.url.drivername.startswith("postgres"):
                 with engine.connect() as conn:
-                    # Supabase'te public schema'ya expose edilen tabloların güvenliği için RLS açılması önerilir.
+                    # RLS'yi etkinleştir
                     conn.execute(text("ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;"))
+                    # Policy: Sadece service_role (backend) erişebilir, anon/authenticated kullanıcılar erişemez
+                    conn.execute(text("""
+                        DO $$
+                        BEGIN
+                            IF NOT EXISTS (
+                                SELECT 1 FROM pg_policies
+                                WHERE tablename = 'audit_logs' AND policyname = 'service_role_only'
+                            ) THEN
+                                CREATE POLICY service_role_only ON public.audit_logs
+                                    FOR ALL
+                                    USING (current_setting('role') = 'service_role');
+                            END IF;
+                        END $$;
+                    """))
                     conn.commit()
-                    print("[Migration] Enabled RLS on public.audit_logs table.")
+                    print("[Migration] Enabled RLS + policy on public.audit_logs.")
         except Exception as rls_err:
             print(f"[Migration] RLS migration note: {rls_err}")
 
