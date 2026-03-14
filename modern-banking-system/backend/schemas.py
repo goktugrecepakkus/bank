@@ -46,6 +46,13 @@ class TwoFactorLogin(BaseModel):
     temp_token: str
     otp_code: str
 
+class ForgotPasswordCardRequest(BaseModel):
+    username: str
+    card_number: str
+    expiry_date: str
+    cvv: str
+    new_password: str = Field(..., min_length=6)
+
 # --- ACCOUNT SCHEMAS ---
 class AccountCreate(BaseModel):
     customer_id: str

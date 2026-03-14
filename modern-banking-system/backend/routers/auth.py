@@ -142,3 +142,60 @@ def enable_2fa(body: schemas.TwoFactorVerify, current_user: models.Customer = De
     db.commit()
     
     return {"message": "2FA successfully enabled"}
+
+@router.post("/forgot-password")
+@limiter.limit("5/minute")
+def forgot_password_card_verification(
+    request: Request,
+    body: schemas.ForgotPasswordCardRequest,
+    db: Session = Depends(get_db)
+):
+    # 1. Look up the customer by username
+    user = db.query(models.Customer).filter(models.Customer.username == body.username).first()
+    
+    if not user:
+        # Prevent username enumeration - generic error
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Verfication failed. Please check your details."
+        )
+        
+    # 2. Look up the card associated with this customer
+    # Note: We match card_number, expiry_date, and cvv exactly.
+    card = db.query(models.Card).filter(
+        models.Card.customer_id == user.id,
+        models.Card.card_number == body.card_number,
+        models.Card.expiry_date == body.expiry_date,
+        models.Card.cvv == body.cvv,
+        models.Card.status == models.CardStatusEnum.active
+    ).first()
+    
+    if not card:
+        audit_log = models.AuditLog(
+            customer_id=user.id,
+            action="PASSWORD_RECOVERY_FAILED",
+            details="Invalid card verification details provided",
+            ip_address=request.client.host if request.client else "Unknown"
+        )
+        db.add(audit_log)
+        db.commit()
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Verification failed. Please check your card details."
+        )
+        
+    # 3. Validation successful, update the password
+    user.password_hash = pwd_context.hash(body.new_password)
+    
+    audit_log = models.AuditLog(
+        customer_id=user.id,
+        action="PASSWORD_RECOVERY_SUCCESS",
+        details="Password recovered via Card Verification",
+        ip_address=request.client.host if request.client else "Unknown"
+    )
+    db.add(audit_log)
+    db.commit()
+    
+    return {"message": "Password successfully reset. You can now login."}
+
