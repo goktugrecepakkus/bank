@@ -28,6 +28,19 @@ def startup_event():
         Base.metadata.create_all(bind=engine)
         print("Database connection and table creation successful.")
         
+        # Enforce Row Level Security (RLS) on audit_logs
+        try:
+            from sqlalchemy import text
+            from database import engine
+            if engine.url.drivername.startswith("postgres"):
+                with engine.connect() as conn:
+                    # Supabase'te public schema'ya expose edilen tabloların güvenliği için RLS açılması önerilir.
+                    conn.execute(text("ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;"))
+                    conn.commit()
+                    print("[Migration] Enabled RLS on public.audit_logs table.")
+        except Exception as rls_err:
+            print(f"[Migration] RLS migration note: {rls_err}")
+
         # IBAN migration: Mevcut hesaplara IBAN ata
         try:
             from sqlalchemy import text, inspect
