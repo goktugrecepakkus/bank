@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import os
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -155,6 +155,65 @@ api_router.include_router(external.router)
 
 # Include the master router into the main FastAPI application
 app.include_router(api_router)
+
+@app.websocket("/ws/inter-bank/{sender_bank_code}")
+async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
+    """
+    ISO 20022 P2P WebSocket Server for receiving transfers from other banks.
+    """
+    await websocket.accept()
+    print(f"[P2P] Accepted connection from bank: {sender_bank_code}")
+    
+    try:
+        while True:
+            # Receive pacs.008 XML string
+            xml_data = await websocket.receive_text()
+            print(f"[P2P] Received XML from {sender_bank_code}")
+            
+            from iso20022 import parse_pacs008_xml, generate_pacs002_xml
+            from database import SessionLocal
+            import models
+            import uuid
+            
+            try:
+                # 1. Parse the incoming pacs.008
+                data = parse_pacs008_xml(xml_data)
+                
+                # 2. Process Deposit in local DB
+                db = SessionLocal()
+                try:
+                    to_account = db.query(models.Account).filter(models.Account.iban == data["to_iban"]).first()
+                    if to_account and to_account.status == models.AccountStatusEnum.active:
+                        to_account.balance += data["amount"]
+                        new_ledger_entry = models.Ledger(
+                            from_account_id=None,
+                            to_account_id=to_account.id,
+                            amount=data["amount"],
+                            transaction_type=models.TransactionTypeEnum.deposit
+                        )
+                        db.add(new_ledger_entry)
+                        db.commit()
+                        
+                        # 3. Respond with pacs.002 ACK (Success)
+                        ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="ACCP")
+                        await websocket.send_text(ack_xml)
+                        print(f"[P2P] Successfully processed transfer for {data['amount']} {data['currency']} and sent ACK.")
+                    else:
+                        # Respond with pacs.002 RJCT (Rejected - Account not found)
+                        ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="RJCT")
+                        await websocket.send_text(ack_xml)
+                        print(f"[P2P] Rejected transfer: Account {data['to_iban']} not found or inactive.")
+                finally:
+                    db.close()
+                    
+            except Exception as e:
+                print(f"[P2P] Error processing incoming XML: {e}")
+                # Optional: Send error ACK if possible
+                
+    except WebSocketDisconnect:
+        print(f"[P2P] Bank {sender_bank_code} disconnected.")
+    except Exception as e:
+        print(f"[P2P] WebSocket Error: {e}")
 
 @app.get("/health")
 def health_check():

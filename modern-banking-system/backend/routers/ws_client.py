@@ -59,12 +59,48 @@ class WSClientManager:
             
         async for message in self.connection:
             try:
-                data = json.loads(message)
-                await self.process_message(data)
+                if isinstance(message, str) and message.strip().startswith("<?xml"):
+                    logger.info("Received XML message")
+                    await self.process_xml_message(message)
+                else:
+                    data = json.loads(message)
+                    await self.process_message(data)
             except json.JSONDecodeError:
-                logger.error(f"Received non-JSON message: {message}")
+                logger.error(f"Received non-JSON/non-XML message: {message}")
             except Exception as e:
                 logger.error(f"Error processing message: {e}")
+
+    async def process_xml_message(self, xml_string: str):
+        """Process incoming ISO 20022 PACS.008 messages."""
+        try:
+            from iso20022 import parse_pacs008_xml
+            from database import SessionLocal
+            import models
+            
+            data = parse_pacs008_xml(xml_string)
+            logger.info(f"Incoming XML transfer received: {data}")
+            
+            db = SessionLocal()
+            try:
+                to_account = db.query(models.Account).filter(models.Account.iban == data["to_iban"]).first()
+                if to_account and to_account.status == models.AccountStatusEnum.active:
+                    to_account.balance += data["amount"]
+                    new_ledger_entry = models.Ledger(
+                        from_account_id=None,
+                        to_account_id=to_account.id,
+                        amount=data["amount"],
+                        transaction_type=models.TransactionTypeEnum.deposit
+                    )
+                    db.add(new_ledger_entry)
+                    db.commit()
+                    logger.info(f"Successfully processed XML transfer for {data['amount']} {data['currency']}")
+                else:
+                    logger.warning(f"Target account not found or not active: {data['to_iban']}")
+            finally:
+                db.close()
+                
+        except Exception as e:
+            logger.error(f"Failed to process XML message: {e}")
 
     async def process_message(self, data: dict):
         """Process business logic based on message type."""
@@ -92,6 +128,19 @@ class WSClientManager:
             return True
         except Exception as e:
             logger.error(f"Failed to send message: {e}")
+            return False
+            
+    async def send_xml_message(self, xml_string: str):
+        """Send an XML string (like PACS.008) to the Hub."""
+        if not self.connection:
+            logger.error("Cannot send message: WebSocket is not connected.")
+            return False
+            
+        try:
+            await self.connection.send(xml_string)
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send XML message: {e}")
             return False
 
 # Global instance for use in FastAPI app

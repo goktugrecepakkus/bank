@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
+import os
+import asyncio
 from sqlalchemy.orm import Session
 from database import get_db
 import models
@@ -12,7 +14,7 @@ router = APIRouter(prefix="/external", tags=["External Transfers"])
 
 @router.post("/send", response_model=schemas.LedgerResponse)
 @limiter.limit("5/minute")
-def send_to_external_bank(request: Request, transfer_req: schemas.ExternalTransferRequest, db: Session = Depends(get_db), current_user: models.Customer = Depends(get_current_user)):
+def send_to_external_bank(request: Request, transfer_req: schemas.ExternalTransferRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: models.Customer = Depends(get_current_user)):
     """
     Rykard Bank'tan başka bir bankaya para gönderme.
     Kullanıcının bakiyesi düşer, Ledger'a EXTERNAL_TRANSFER (veya TRANSFER) olarak yansır.
@@ -75,23 +77,66 @@ def send_to_external_bank(request: Request, transfer_req: schemas.ExternalTransf
     db.commit()
     db.refresh(new_ledger_entry)
     
-    # Send WebSocket message to Hub
+    # Send WebSocket message to Hub using ISO 20022 PACS.008 XML
     import asyncio
-    ws_payload = {
-        "type": "TRANSFER",
-        "tx_id": new_ledger_entry.transaction_id,
-        "from_bank": ws_client.OUR_BANK_ID,
-        "to_bank": transfer_req.to_iban[:5] if len(transfer_req.to_iban) > 5 else "UNKNOWN", # Basit bir tahmin, hedef banka bilgisi eklenebilir
-        "to_account": transfer_req.to_iban,
-        "amount": float(transfer_req.amount),
-        "currency": "TRY" # Şimdilik sadece TRY varsayılıyor
-    }
+    import uuid
+    from iso20022 import generate_pacs008_xml
     
-    # Use create_task since we are inside a sync route function (or could make route async)
-    if ws_client.connection:
-        asyncio.create_task(ws_client.send_message(ws_payload))
+    message_id = str(uuid.uuid4())
+    to_bank_bic = transfer_req.to_iban[:5] if len(transfer_req.to_iban) > 5 else "UNKNOWN"
+    
+    # Customer name from current_user
+    debtor_name = f"{current_user.first_name} {current_user.last_name}" if hasattr(current_user, 'first_name') else "Customer"
+    
+    from routers.ws_client import OUR_BANK_ID
+    
+    xml_payload = generate_pacs008_xml(
+        message_id=message_id,
+        tx_id=new_ledger_entry.transaction_id,
+        amount=float(transfer_req.amount),
+        currency="TRY", # Şimdilik sadece TRY varsayılıyor
+        from_iban=from_account.iban,
+        to_iban=transfer_req.to_iban,
+        from_bank_bic=OUR_BANK_ID,
+        to_bank_bic=to_bank_bic,
+        debtor_name=debtor_name
+    )
+    
+    # Determine routing: P2P or Hub
+    is_p2p = to_iban.startswith("FINB")
+    
+    # Send WebSocket message
+    import websockets
+    async def send_p2p_transfer():
+        try:
+            # FinBank spec: wss://<url>/ws/inter-bank/{SENDER_BANK_CODE}
+            # For now using a placeholder for FinBank's URL (should be in a config/db later)
+            FINBANK_WS_URL = os.getenv("FINBANK_WS_URL", "ws://localhost:9999/ws/inter-bank/RYKRD")
+            
+            async with websockets.connect(FINBANK_WS_URL) as ws:
+                await ws.send(xml_payload)
+                print(f"[P2P Out] Sent pacs.008 to FinBank. Waiting for ACK...")
+                
+                # Wait for pacs.002 ACK
+                try:
+                    ack_xml = await asyncio.wait_for(ws.recv(), timeout=10.0)
+                    from iso20022 import parse_pacs002_xml
+                    ack_data = parse_pacs002_xml(ack_xml)
+                    if ack_data["status"] == "ACCP":
+                        print(f"[P2P Out] Transfer ACCEPTED by FinBank: {ack_data['original_tx_id']}")
+                    else:
+                        print(f"[P2P Out] Transfer REJECTED by FinBank: {ack_data['status']}")
+                except asyncio.TimeoutError:
+                    print("[P2P Out] Timeout waiting for ACK from FinBank.")
+        except Exception as e:
+            print(f"[P2P Out] Failed to send P2P transfer: {e}")
+
+    if is_p2p:
+        background_tasks.add_task(send_p2p_transfer)
+    elif ws_client.connection:
+        background_tasks.add_task(ws_client.send_xml_message, xml_payload)
     else:
-        print("Warning: WS Client is not connected, transfer simulated locally but message not sent.")
+        print("Warning: No P2P routing match and Hub is disconnected.")
     
     return new_ledger_entry
 
