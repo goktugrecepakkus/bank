@@ -20,7 +20,15 @@ SUSPICIOUS_TRANSFER_THRESHOLD = Decimal("50000.00")
 def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Session = Depends(get_db), current_user: models.Customer = Depends(get_current_user)):
     # 1. Hesapların var olup olmadığını kontrol et
     from_account = db.query(models.Account).filter(models.Account.id == transfer.from_account_id).first()
-    to_account = db.query(models.Account).filter(models.Account.id == transfer.to_account_id).first()
+    
+    # Hedef hesap ID veya IBAN olabilir.
+    to_account_str = str(transfer.to_account_id).replace(" ", "")
+    if to_account_str.startswith("TR") and len(to_account_str) == 26:
+        # IBAN ile arama yap
+        to_account = db.query(models.Account).filter(models.Account.iban == to_account_str).first()
+    else:
+        # Normal UUID ID ile arama yap
+        to_account = db.query(models.Account).filter(models.Account.id == transfer.to_account_id).first()
 
     if not from_account or not to_account:
         raise HTTPException(status_code=404, detail="One or both accounts not found")
