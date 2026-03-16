@@ -502,7 +502,7 @@
             const assetSelect = document.getElementById('tradeAsset');
 
             try {
-                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-medium text-indigo-500 animate-pulse">Connecting to Exchange Database...<br/><span class="text-[10px] text-gray-500">Loading live asset prices</span></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-bold text-[#F2F2F2]/40 animate-pulse tracking-widest uppercase">Connecting to Exchange Database...<br/><span class="text-[10px] text-[#2AF598]">Loading live asset prices</span></td></tr>';
 
                 let endpoint = '/api/trading/prices';
                 if (activeTab === 'bist100') endpoint = '/api/trading/stocks/bist100';
@@ -522,17 +522,17 @@
                     let formattedPrice = parseFloat(p.price_in_try).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                     // Adding subtle asset type styling based on ticker prefix/type
-                    let iconColor = 'text-gray-500';
-                    if (['BTC', 'ETH', 'SOL'].includes(p.currency)) iconColor = 'text-yellow-500';
-                    if (['XAU', 'XAG'].includes(p.currency)) iconColor = 'text-amber-600';
-                    if (['USD', 'EUR'].includes(p.currency)) iconColor = 'text-green-500';
+                    let iconColor = 'text-[#F2F2F2]/40';
+                    if (['BTC', 'ETH', 'SOL'].includes(p.currency)) iconColor = 'text-[#F5A623]';
+                    if (['XAU', 'XAG'].includes(p.currency)) iconColor = 'text-[#B08D57]';
+                    if (['USD', 'EUR'].includes(p.currency)) iconColor = 'text-[#2AF598]';
 
-                    const row = `<tr class="hover:bg-indigo-50/50 transition-colors cursor-pointer group" onclick="selectTradeAsset('${p.currency}')">
-                           <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2 group-hover:text-indigo-700 transition-colors">
+                    const row = `<tr class="hover:bg-[#163D2C] bg-[#081B13] transition-colors cursor-pointer group" onclick="selectTradeAsset('${p.currency}')">
+                           <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-[#F2F2F2] flex items-center gap-2 group-hover:text-[#2AF598] transition-colors border-b border-[#1D4A36]">
                                <div class="w-2 h-2 rounded-full bg-current ${iconColor}"></div>
                                ${p.currency}
                            </td>
-                           <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-mono font-bold text-gray-700 group-hover:text-indigo-900 transition-colors">₺${formattedPrice}</td>
+                           <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-mono font-bold text-[#F2F2F2]/80 group-hover:text-[#2AF598] transition-colors border-b border-[#1D4A36]">₺${formattedPrice}</td>
                      </tr>`;
                     tbody.insertAdjacentHTML('beforeend', row);
 
@@ -543,7 +543,7 @@
                 calculateEstimate();
 
             } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center text-sm font-medium text-[#14B8A6] bg-red-50">Exchange Offline</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center text-sm font-bold tracking-widest uppercase text-rose-500 bg-[#2A111A]">Exchange Offline</td></tr>';
             }
         }
 
@@ -779,11 +779,11 @@
                         }
 
                         const row = `
-                            <tr class="hover:bg-[#163D2C] transition-colors">
+                            <tr class="hover:bg-[#163D2C] bg-[#081B13] border-b border-[#1D4A36] transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-[#F2F2F2]/60">${dateText}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">${typeSpan}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#F2F2F2]">${details}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono ${amountClass} bg-[#081B13]/50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono ${amountClass}">
                                     ${amountPrefix}₺${parseFloat(tx.amount).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </td>
                             </tr>
@@ -868,33 +868,27 @@
             }
 
             validationTimeout = setTimeout(async () => {
-                hintElement.textContent = "Verifying target node...";
+                hintElement.textContent = "Verifying target format...";
                 hintElement.classList.remove('hidden');
 
-                try {
-                    // IBAN mı yoksa UUID mi kontrol et
-                    let endpoint;
-                    if (targetInput.toUpperCase().startsWith('TR')) {
-                        endpoint = `/api/accounts/validate-iban/${targetInput.toUpperCase()}`;
-                    } else {
-                        endpoint = `/api/accounts/validate/${targetInput}`;
-                    }
-
-                    const response = await fetch(endpoint);
-                    if (response.ok) {
-                        const data = await response.json();
-                        resolvedTargetAccountId = data.account_id;
-                        hintElement.textContent = `✓ Target: ${data.masked_owner}`;
-                        hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-                        submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
-                    } else {
-                        hintElement.textContent = "✗ IBAN / Account not found.";
-                        hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
-                    }
-                } catch (e) {
-                    hintElement.textContent = "Network Error.";
+                // For internal transfers, let's just do a basic frontend check
+                // and defer the actual DB validation to the backend /ledger/transfer call.
+                if (targetInput.length >= 24 && targetInput.toUpperCase().startsWith('TR')) {
+                    // Looks like an IBAN
+                    hintElement.textContent = `✓ Valid Internal IBAN format`;
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
+                } else if (targetInput.length >= 32) {
+                    // Looks like a UUID
+                    hintElement.textContent = `✓ Valid Account ID format`;
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
+                } else {
+                    hintElement.textContent = "✗ Invalid Account ID or IBAN format.";
                     hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
                 }
             }, 500);
