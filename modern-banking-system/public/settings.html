@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rykard Banking - Settings</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
     <style>
         .cursor-copy {
             cursor: copy;
@@ -201,7 +202,7 @@
             submitBtn.textContent = 'Re-Forging...';
 
             try {
-                const response = await fetch('/api/customers/password', {
+                const response = await fetch(window.API_BASE_URL + '/api/customers/password', {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -244,7 +245,7 @@
                 btn.textContent = 'Generating...';
 
                 try {
-                    const apiResp = await fetch('/api/auth/2fa/setup', {
+                    const apiResp = await fetch(window.API_BASE_URL + '/api/auth/2fa/setup', {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -279,7 +280,7 @@
                 if (!code || code.length !== 6) return alert("Please enter valid 6 digit code.");
 
                 try {
-                    const verifyResp = await fetch('/api/auth/2fa/enable', {
+                    const verifyResp = await fetch(window.API_BASE_URL + '/api/auth/2fa/enable', {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,

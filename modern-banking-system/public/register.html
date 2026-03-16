@@ -7,6 +7,7 @@
     <title>Rykard Banking - Register</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
     <style>
         .glass-panel {
             background: #163D2C;
@@ -127,7 +128,7 @@
 
             try {
                 // 1. Kullanıcıyı oluştur
-                const resCustomer = await fetch('/api/customers', {
+                const resCustomer = await fetch(window.API_BASE_URL + '/api/customers', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -155,7 +156,7 @@
                 }
 
                 // 2. Müşteri oluştu, otomatik olarak bir hesap (Checking) aç.
-                const resAccount = await fetch('/api/accounts', {
+                const resAccount = await fetch(window.API_BASE_URL + '/api/accounts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ customer_id: customerResult.id, account_type: "CHECKING" })

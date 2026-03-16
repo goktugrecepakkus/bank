@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rykard Bank - My Cards</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
     <style>
         .glassmorphism {
             background: rgba(255, 255, 255, 0.05);
@@ -611,7 +612,7 @@
             errorBox.classList.add('hidden');
 
             try {
-                const res = await fetch('/api/cards/', {
+                const res = await fetch(window.API_BASE_URL + '/api/cards/', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rykard Bank - Admin Audit Log</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
 </head>
 
 <body class="bg-[#0F2A1D] min-h-screen font-sans text-[#F2F2F2]">
@@ -140,7 +141,7 @@
 
         async function fetchSummary() {
             try {
-                const response = await fetch('/api/ledger/audit/summary', {
+                const response = await fetch(window.API_BASE_URL + '/api/ledger/audit/summary', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -197,7 +198,7 @@
 
         async function fetchLimitRequests() {
             try {
-                const res = await fetch('/api/cards/limit-requests/pending', {
+                const res = await fetch(window.API_BASE_URL + '/api/cards/limit-requests/pending', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {

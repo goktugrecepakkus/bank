@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rykard Banking - Dashboard (Pro)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
     <style>
         .glassmorphism {
             background: #FAF9F7;
@@ -504,9 +505,9 @@
             try {
                 tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-bold text-[#F2F2F2]/40 animate-pulse tracking-widest uppercase">Connecting to Exchange Database...<br/><span class="text-[10px] text-[#2AF598]">Loading live asset prices</span></td></tr>';
 
-                let endpoint = '/api/trading/prices';
-                if (activeTab === 'bist100') endpoint = '/api/trading/stocks/bist100';
-                if (activeTab === 'sp500') endpoint = '/api/trading/stocks/sp500';
+                let endpoint = window.API_BASE_URL + '/api/trading/prices';
+                if (activeTab === 'bist100') endpoint = window.API_BASE_URL + '/api/trading/stocks/bist100';
+                if (activeTab === 'sp500') endpoint = window.API_BASE_URL + '/api/trading/stocks/sp500';
 
                 const response = await fetch(endpoint);
                 if (!response.ok) throw new Error("Failed to fetch prices.");
@@ -911,11 +912,11 @@
             submitBtn.textContent = "Processing...";
 
             try {
-                let endpoint = '/api/ledger/transfer';
+                let endpoint = window.API_BASE_URL + '/api/ledger/transfer';
                 let payload = {};
 
                 if (isExternalMode) {
-                    endpoint = '/api/external/send';
+                    endpoint = window.API_BASE_URL + '/api/external/send';
                     payload = {
                         from_account_id: fromId,
                         to_iban: document.getElementById('targetAccountId').value.trim().replace(/\s/g, ''),
@@ -1030,7 +1031,7 @@
             submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-gray-900" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
             try {
-                const response = await fetch('/api/trading/trade', {
+                const response = await fetch(window.API_BASE_URL + '/api/trading/trade', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -1071,9 +1072,9 @@
             try {
                 // Seed livePrices with all markets so PnL works globally for all wallets
                 const [core, bist, sp] = await Promise.all([
-                    fetch('/api/trading/prices').then(r => r.ok ? r.json() : []),
-                    fetch('/api/trading/stocks/bist100').then(r => r.ok ? r.json() : []),
-                    fetch('/api/trading/stocks/sp500').then(r => r.ok ? r.json() : [])
+                    fetch(window.API_BASE_URL + '/api/trading/prices').then(r => r.ok ? r.json() : []),
+                    fetch(window.API_BASE_URL + '/api/trading/stocks/bist100').then(r => r.ok ? r.json() : []),
+                    fetch(window.API_BASE_URL + '/api/trading/stocks/sp500').then(r => r.ok ? r.json() : [])
                 ]);
 
                 [...(core || []), ...(bist || []), ...(sp || [])].forEach(p => {
