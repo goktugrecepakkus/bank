@@ -162,6 +162,8 @@ async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
     ISO 20022 P2P WebSocket Server for receiving transfers from other banks.
     """
     await websocket.accept()
+    with open("p2p_debug.log", "a") as f:
+        f.write(f"\n[P2P] Accepted connection from: {sender_bank_code}\n")
     print(f"[P2P] Accepted connection from bank: {sender_bank_code}")
     
     try:
@@ -174,45 +176,68 @@ async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
             from database import SessionLocal
             import models
             import uuid
+            from decimal import Decimal
             
             try:
                 # 1. Parse the incoming pacs.008
-                print("[P2P DEBUG] Parsing pacs.008...")
+                with open("p2p_debug.log", "a") as f:
+                    f.write(f"[P2P] Parsing XML: {xml_data[:100]}...\n")
                 data = parse_pacs008_xml(xml_data)
-                print(f"[P2P DEBUG] Parsed data: {data}")
+                with open("p2p_debug.log", "a") as f:
+                    f.write(f"[P2P] Parsed: {data}\n")
                 
                 # 2. Process Deposit in local DB
                 db = SessionLocal()
-                print("[P2P DEBUG] Database session opened.")
+                print(f"[P2P DEBUG] DB Session created. Searching for IBAN suffix...")
                 try:
-                    to_account = db.query(models.Account).filter(models.Account.iban == data["to_iban"]).first()
-                    print(f"[P2P DEBUG] Target account: {to_account.id if to_account else 'NOT FOUND'}")
+                    target_iban = data.get("to_iban")
+                    if not target_iban or len(target_iban) < 10:
+                        print(f"[P2P DEBUG] Invalid IBAN received: {target_iban}")
+                        to_account = None
+                    else:
+                        iban_suffix = target_iban[4:]
+                        print(f"[P2P DEBUG] Searching for suffix: {iban_suffix}")
+                        to_account = db.query(models.Account).filter(models.Account.iban.contains(iban_suffix)).first()
+                    
+                    print(f"[P2P DEBUG] Match result: {'Found' if to_account else 'Not Found'}")
                     if to_account and to_account.status == models.AccountStatusEnum.active:
-                        to_account.balance += data["amount"]
+                        # Convert float amount to Decimal for DB compatibility
+                        amount_decimal = Decimal(str(data["amount"]))
+                        to_account.balance += amount_decimal
                         new_ledger_entry = models.Ledger(
                             from_account_id=None,
                             to_account_id=to_account.id,
-                            amount=data["amount"],
+                            amount=amount_decimal,
                             transaction_type=models.TransactionTypeEnum.deposit
                         )
                         db.add(new_ledger_entry)
                         db.commit()
-                        print("[P2P DEBUG] Ledger entry created and committed.")
+                        with open("p2p_debug.log", "a") as f:
+                            f.write(f"[P2P] SUCCESS: Added {amount_decimal} to {to_account.iban}\n")
                         
                         # 3. Respond with pacs.002 ACK (Success)
                         ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="ACCP")
                         await websocket.send_text(ack_xml)
-                        print(f"[P2P] Successfully processed transfer and sent ACCP.")
                     else:
+                        with open("p2p_debug.log", "a") as f:
+                            f.write(f"[P2P] REJECT: Account mismatch or inactive.\n")
                         # Respond with pacs.002 RJCT (Rejected - Account not found)
                         ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="RJCT")
                         await websocket.send_text(ack_xml)
-                        print(f"[P2P] Sent RJCT (Account not found/inactive).")
+                except Exception as db_e:
+                    db.rollback()
+                    with open("p2p_debug.log", "a") as f:
+                        f.write(f"[P2P] DB Error: {str(db_e)}\n")
+                    # Try to send a RJCT anyway
+                    try:
+                        ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data.get("tx_id", "UNKNOWN"), status="RJCT")
+                        await websocket.send_text(ack_xml)
+                    except: pass
                 finally:
                     db.close()
-                    print("[P2P DEBUG] Database session closed.")
-                    
             except Exception as e:
+                with open("p2p_debug.log", "a") as f:
+                    f.write(f"[P2P] ERROR: {str(e)}\n")
                 print(f"[P2P] Error processing incoming XML: {e}")
                 # Optional: Send error ACK if possible
                 

@@ -82,7 +82,7 @@ def parse_pacs008_xml(xml_string: str) -> dict:
     def find_text_ignore_ns(element, tag_name):
         for child in element.iter():
             if child.tag.endswith(f"}}{tag_name}") or child.tag == tag_name:
-                return child.text
+                return child.text.strip() if child.text else None
         return None
         
     def find_elem_ignore_ns(element, tag_name):
