@@ -8,6 +8,8 @@ from slowapi.errors import RateLimitExceeded
 from database import engine, Base
 from rate_limiter import limiter
 from routers import customer, account, ledger, auth, trading, cards
+from routers.ws_client import ws_client
+import asyncio
 
 # Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
 print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
@@ -23,7 +25,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     try:
         Base.metadata.create_all(bind=engine)
         print("Database connection and table creation successful.")
@@ -108,6 +110,9 @@ def startup_event():
             
     except Exception as e:
         print("Veritabanı bağlantı hatası:", e)
+
+    # Start WebSocket background task
+    asyncio.create_task(ws_client.connect())
         
 # CORS Ayarları (Frontend'in Backend'e bağlanabilmesi için zorunlu güvenlik ayarı)
 # Prod'da CORS_ORIGINS env variable'ında domain listesi tutulmalı (virgülle ayrılmış)
