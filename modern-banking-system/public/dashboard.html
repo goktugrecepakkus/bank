@@ -98,7 +98,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Main Account</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="MAIN" checked>
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="MAIN">
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -108,7 +108,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">FX (Currencies)</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="FX" checked>
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="FX">
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -138,7 +138,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Crypto</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="CRYPTO" checked>
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="CRYPTO">
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -223,29 +223,26 @@
             <div class="w-full lg:w-2/3 flex flex-col gap-8">
 
                 <!-- Live Trading Dashboard -->
-                <div class="glassmorphism shadow-lg rounded-2xl border border-gray-100 overflow-hidden relative">
+                <div class="bg-[#081B13] shadow-xl rounded-2xl border border-[#163D2C] overflow-hidden relative">
                     <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-pink-100 rounded-full blur-3xl opacity-50 -mr-10 -mt-10 pointer-events-none">
-                    </div>
-                    <div
-                        class="absolute bottom-0 left-0 w-40 h-40 bg-indigo-100 rounded-full blur-3xl opacity-50 -ml-10 -mb-10 pointer-events-none">
+                        class="absolute top-0 right-0 w-32 h-32 bg-[#2AF598]/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none">
                     </div>
 
                     <div
-                        class="px-6 py-5 border-b border-gray-100 bg-white/50 backdrop-blur-sm flex justify-between items-center relative z-10">
+                        class="px-6 py-5 border-b border-[#163D2C] bg-[#112E22] flex justify-between items-center relative z-10">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor"
+                            <h3 class="text-xl font-bold text-[#F2F2F2] flex items-center gap-2">
+                                <svg class="w-5 h-5 text-[#2AF598]" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                                 </svg>
                                 Markets & Trading
                             </h3>
-                            <p class="mt-1 text-sm text-gray-500">Live prices sourced securely. Trade instantly.</p>
+                            <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#F2F2F2]/40">Live prices sourced securely. Trade instantly.</p>
                         </div>
                         <button onclick="fetchMarketPrices()"
-                            class="text-xs text-indigo-700 border border-indigo-200 bg-white hover:bg-indigo-50 px-4 py-2 rounded-lg transition-all shadow-sm font-bold flex items-center gap-1">
+                            class="text-xs text-[#2AF598] border border-[#1F5C45] bg-[#081B13] hover:bg-[#163D2C] hover:border-[#2AF598]/50 px-4 py-2 rounded-lg transition-all shadow-sm font-bold flex items-center gap-1">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
@@ -259,23 +256,23 @@
 
                         <!-- Market Prices List -->
                         <div class="w-full md:w-1/2 flex flex-col">
-                            <div class="flex gap-2 mb-3 border-b border-gray-100 pb-2 overflow-x-auto">
+                            <div class="flex gap-2 mb-3 border-b border-[#163D2C] pb-2 overflow-x-auto">
                                 <button type="button" onclick="switchTab('crypto')" id="tab-crypto"
-                                    class="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 text-indigo-700 transition whitespace-nowrap">Crypto
+                                    class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg bg-[#112E22] text-[#2AF598] border border-[#1F5C45] transition whitespace-nowrap">Crypto
                                     & FX</button>
                                 <button type="button" onclick="switchTab('bist100')" id="tab-bist100"
-                                    class="px-3 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:bg-gray-100 transition whitespace-nowrap">BIST
+                                    class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg text-[#F2F2F2]/60 hover:bg-[#163D2C] transition whitespace-nowrap border border-transparent">BIST
                                     100</button>
                                 <button type="button" onclick="switchTab('sp500')" id="tab-sp500"
-                                    class="px-3 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:bg-gray-100 transition whitespace-nowrap">S&P
+                                    class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg text-[#F2F2F2]/60 hover:bg-[#163D2C] transition whitespace-nowrap border border-transparent">S&P
                                     500</button>
                             </div>
                             <div
-                                class="border border-gray-100 rounded-xl overflow-y-auto h-64 shadow-inner bg-white/80">
-                                <table class="min-w-full divide-y divide-gray-100">
-                                    <tbody id="marketPricesBody" class="divide-y divide-gray-50">
+                                class="border border-[#163D2C] rounded-xl overflow-y-auto h-64 shadow-inner bg-[#081B13]">
+                                <table class="min-w-full divide-y divide-[#163D2C]">
+                                    <tbody id="marketPricesBody" class="divide-y divide-[#1D4A36]">
                                         <tr>
-                                            <td colspan="2" class="px-4 py-8 text-center text-sm text-gray-500">Loading
+                                            <td colspan="2" class="px-4 py-8 text-center text-xs font-bold uppercase tracking-widest text-[#F2F2F2]/40">Loading
                                                 market data...</td>
                                         </tr>
                                     </tbody>
@@ -285,26 +282,26 @@
 
                         <!-- Trade Form -->
                         <div
-                            class="w-full md:w-1/2 pl-0 md:pl-6 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0">
-                            <h4 class="font-bold text-gray-700 text-sm uppercase tracking-wide mb-3">Execute Order</h4>
+                            class="w-full md:w-1/2 pl-0 md:pl-6 border-t md:border-t-0 md:border-l border-[#163D2C] pt-4 md:pt-0">
+                            <h4 class="font-bold text-[#F2F2F2] text-sm uppercase tracking-widest mb-4">Execute Order</h4>
 
                             <form id="tradeForm" class="space-y-5">
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label
-                                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Action</label>
+                                            class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Action</label>
                                         <select id="tradeAction" required
-                                            class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm border-gray-200 text-gray-700 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 shadow-sm bg-white/80 transition-all hover:bg-white cursor-pointer hover:border-indigo-300 outline-none">
-                                            <option value="BUY" class="text-green-600 font-bold">BUY Asset</option>
-                                            <option value="SELL" class="text-[#14B8A6] font-bold">SELL Asset</option>
+                                            class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm bg-[#112E22] text-[#F2F2F2] border border-[#1F5C45] focus:outline-none focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] rounded-xl shadow-sm hover:border-[#2AF598]/50 transition-all cursor-pointer">
+                                            <option value="BUY" class="text-[#2AF598] font-bold">BUY Asset</option>
+                                            <option value="SELL" class="text-rose-500 font-bold">SELL Asset</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label
-                                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Select
+                                            class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Select
                                             Asset</label>
                                         <select id="tradeAsset" required
-                                            class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm border-gray-200 text-gray-700 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 shadow-sm bg-white/80 transition-all hover:bg-white cursor-pointer hover:border-indigo-300 outline-none">
+                                            class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm bg-[#112E22] text-[#F2F2F2] border border-[#1F5C45] focus:outline-none focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] rounded-xl shadow-sm hover:border-[#2AF598]/50 transition-all cursor-pointer">
                                             <!-- Dynamically populated -->
                                         </select>
                                     </div>
@@ -312,25 +309,25 @@
 
                                 <div>
                                     <label
-                                        class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Amount
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Amount
                                         (Asset)</label>
                                     <div class="mt-1 relative rounded-xl shadow-sm">
                                         <input type="number" id="tradeAmount" required min="0.000001" step="0.000001"
                                             placeholder="0.00"
-                                            class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-4 py-3 sm:text-sm border-gray-200 rounded-xl bg-white/80 hover:bg-white transition-all outline-none">
+                                            class="bg-[#112E22] text-[#F2F2F2] placeholder-[#8FA99A] border border-[#1F5C45] focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] block w-full pl-4 pr-4 py-3 sm:text-sm rounded-xl hover:border-[#2AF598]/50 transition-all outline-none">
                                     </div>
                                     <div
-                                        class="mt-2 flex justify-between items-center bg-gray-50/50 p-2 rounded-lg border border-gray-100">
-                                        <span class="text-xs text-gray-500">Est. Value (TRY):</span>
+                                        class="mt-2 flex justify-between items-center bg-[#081B13] p-2 rounded-lg border border-[#163D2C]">
+                                        <span class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">Est. Value (TRY):</span>
                                         <span id="tradeEstimate"
-                                            class="font-bold text-gray-900 tracking-tight text-lg">₺0.00</span>
+                                            class="font-bold text-[#2AF598] tracking-tight text-lg">₺0.00</span>
                                     </div>
                                 </div>
 
-                                <div id="tradeMsg" class="hidden text-sm p-3 rounded-lg font-medium" role="alert"></div>
+                                <div id="tradeMsg" class="hidden text-sm p-3 rounded-lg font-bold" role="alert"></div>
 
                                 <button type="submit" id="tradeSubmitBtn"
-                                    class="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-gray-900 bg-gradient-to-r from-[#B08D57] to-[#C9A76C] hover:from-[#B08D57] hover:to-[#C9A76C] shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform active:scale-95">
+                                    class="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold tracking-widest uppercase text-[#081B13] bg-[#B08D57] hover:bg-[#C9A76C] shadow-[0_0_10px_rgba(176,141,87,0.2)] hover:shadow-[0_0_15px_rgba(176,141,87,0.4)] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#112E22] focus:ring-[#B08D57] transform active:scale-95">
                                     Execute Trade
                                 </button>
                             </form>
@@ -339,10 +336,10 @@
                 </div>
 
                 <!-- Internal Transfer Container -->
-                <div class="glassmorphism shadow-md rounded-2xl border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-5 border-b border-gray-100 bg-white/50 backdrop-blur-sm">
-                        <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-[#081B13] shadow-xl rounded-2xl border border-[#163D2C] overflow-hidden">
+                    <div class="px-6 py-5 border-b border-[#163D2C] bg-[#112E22]">
+                        <h3 class="text-xl font-bold text-[#F2F2F2] flex items-center gap-2">
+                            <svg class="w-5 h-5 text-[#2AF598]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                             </svg>
@@ -354,19 +351,17 @@
                         <form id="transferForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                             <div class="col-span-1 md:col-span-2 mb-2">
-                                <label
-                                    class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Transfer
-                                    Type</label>
+                                <label class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-3">Transfer Type</label>
                                 <div class="flex gap-4">
-                                    <label class="flex items-center gap-2 cursor-pointer">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
                                         <input type="radio" name="transfer_type" value="internal"
-                                            class="text-indigo-600 focus:ring-indigo-500" checked>
-                                        <span class="text-sm font-bold text-gray-700">Internal (Rykard Bank)</span>
+                                            class="text-[#2AF598] focus:ring-[#2AF598] bg-[#112E22] border-[#1F5C45]" checked>
+                                        <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Internal (Rykard Bank)</span>
                                     </label>
-                                    <label class="flex items-center gap-2 cursor-pointer">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
                                         <input type="radio" name="transfer_type" value="external"
-                                            class="text-indigo-600 focus:ring-indigo-500">
-                                        <span class="text-sm font-bold text-gray-700">External (Other Bank)</span>
+                                            class="text-[#2AF598] focus:ring-[#2AF598] bg-[#112E22] border-[#1F5C45]">
+                                        <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">External (Other Bank)</span>
                                     </label>
                                 </div>
                             </div>
@@ -374,20 +369,20 @@
                             <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label
-                                        class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">From
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">From
                                         Account</label>
                                     <select id="transferFromAccount" required
-                                        class="mt-1 block w-full pl-3 pr-10 py-3 text-sm border-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-xl shadow-sm hover:border-indigo-300 transition-all cursor-pointer">
+                                        class="mt-1 block w-full pl-3 pr-10 py-3 text-sm bg-[#112E22] text-[#F2F2F2] border border-[#1F5C45] focus:outline-none focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] rounded-xl shadow-sm hover:border-[#2AF598]/50 transition-all cursor-pointer">
                                         <!-- Populated dynamically -->
                                     </select>
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Recipient
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Recipient
                                         IBAN</label>
                                     <input type="text" id="targetAccountId" required
                                         placeholder="TR00 0006 1XXX XXXX XXXX XXXX XX"
-                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 py-3 sm:text-sm border-gray-200 shadow-sm rounded-xl hover:border-indigo-300 transition-all outline-none font-mono tracking-wide">
+                                        class="mt-1 bg-[#112E22] text-[#F2F2F2] placeholder-[#8FA99A] border border-[#1F5C45] focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] block w-full pl-4 py-3 sm:text-sm shadow-sm rounded-xl hover:border-[#2AF598]/50 transition-all outline-none font-mono tracking-wide">
                                     <p id="recipientNameHint" class="mt-1 text-xs font-medium italic hidden"></p>
                                 </div>
                             </div>
@@ -395,14 +390,14 @@
                             <div class="col-span-1 md:col-span-2 flex items-end gap-4">
                                 <div class="flex-1">
                                     <label
-                                        class="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Amount</label>
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Amount</label>
                                     <input type="number" id="transferAmount" required min="0.01" step="0.01"
                                         placeholder="0.00"
-                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 py-3 sm:text-sm border-gray-200 shadow-sm rounded-xl hover:border-indigo-300 transition-all outline-none">
+                                        class="mt-1 bg-[#112E22] text-[#F2F2F2] placeholder-[#8FA99A] border border-[#1F5C45] focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] block w-full pl-4 py-3 sm:text-sm shadow-sm rounded-xl hover:border-[#2AF598]/50 transition-all outline-none">
                                 </div>
                                 <div class="flex-1">
                                     <button type="submit" id="transferSubmitBtn" disabled
-                                        class="w-full h-[46px] mt-1 justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-xl text-gray-900 bg-[#B08D57] hover:bg-[#C9A76C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 opacity-50 cursor-not-allowed transition-all">
+                                        class="w-full h-[46px] mt-1 justify-center py-2 px-4 shadow-md text-sm font-bold tracking-widest uppercase rounded-xl text-[#081B13] bg-[#B08D57] hover:bg-[#C9A76C] hover:shadow-[0_0_15px_rgba(176,141,87,0.4)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#112E22] focus:ring-[#B08D57] opacity-60 cursor-not-allowed transition-all">
                                         Send ->
                                     </button>
                                 </div>
@@ -420,31 +415,31 @@
 
         <!-- Transaction History Row -->
         <div class="px-4 pb-12 sm:px-0 mt-4">
-            <div class="glassmorphism shadow-md rounded-2xl border border-gray-100 overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-100 bg-white/50 backdrop-blur-sm">
-                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-[#081B13] shadow-xl rounded-2xl border border-[#163D2C] overflow-hidden">
+                <div class="px-6 py-5 border-b border-[#163D2C] bg-[#112E22]">
+                    <h3 class="text-xl font-bold text-[#F2F2F2] flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#2AF598]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        Main Activity Log (TRY)
+                        Activity Log (TRY)
                     </h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50/50">
+                    <table class="min-w-full divide-y divide-[#163D2C]">
+                        <thead class="bg-[#112E22]">
                             <tr>
                                 <th scope="col"
-                                    class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-3.5 text-left text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
                                     Date</th>
                                 <th scope="col"
-                                    class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-3.5 text-left text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
                                     Type</th>
                                 <th scope="col"
-                                    class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-3.5 text-left text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
                                     Details</th>
                                 <th scope="col"
-                                    class="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-3.5 text-right text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
                                     Settle Amount</th>
                             </tr>
                         </thead>
@@ -746,7 +741,7 @@
                     tbody.innerHTML = '';
 
                     if (history.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-sm font-medium text-gray-500">No activity logged for this account.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-sm font-bold text-[#F2F2F2]/40">No activity logged for this account.</td></tr>';
                         return;
                     }
 
@@ -760,35 +755,35 @@
                         let details = '';
 
                         if (tx.transaction_type === 'DEPOSIT') {
-                            typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-wide">Deposit</span>';
-                            amountClass = 'text-green-600 font-bold';
+                            typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#112E22] text-[#2AF598] border border-[#1F5C45] uppercase tracking-wide">Deposit</span>';
+                            amountClass = 'text-[#2AF598] font-bold';
                             amountPrefix = '+';
                             details = 'System Funding';
                         } else if (tx.transaction_type === 'WITHDRAWAL') {
-                            typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-orange-50 text-orange-600 border border-orange-100 uppercase tracking-wide">Withdraw</span>';
-                            amountClass = 'text-[#14B8A6] font-bold';
+                            typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#2A111A] text-rose-500 border border-rose-900/50 uppercase tracking-wide">Withdraw</span>';
+                            amountClass = 'text-rose-500 font-bold';
                             amountPrefix = '-';
                             details = 'Cash Out';
                         } else if (tx.transaction_type === 'TRANSFER') {
                             if (tx.to_account_id === primaryTryAccountId) {
-                                typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">Credit</span>';
-                                amountClass = 'text-green-600 font-bold';
+                                typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#112E22] text-[#2AF598] border border-[#1F5C45] uppercase tracking-wide">Credit</span>';
+                                amountClass = 'text-[#2AF598] font-bold';
                                 amountPrefix = '+';
                                 details = `From: ${tx.from_account_id ? tx.from_account_id.substring(0, 8) + '...' : 'System / Trading'}`;
                             } else {
-                                typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-slate-50 text-slate-600 border border-slate-200 uppercase tracking-wide">Debit</span>';
-                                amountClass = 'text-gray-900 font-bold';
+                                typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#163D2C] text-[#F2F2F2]/80 border border-[#1F5C45] uppercase tracking-wide">Debit</span>';
+                                amountClass = 'text-[#F2F2F2] font-bold';
                                 amountPrefix = '-';
                                 details = `To: ${tx.to_account_id.substring(0, 8)}...`;
                             }
                         }
 
                         const row = `
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-500">${dateText}</td>
+                            <tr class="hover:bg-[#163D2C] transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-[#F2F2F2]/60">${dateText}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">${typeSpan}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">${details}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono ${amountClass} bg-gray-50/30">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#F2F2F2]">${details}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono ${amountClass} bg-[#081B13]/50">
                                     ${amountPrefix}₺${parseFloat(tx.amount).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </td>
                             </tr>
@@ -798,7 +793,7 @@
                 }
             } catch (err) {
                 console.error("Failed to fetch history", err);
-                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-[#14B8A6]">Failed to load transaction history.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm font-bold text-rose-500">Failed to load transaction history.</td></tr>';
             }
         }
 
@@ -829,7 +824,7 @@
                 targetInput.value = '';
                 hintElement.classList.add('hidden');
                 document.getElementById('transferSubmitBtn').disabled = true;
-                document.getElementById('transferSubmitBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('transferSubmitBtn').classList.add('opacity-60', 'cursor-not-allowed');
                 resolvedTargetAccountId = null;
 
                 if (isExternalMode) {
@@ -847,10 +842,10 @@
 
             clearTimeout(validationTimeout);
             hintElement.classList.add('hidden');
-            hintElement.className = "mt-1 text-xs font-medium italic hidden";
+            hintElement.className = "mt-1 text-xs font-bold text-[#F2F2F2]/40 hidden";
             submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            submitBtn.classList.remove('hover:bg-[#0f9688]');
+            submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            submitBtn.classList.remove('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
             resolvedTargetAccountId = null;
 
             if (targetInput.length < 10) return;
@@ -860,13 +855,13 @@
                 // We don't resolve against our DB.
                 if (targetInput.toUpperCase().startsWith('TR') && targetInput.length >= 24) {
                     hintElement.textContent = `✓ Valid External IBAN format`;
-                    hintElement.className = "mt-1 text-xs font-bold text-emerald-500";
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
                     submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    submitBtn.classList.add('hover:bg-[#0f9688]');
+                    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
                 } else {
                     hintElement.textContent = "✗ Invalid IBAN format.";
-                    hintElement.className = "mt-1 text-xs font-bold text-amber-500";
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
                 }
                 hintElement.classList.remove('hidden');
                 return;
@@ -890,17 +885,17 @@
                         const data = await response.json();
                         resolvedTargetAccountId = data.account_id;
                         hintElement.textContent = `✓ Target: ${data.masked_owner}`;
-                        hintElement.className = "mt-1 text-xs font-bold text-emerald-500";
+                        hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
                         submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        submitBtn.classList.add('hover:bg-[#0f9688]');
+                        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                        submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
                     } else {
                         hintElement.textContent = "✗ IBAN / Account not found.";
-                        hintElement.className = "mt-1 text-xs font-bold text-[#14B8A6]";
+                        hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
                     }
                 } catch (e) {
                     hintElement.textContent = "Network Error.";
-                    hintElement.className = "mt-1 text-xs font-bold text-[#14B8A6]";
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
                 }
             }, 500);
         });
