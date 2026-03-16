@@ -3,7 +3,7 @@ import websockets
 import uuid
 
 async def test_p2p_incoming():
-    uri = "ws://localhost:8001/ws/inter-bank/FINB"
+    uri = "ws://localhost:8000/ws/inter-bank/FINB"
     
     # pacs.008 XML logic (Simplified for testing)
     pacs008 = """<?xml version="1.0" encoding="UTF-8"?>
@@ -22,7 +22,7 @@ async def test_p2p_incoming():
                 <Id><IBAN>FINB0000000001</IBAN></Id>
             </DbtrAcct>
             <CdtrAcct>
-                <Id><IBAN>TR000006100000000000000001</IBAN></Id>
+                <Id><IBAN>TR89000617750270718130065</IBAN></Id>
             </CdtrAcct>
         </CdtTrfTxInf>
     </FIToFICstmrCdtTrf>
@@ -43,7 +43,9 @@ async def test_p2p_incoming():
                 print("FAILURE: Did not receive expected ACCP acknowledgment.")
                 
     except Exception as e:
+        import traceback
         print(f"Test failed: {e}")
+        traceback.print_exc()
 
 if __name__ == "__main__":
     asyncio.run(test_p2p_incoming())

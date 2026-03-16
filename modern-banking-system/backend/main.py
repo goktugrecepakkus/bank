@@ -168,7 +168,7 @@ async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
         while True:
             # Receive pacs.008 XML string
             xml_data = await websocket.receive_text()
-            print(f"[P2P] Received XML from {sender_bank_code}")
+            print(f"[P2P DEBUG] Received {len(xml_data)} bytes of XML")
             
             from iso20022 import parse_pacs008_xml, generate_pacs002_xml
             from database import SessionLocal
@@ -177,12 +177,16 @@ async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
             
             try:
                 # 1. Parse the incoming pacs.008
+                print("[P2P DEBUG] Parsing pacs.008...")
                 data = parse_pacs008_xml(xml_data)
+                print(f"[P2P DEBUG] Parsed data: {data}")
                 
                 # 2. Process Deposit in local DB
                 db = SessionLocal()
+                print("[P2P DEBUG] Database session opened.")
                 try:
                     to_account = db.query(models.Account).filter(models.Account.iban == data["to_iban"]).first()
+                    print(f"[P2P DEBUG] Target account: {to_account.id if to_account else 'NOT FOUND'}")
                     if to_account and to_account.status == models.AccountStatusEnum.active:
                         to_account.balance += data["amount"]
                         new_ledger_entry = models.Ledger(
@@ -193,18 +197,20 @@ async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
                         )
                         db.add(new_ledger_entry)
                         db.commit()
+                        print("[P2P DEBUG] Ledger entry created and committed.")
                         
                         # 3. Respond with pacs.002 ACK (Success)
                         ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="ACCP")
                         await websocket.send_text(ack_xml)
-                        print(f"[P2P] Successfully processed transfer for {data['amount']} {data['currency']} and sent ACK.")
+                        print(f"[P2P] Successfully processed transfer and sent ACCP.")
                     else:
                         # Respond with pacs.002 RJCT (Rejected - Account not found)
                         ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="RJCT")
                         await websocket.send_text(ack_xml)
-                        print(f"[P2P] Rejected transfer: Account {data['to_iban']} not found or inactive.")
+                        print(f"[P2P] Sent RJCT (Account not found/inactive).")
                 finally:
                     db.close()
+                    print("[P2P DEBUG] Database session closed.")
                     
             except Exception as e:
                 print(f"[P2P] Error processing incoming XML: {e}")
