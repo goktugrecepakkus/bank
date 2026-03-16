@@ -23,7 +23,7 @@ def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Ses
     
     # Hedef hesap ID veya IBAN olabilir.
     to_account_str = str(transfer.to_account_id).replace(" ", "")
-    if to_account_str.startswith("TR") and len(to_account_str) == 26:
+    if to_account_str.upper().startswith("TR"):
         # IBAN ile arama yap
         to_account = db.query(models.Account).filter(models.Account.iban == to_account_str).first()
     else:
