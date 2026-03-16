@@ -814,6 +814,8 @@
 
         // --- TRANSFER LOGIC ---
         let isExternalMode = false;
+        let validationTimeout = null;
+        let resolvedTargetAccountId = null;
 
         document.querySelectorAll('input[name="transfer_type"]').forEach((elem) => {
             elem.addEventListener("change", function (event) {
@@ -840,9 +842,11 @@
             const hintElement = document.getElementById('recipientNameHint');
             const submitBtn = document.getElementById('transferSubmitBtn');
 
-            clearTimeout(validationTimeout);
+            if (validationTimeout) {
+                clearTimeout(validationTimeout);
+            }
             hintElement.classList.add('hidden');
-            hintElement.className = "mt-1 text-xs font-bold text-[#F2F2F2]/40 hidden";
+            hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#F2F2F2]/40 hidden tracking-widest";
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
             submitBtn.classList.remove('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
