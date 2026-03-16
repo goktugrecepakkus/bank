@@ -22,7 +22,7 @@ async def test_p2p_incoming():
                 <Id><IBAN>FINB0000000001</IBAN></Id>
             </DbtrAcct>
             <CdtrAcct>
-                <Id><IBAN>GKTG69000619603995254345171</IBAN></Id>
+                <Id><IBAN>FINB69000619603995254345171</IBAN></Id>
             </CdtrAcct>
         </CdtTrfTxInf>
     </FIToFICstmrCdtTrf>
