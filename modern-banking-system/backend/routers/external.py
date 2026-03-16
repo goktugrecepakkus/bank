@@ -28,10 +28,17 @@ def send_to_external_bank(request: Request, transfer_req: schemas.ExternalTransf
         raise HTTPException(status_code=400, detail="Account is not ACTIVE")
         
     # --- Regulatory Validations ---
-    # 1. IBAN Check
+    # 1. IBAN Check (Allow TR or our P2P partner codes like FINB)
     to_iban = transfer_req.to_iban.upper().replace(" ", "")
-    if not to_iban.startswith("TR") or len(to_iban) != 26 or not to_iban[2:].isdigit():
-        raise HTTPException(status_code=400, detail="Invalid Target IBAN format. Must start with TR and contain 24 digits.")
+    allowed_prefixes = ["TR", "FINB"] # Add more partners here as needed
+    
+    is_valid_prefix = any(to_iban.startswith(p) for p in allowed_prefixes)
+    if not is_valid_prefix:
+        raise HTTPException(status_code=400, detail=f"Invalid Target IBAN. Must start with one of: {', '.join(allowed_prefixes)}")
+    
+    # Check length only for standard TR IBANs
+    if to_iban.startswith("TR") and len(to_iban) != 26:
+         raise HTTPException(status_code=400, detail="Standard TR IBAN must be 26 characters.")
     
     # 2. Transaction Limits (AML / Security)
     MAX_SINGLE_TRANSACTION = 100000.00
