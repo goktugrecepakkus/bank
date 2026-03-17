@@ -22,6 +22,10 @@ class RoleEnum(str, enum.Enum):
     admin = "admin"
     customer = "customer"
 
+class CustomerStatusEnum(str, enum.Enum):
+    active = "ACTIVE"
+    blocked = "BLOCKED"
+
 class AccountTypeEnum(str, enum.Enum):
     checking = "CHECKING"
     savings = "SAVINGS"
@@ -70,6 +74,8 @@ class Customer(Base):
 
     mothers_maiden_name = Column(String, nullable=False, server_default="Unknown")
     role = Column(Enum(RoleEnum), default=RoleEnum.customer, nullable=False)
+    status = Column(Enum(CustomerStatusEnum), default=CustomerStatusEnum.active, nullable=False)
+
     
     # 2FA Fields
     two_factor_secret = Column(String, nullable=True)
@@ -107,6 +113,8 @@ class Ledger(Base):
     
     amount = Column(Numeric(precision=15, scale=2), nullable=False)            # Transfer edilen tutar
     transaction_type = Column(Enum(TransactionTypeEnum), nullable=False)       # DEPOSIT, WITHDRAWAL, TRANSFER
+    direction = Column(String, nullable=True)                                  # 'DEBIT' or 'CREDIT'
+    reference_id = Column(String, nullable=True)                               # To group double-entry legs
     created_at = Column(DateTime(timezone=True), server_default=func.now())    # İşlem zamanı
 
 class Card(Base):
@@ -168,3 +176,15 @@ class AuditLog(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     customer = relationship("Customer")
+
+class OutboxEvent(Base):
+    __tablename__ = "outbox_events"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    aggregate_type = Column(String, nullable=False) # e.g., 'Transfer', 'Account'
+    aggregate_id = Column(String, nullable=False)
+    event_type = Column(String, nullable=False) # e.g., 'TransferCreated', 'AccountDebited'
+    payload = Column(String, nullable=False) # JSON payload string
+    status = Column(String, default="PENDING", nullable=False) # 'PENDING', 'PROCESSED'
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+

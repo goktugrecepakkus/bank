@@ -5,6 +5,9 @@ from decimal import Decimal
 from typing import List
 from datetime import datetime, timedelta
 from database import get_db
+from pydantic import BaseModel
+import uuid
+import json
 import models
 import schemas
 from security import get_current_user, get_current_admin
@@ -72,21 +75,51 @@ def create_transfer(request: Request, transfer: schemas.TransferRequest, db: Ses
     from_account.balance -= transfer.amount
     to_account.balance += transfer.amount
 
-    # 3. LEDGER KAYDI OLUSTUR (Single Source of Truth)
-    new_ledger_entry = models.Ledger(
+    # 3. LEDGER KAYDI OLUSTUR (Double Entry)
+    ref_id = str(uuid.uuid4())
+    
+    # DEBIT (from account)
+    debit_entry = models.Ledger(
         from_account_id=from_account.id,
         to_account_id=to_account.id,
         amount=transfer.amount,
-        transaction_type=models.TransactionTypeEnum.transfer
+        transaction_type=models.TransactionTypeEnum.transfer,
+        direction="DEBIT",
+        reference_id=ref_id
     )
-    db.add(new_ledger_entry)
+    
+    # CREDIT (to account)
+    credit_entry = models.Ledger(
+        from_account_id=from_account.id,
+        to_account_id=to_account.id,
+        amount=transfer.amount,
+        transaction_type=models.TransactionTypeEnum.transfer,
+        direction="CREDIT",
+        reference_id=ref_id
+    )
+    
+    db.add(debit_entry)
+    db.add(credit_entry)
+
+    # EVENT MESSAGING LOGIC (Outbox Pattern)
+    # 1. TransferCreated event
+    evt_payload = {"transfer_id": ref_id, "amount": float(transfer.amount), "from": from_account.id, "to": to_account.id}
+    db.add(models.OutboxEvent(aggregate_type="Transfer", aggregate_id=ref_id, event_type="TransferCreated", payload=json.dumps(evt_payload)))
+    
+    # 2. AccountDebited event
+    db.add(models.OutboxEvent(aggregate_type="Account", aggregate_id=from_account.id, event_type="AccountDebited", payload=json.dumps({"amount": float(transfer.amount)})))
+    
+    # 3. AccountCredited event
+    db.add(models.OutboxEvent(aggregate_type="Account", aggregate_id=to_account.id, event_type="AccountCredited", payload=json.dumps({"amount": float(transfer.amount)})))
+
+    # 4. TransferCompleted event
+    db.add(models.OutboxEvent(aggregate_type="Transfer", aggregate_id=ref_id, event_type="TransferCompleted", payload=json.dumps(evt_payload)))
 
     # Tüm işlemleri veritabanına tek bir Transaction (Commit) olarak yaz!
-    # Eğer bu satırlardan birinde hata çıkarsa, hiçbir şey veritabanına yazılmaz (Güvenlik)
     db.commit()
-    db.refresh(new_ledger_entry)
+    db.refresh(debit_entry)
 
-    return new_ledger_entry
+    return debit_entry
 
 @router.post("/deposit", response_model=schemas.LedgerResponse)
 def deposit_money(account_id: str, amount: Decimal, db: Session = Depends(get_db)):
@@ -102,7 +135,8 @@ def deposit_money(account_id: str, amount: Decimal, db: Session = Depends(get_db
         from_account_id=None, # Para dışarıdan geliyor
         to_account_id=account.id,
         amount=amount,
-        transaction_type=models.TransactionTypeEnum.deposit
+        transaction_type=models.TransactionTypeEnum.deposit,
+        direction="CREDIT"
     )
     db.add(new_ledger_entry)
     
@@ -112,12 +146,42 @@ def deposit_money(account_id: str, amount: Decimal, db: Session = Depends(get_db
     
     return new_ledger_entry
 
+@router.post("/withdrawal", response_model=schemas.LedgerResponse)
+def withdraw_money(request: schemas.WithdrawalRequest, db: Session = Depends(get_db)):
+    """Sistemden dışarı para çıkışı simülasyonu"""
+    if request.amount <= 0:
+         raise HTTPException(status_code=400, detail="Amount must be greater than zero")
+            
+    account = db.query(models.Account).filter(models.Account.id == request.account_id).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+        
+    if account.balance < request.amount:
+        raise HTTPException(status_code=400, detail="Insufficient funds")
+
+    new_ledger_entry = models.Ledger(
+        from_account_id=account.id,
+        to_account_id=None, # Para dışarı gidiyor
+        amount=request.amount,
+        transaction_type=models.TransactionTypeEnum.withdrawal,
+        direction="DEBIT"
+    )
+    db.add(new_ledger_entry)
+    
+    account.balance -= request.amount
+    db.commit()
+    db.refresh(new_ledger_entry)
+    
+    return new_ledger_entry
+
 @router.get("/history/{account_id}", response_model=List[schemas.LedgerResponse])
 def get_account_history(account_id: str, db: Session = Depends(get_db)):
     """Belirli bir hesaba ait tüm Ledger (Para giriş/çıkış) hareketlerini listeler."""
     history = db.query(models.Ledger).filter(
-        (models.Ledger.from_account_id == account_id) | 
-        (models.Ledger.to_account_id == account_id)
+        ((models.Ledger.from_account_id == account_id) & (models.Ledger.direction == "DEBIT")) | 
+        ((models.Ledger.to_account_id == account_id) & (models.Ledger.direction == "CREDIT")) |
+        ((models.Ledger.from_account_id == account_id) & (models.Ledger.direction == None)) | # Legacy entries
+        ((models.Ledger.to_account_id == account_id) & (models.Ledger.direction == None))
     ).order_by(models.Ledger.created_at.desc()).all()
     return history
 

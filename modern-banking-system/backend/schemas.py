@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
-from models import RoleEnum, AccountTypeEnum, AccountStatusEnum, TransactionTypeEnum, CardTypeEnum, CardStatusEnum
+from models import RoleEnum, CustomerStatusEnum, AccountTypeEnum, AccountStatusEnum, TransactionTypeEnum, CardTypeEnum, CardStatusEnum
 
 # --- CUSTOMER SCHEMAS ---
 class CustomerCreate(BaseModel):
@@ -29,6 +29,7 @@ class CustomerResponse(BaseModel):
     phone_number: str
     national_id: str
     role: RoleEnum
+    status: CustomerStatusEnum
     created_at: datetime
 
     class Config:
@@ -142,6 +143,10 @@ class ExternalTransferRequest(BaseModel):
     to_iban: str
     amount: Decimal = Field(..., gt=0)
 
+class WithdrawalRequest(BaseModel):
+    account_id: str
+    amount: Decimal = Field(..., gt=0)
+
 class ExternalReceiveRequest(BaseModel):
     to_account_iban: str
     from_iban: str
@@ -154,6 +159,8 @@ class LedgerResponse(BaseModel):
     to_account_id: Optional[str]
     amount: Decimal
     transaction_type: TransactionTypeEnum
+    direction: Optional[str] = None
+    reference_id: Optional[str] = None
     created_at: datetime
 
     class Config:

@@ -41,6 +41,12 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
         
+    if user.status == models.CustomerStatusEnum.blocked:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been blocked. Please contact support."
+        )
+        
     # Güvenlik sorusunu kontrol et
     if user.mothers_maiden_name.lower() != mothers_maiden_name.lower():
         raise HTTPException(
