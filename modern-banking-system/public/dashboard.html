@@ -85,7 +85,6 @@
                 <div class="bg-[#112E22] rounded-2xl border border-[#163D2C] p-4 shadow-lg sticky top-24">
                     <div class="flex justify-between items-center mb-4 px-2">
                         <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-[0.2em]">Portfolio View</h3>
-                        <button onclick="applyPortfolioFilters()" class="text-[10px] bg-[#163D2C] hover:bg-[#1F5C45] text-[#2AF598] px-3 py-1 rounded-full uppercase font-bold tracking-widest transition-colors border border-[#1F5C45]/50">Apply</button>
                     </div>
                     
                     <div class="space-y-1">
@@ -99,7 +98,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Main Account</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="MAIN">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="MAIN" onchange="applyPortfolioFilters()" checked>
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -109,7 +108,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">FX (Currencies)</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="FX">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="FX" onchange="applyPortfolioFilters()" checked>
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -119,7 +118,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">BIST 100</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="BIST100">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="BIST100" onchange="applyPortfolioFilters()" checked>
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -129,7 +128,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">S&P 500</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="SP500">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="SP500" onchange="applyPortfolioFilters()" checked>
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -139,7 +138,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Crypto</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="CRYPTO">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="CRYPTO" onchange="applyPortfolioFilters()" checked>
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
@@ -149,7 +148,7 @@
                         <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
                             <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Gold</span>
                             <div class="relative flex items-center">
-                                <input type="checkbox" class="portfolio-filter peer sr-only" value="GOLD">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="GOLD" onchange="applyPortfolioFilters()" checked>
                                 <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
                                     <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
                                 </div>
