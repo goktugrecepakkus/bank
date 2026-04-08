@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rykard Banking - Dashboard (Pro)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
+    <style>
+        .glassmorphism {
+            background: #FAF9F7;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0F2A1D] min-h-screen font-sans text-[#F2F2F2]">
+    <!-- Navbar -->
+    <nav class="bg-[#163D2C] border-b border-white/5 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <span class="text-2xl font-black text-[#F2F2F2] tracking-tighter uppercase italic">Rykard<span
+                            class="text-[#B08D57]">Bank</span></span>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-8">
+                        <a href="dashboard.html"
+                            class="border-[#B08D57] text-[#F2F2F2] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest">Treasury</a>
+                        <a href="cards.html"
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Cards</a>
+                        <a href="settings.html"
+                            class="border-transparent text-[#F2F2F2]/60 hover:text-[#F2F2F2] hover:border-[#B08D57]/30 inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Security</a>
+                        <div id="adminLink" class="hidden">
+                            <a href="admin.html"
+                                class="border-transparent text-[#B08D57] hover:text-[#C9A76C] inline-flex items-center px-1 pt-1 border-b-2 text-xs font-bold uppercase tracking-widest transition-all">Overseer</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span id="welcomeMessage"
+                        class="mr-6 text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em]"></span>
+                    <button onclick="logout()"
+                        class="inline-flex items-center px-6 py-2 border border-[#B08D57]/30 text-[10px] font-bold rounded-full text-[#B08D57] hover:bg-[#B08D57] hover:text-[#0F2A1D] transition-all uppercase tracking-widest">
+                        Exit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="px-4 py-4 sm:px-0 flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900">Portfolio Dashboard</h1>
+            <div class="text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full shadow-sm border">
+                Welcome, Ref <span id="userIdDisplay" class="font-mono text-xs text-[#14B8A6] font-bold"></span>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 px-4 py-4 sm:px-0">
+
+            <!-- Cards Column (Portfolios) -->
+            <div class="w-full lg:w-1/3 flex flex-col gap-6">
+
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                        </path>
+                    </svg>
+                    My Assets
+                </h2>
+
+                <!-- Pivot Table Portfolio Selector -->
+                <div class="bg-[#112E22] rounded-2xl border border-[#163D2C] p-4 shadow-lg sticky top-24">
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-[0.2em]">Portfolio View</h3>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <!-- Table Header -->
+                        <div class="flex justify-between items-center px-4 py-2 text-[9px] uppercase tracking-widest text-[#F2F2F2]/40 font-bold border-b border-[#163D2C] mb-2">
+                            <span>Category</span>
+                            <span>Status</span>
+                        </div>
+
+                        <!-- Rows -->
+                        <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
+                            <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Main Account</span>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="MAIN" onchange="applyPortfolioFilters()" checked>
+                                <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
+                                    <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
+                            <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">FX (Currencies)</span>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="FX" onchange="applyPortfolioFilters()" checked>
+                                <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
+                                    <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
+                            <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">BIST 100</span>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="BIST100" onchange="applyPortfolioFilters()" checked>
+                                <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
+                                    <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
+                            <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">S&P 500</span>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="SP500" onchange="applyPortfolioFilters()" checked>
+                                <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
+                                    <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
+                            <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Crypto</span>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="CRYPTO" onchange="applyPortfolioFilters()" checked>
+                                <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
+                                    <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="group flex justify-between items-center px-4 py-3 rounded-xl hover:bg-[#163D2C] cursor-pointer transition-all border border-transparent hover:border-[#1F5C45]/30">
+                            <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Gold</span>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="portfolio-filter peer sr-only" value="GOLD" onchange="applyPortfolioFilters()" checked>
+                                <div class="w-4 h-4 rounded-full border-2 border-[#163D2C] peer-checked:border-[#2AF598] flex items-center justify-center transition-all bg-[#081B13]">
+                                    <div class="w-2 h-2 rounded-full bg-[#2AF598] scale-0 peer-checked:scale-100 transition-transform"></div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="accountsWrapper" class="flex flex-col gap-6 mt-6">
+                    <div class="bg-[#112E22] rounded-2xl p-6 text-center text-[#2AF598] shadow-sm border border-[#163D2C]" id="loadingAccounts">
+                        <div class="animate-pulse flex space-x-4">
+                            <div class="flex-1 space-y-4 py-1">
+                                <div class="h-4 bg-[#163D2C] rounded w-3/4 mx-auto"></div>
+                                <div class="space-y-2">
+                                    <div class="h-4 bg-[#163D2C] rounded"></div>
+                                    <div class="h-4 bg-[#163D2C] rounded w-5/6 mx-auto"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Asset Categories -->
+                    <div id="group-MAIN" class="portfolio-group flex flex-col gap-3 transition-all duration-500 origin-top">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-widest pl-2 flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-[#B08D57]"></div>Main Account</h3>
+                        <div id="accounts-MAIN" class="flex flex-col gap-3"></div>
+                    </div>
+                    
+                    <div id="group-FX" class="portfolio-group flex flex-col gap-3 transition-all duration-500 origin-top">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-widest pl-2 flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-[#B08D57]"></div>Currencies</h3>
+                        <div id="accounts-FX" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    <div id="group-BIST100" class="portfolio-group hidden flex-col gap-3 transition-all duration-500 origin-top opacity-0 h-0 overflow-hidden">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-widest pl-2 flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-[#B08D57]"></div>BIST 100</h3>
+                        <div id="accounts-BIST100" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    <div id="group-SP500" class="portfolio-group hidden flex-col gap-3 transition-all duration-500 origin-top opacity-0 h-0 overflow-hidden">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-widest pl-2 flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-[#B08D57]"></div>S&P 500</h3>
+                        <div id="accounts-SP500" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    <div id="group-CRYPTO" class="portfolio-group flex flex-col gap-3 transition-all duration-500 origin-top">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-widest pl-2 flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-[#B08D57]"></div>Crypto assets</h3>
+                        <div id="accounts-CRYPTO" class="flex flex-col gap-3"></div>
+                    </div>
+
+                    <div id="group-GOLD" class="portfolio-group hidden flex-col gap-3 transition-all duration-500 origin-top opacity-0 h-0 overflow-hidden">
+                        <h3 class="text-xs font-bold text-[#B08D57] uppercase tracking-widest pl-2 flex items-center gap-2"><div class="w-1.5 h-1.5 rounded-full bg-[#B08D57]"></div>Gold</h3>
+                        <div id="accounts-GOLD" class="flex flex-col gap-3"></div>
+                    </div>
+                </div>
+
+                <!-- Simulation Tools -->
+                <div class="bg-[#112E22] rounded-2xl border border-[#1F5C45]/50 p-6 shadow-xl mt-2 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2AF598] to-[#00C853]"></div>
+                    <h3 class="text-sm font-bold text-[#F2F2F2] mb-4 uppercase tracking-widest">Quick Deposit <span class="text-[#B08D57]">(TRY Test)</span></h3>
+                    <div class="flex gap-3">
+                        <button onclick="depositMoney(100)"
+                            class="flex-1 bg-[#081B13] text-[#F2F2F2] border border-[#163D2C] hover:border-[#2AF598] hover:text-[#2AF598] font-bold px-4 py-3 rounded-xl transition-all shadow-inner">
+                            + ₺100
+                        </button>
+                        <button onclick="depositMoney(1000)"
+                            class="flex-1 bg-[#081B13] text-[#F2F2F2] border border-[#163D2C] hover:border-[#2AF598] hover:text-[#2AF598] font-bold px-4 py-3 rounded-xl transition-all shadow-inner">
+                            + ₺1k
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfer & Trading Column -->
+            <div class="w-full lg:w-2/3 flex flex-col gap-8">
+
+                <!-- Live Trading Dashboard -->
+                <div class="bg-[#081B13] shadow-xl rounded-2xl border border-[#163D2C] overflow-hidden relative">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-[#2AF598]/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none">
+                    </div>
+
+                    <div
+                        class="px-6 py-5 border-b border-[#163D2C] bg-[#112E22] flex justify-between items-center relative z-10">
+                        <div>
+                            <h3 class="text-xl font-bold text-[#F2F2F2] flex items-center gap-2">
+                                <svg class="w-5 h-5 text-[#2AF598]" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                                Markets & Trading
+                            </h3>
+                            <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#F2F2F2]/40">Live prices sourced securely. Trade instantly.</p>
+                        </div>
+                        <button onclick="fetchMarketPrices()"
+                            class="text-xs text-[#2AF598] border border-[#1F5C45] bg-[#081B13] hover:bg-[#163D2C] hover:border-[#2AF598]/50 px-4 py-2 rounded-lg transition-all shadow-sm font-bold flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="p-6 relative z-10 flex flex-col md:flex-row gap-6">
+
+                        <!-- Market Prices List -->
+                        <div class="w-full md:w-1/2 flex flex-col">
+                            <div class="flex gap-2 mb-3 border-b border-[#163D2C] pb-2 overflow-x-auto">
+                                <button type="button" onclick="switchTab('crypto')" id="tab-crypto"
+                                    class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg bg-[#112E22] text-[#2AF598] border border-[#1F5C45] transition whitespace-nowrap">Crypto
+                                    & FX</button>
+                                <button type="button" onclick="switchTab('bist100')" id="tab-bist100"
+                                    class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg text-[#F2F2F2]/60 hover:bg-[#163D2C] transition whitespace-nowrap border border-transparent">BIST
+                                    100</button>
+                                <button type="button" onclick="switchTab('sp500')" id="tab-sp500"
+                                    class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg text-[#F2F2F2]/60 hover:bg-[#163D2C] transition whitespace-nowrap border border-transparent">S&P
+                                    500</button>
+                            </div>
+                            <div
+                                class="border border-[#163D2C] rounded-xl overflow-y-auto h-64 shadow-inner bg-[#081B13]">
+                                <table class="min-w-full divide-y divide-[#163D2C]">
+                                    <tbody id="marketPricesBody" class="divide-y divide-[#1D4A36]">
+                                        <tr>
+                                            <td colspan="2" class="px-4 py-8 text-center text-xs font-bold uppercase tracking-widest text-[#F2F2F2]/40">Loading
+                                                market data...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Trade Form -->
+                        <div
+                            class="w-full md:w-1/2 pl-0 md:pl-6 border-t md:border-t-0 md:border-l border-[#163D2C] pt-4 md:pt-0">
+                            <h4 class="font-bold text-[#F2F2F2] text-sm uppercase tracking-widest mb-4">Execute Order</h4>
+
+                            <form id="tradeForm" class="space-y-5">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Action</label>
+                                        <select id="tradeAction" required
+                                            class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm bg-[#112E22] text-[#F2F2F2] border border-[#1F5C45] focus:outline-none focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] rounded-xl shadow-sm hover:border-[#2AF598]/50 transition-all cursor-pointer">
+                                            <option value="BUY" class="text-[#2AF598] font-bold">BUY Asset</option>
+                                            <option value="SELL" class="text-rose-500 font-bold">SELL Asset</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Select
+                                            Asset</label>
+                                        <select id="tradeAsset" required
+                                            class="mt-1 block w-full pl-3 pr-8 py-2.5 text-sm bg-[#112E22] text-[#F2F2F2] border border-[#1F5C45] focus:outline-none focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] rounded-xl shadow-sm hover:border-[#2AF598]/50 transition-all cursor-pointer">
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Amount
+                                        (Asset)</label>
+                                    <div class="mt-1 relative rounded-xl shadow-sm">
+                                        <input type="number" id="tradeAmount" required min="0.000001" step="0.000001"
+                                            placeholder="0.00"
+                                            class="bg-[#112E22] text-[#F2F2F2] placeholder-[#8FA99A] border border-[#1F5C45] focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] block w-full pl-4 pr-4 py-3 sm:text-sm rounded-xl hover:border-[#2AF598]/50 transition-all outline-none">
+                                    </div>
+                                    <div
+                                        class="mt-2 flex justify-between items-center bg-[#081B13] p-2 rounded-lg border border-[#163D2C]">
+                                        <span class="text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">Est. Value (TRY):</span>
+                                        <span id="tradeEstimate"
+                                            class="font-bold text-[#2AF598] tracking-tight text-lg">₺0.00</span>
+                                    </div>
+                                </div>
+
+                                <div id="tradeMsg" class="hidden text-sm p-3 rounded-lg font-bold" role="alert"></div>
+
+                                <button type="submit" id="tradeSubmitBtn"
+                                    class="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold tracking-widest uppercase text-[#081B13] bg-[#B08D57] hover:bg-[#C9A76C] shadow-[0_0_10px_rgba(176,141,87,0.2)] hover:shadow-[0_0_15px_rgba(176,141,87,0.4)] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#112E22] focus:ring-[#B08D57] transform active:scale-95">
+                                    Execute Trade
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internal Transfer Container -->
+                <div class="bg-[#081B13] shadow-xl rounded-2xl border border-[#163D2C] overflow-hidden">
+                    <div class="px-6 py-5 border-b border-[#163D2C] bg-[#112E22]">
+                        <h3 class="text-xl font-bold text-[#F2F2F2] flex items-center gap-2">
+                            <svg class="w-5 h-5 text-[#2AF598]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                            Transfer Funds
+                        </h3>
+                    </div>
+
+                    <div class="p-6">
+                        <form id="transferForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                            <div class="col-span-1 md:col-span-2 mb-2">
+                                <label class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-3">Transfer Type</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="radio" name="transfer_type" value="internal"
+                                            class="text-[#2AF598] focus:ring-[#2AF598] bg-[#112E22] border-[#1F5C45]" checked>
+                                        <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">Internal (Rykard Bank)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="radio" name="transfer_type" value="external"
+                                            class="text-[#2AF598] focus:ring-[#2AF598] bg-[#112E22] border-[#1F5C45]">
+                                        <span class="text-sm font-bold text-[#F2F2F2] group-hover:text-[#2AF598] transition-colors">External (Other Bank)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">From
+                                        Account</label>
+                                    <select id="transferFromAccount" required
+                                        class="mt-1 block w-full pl-3 pr-10 py-3 text-sm bg-[#112E22] text-[#F2F2F2] border border-[#1F5C45] focus:outline-none focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] rounded-xl shadow-sm hover:border-[#2AF598]/50 transition-all cursor-pointer">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Recipient
+                                        IBAN</label>
+                                    <input type="text" id="targetAccountId" required
+                                        placeholder="TR00 0006 1XXX XXXX XXXX XXXX XX"
+                                        class="mt-1 bg-[#112E22] text-[#F2F2F2] placeholder-[#8FA99A] border border-[#1F5C45] focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] block w-full pl-4 py-3 sm:text-sm shadow-sm rounded-xl hover:border-[#2AF598]/50 transition-all outline-none font-mono tracking-wide">
+                                    <p id="recipientNameHint" class="mt-1 text-xs font-medium italic hidden"></p>
+                                </div>
+                            </div>
+
+                            <div class="col-span-1 md:col-span-2 flex items-end gap-4">
+                                <div class="flex-1">
+                                    <label
+                                        class="block text-xs font-bold text-[#F2F2F2]/40 uppercase tracking-widest mb-2">Amount</label>
+                                    <input type="number" id="transferAmount" required min="0.01" step="0.01"
+                                        placeholder="0.00"
+                                        class="mt-1 bg-[#112E22] text-[#F2F2F2] placeholder-[#8FA99A] border border-[#1F5C45] focus:ring-1 focus:ring-[#2AF598] focus:border-[#2AF598] block w-full pl-4 py-3 sm:text-sm shadow-sm rounded-xl hover:border-[#2AF598]/50 transition-all outline-none">
+                                </div>
+                                <div class="flex-1">
+                                    <button type="submit" id="transferSubmitBtn" disabled
+                                        class="w-full h-[46px] mt-1 justify-center py-2 px-4 shadow-md text-sm font-bold tracking-widest uppercase rounded-xl text-[#081B13] bg-[#B08D57] hover:bg-[#C9A76C] hover:shadow-[0_0_15px_rgba(176,141,87,0.4)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#112E22] focus:ring-[#B08D57] opacity-60 cursor-not-allowed transition-all">
+                                        Send ->
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="transferMsg"
+                                class="col-span-1 md:col-span-2 hidden text-sm p-3 rounded-lg font-medium" role="alert">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Transaction History Row -->
+        <div class="px-4 pb-12 sm:px-0 mt-4">
+            <div class="bg-[#081B13] shadow-xl rounded-2xl border border-[#163D2C] overflow-hidden">
+                <div class="px-6 py-5 border-b border-[#163D2C] bg-[#112E22]">
+                    <h3 class="text-xl font-bold text-[#F2F2F2] flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#2AF598]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Activity Log (TRY)
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-[#163D2C]">
+                        <thead class="bg-[#112E22]">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3.5 text-left text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
+                                    Date</th>
+                                <th scope="col"
+                                    class="px-6 py-3.5 text-left text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
+                                    Type</th>
+                                <th scope="col"
+                                    class="px-6 py-3.5 text-left text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
+                                    Details</th>
+                                <th scope="col"
+                                    class="px-6 py-3.5 text-right text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-widest">
+                                    Settle Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionHistoryBody" class="bg-white/80 divide-y divide-gray-50">
+                            <tr>
+                                <td colspan="4"
+                                    class="px-6 py-8 whitespace-nowrap text-sm text-gray-500 text-center animate-pulse">
+                                    Loading history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check Auth
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('user_id');
+        const userRole = localStorage.getItem('role');
+
+        if (userRole === 'admin') {
+            const adminLinkBtn = document.getElementById('adminLink');
+            if (adminLinkBtn) adminLinkBtn.classList.remove('hidden');
+        }
+
+        let userAccounts = [];
+        let primaryTryAccountId = null;
+        let livePrices = {};
+        let activeTab = 'crypto';
+
+        function switchTab(tab) {
+            activeTab = tab;
+            ['crypto', 'bist100', 'sp500'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    el.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 text-indigo-700 transition whitespace-nowrap";
+                } else {
+                    el.className = "px-3 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:bg-gray-100 transition whitespace-nowrap";
+                }
+            });
+            fetchMarketPrices();
+        }
+
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('userIdDisplay').textContent = userId;
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            window.location.href = 'index.html';
+        }
+
+        async function fetchMarketPrices() {
+            const tbody = document.getElementById('marketPricesBody');
+            const assetSelect = document.getElementById('tradeAsset');
+
+            try {
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-xs font-bold text-[#F2F2F2]/40 animate-pulse tracking-widest uppercase">Connecting to Exchange Database...<br/><span class="text-[10px] text-[#2AF598]">Loading live asset prices</span></td></tr>';
+
+                let endpoint = window.API_BASE_URL + '/api/trading/prices';
+                if (activeTab === 'bist100') endpoint = window.API_BASE_URL + '/api/trading/stocks/bist100';
+                if (activeTab === 'sp500') endpoint = window.API_BASE_URL + '/api/trading/stocks/sp500';
+
+                const response = await fetch(endpoint);
+                if (!response.ok) throw new Error("Failed to fetch prices.");
+
+                const prices = await response.json();
+                tbody.innerHTML = '';
+
+                let selectOptions = '';
+
+                prices.forEach(p => {
+                    livePrices[p.currency] = p.price_in_try;
+
+                    let formattedPrice = parseFloat(p.price_in_try).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    // Adding subtle asset type styling based on ticker prefix/type
+                    let iconColor = 'text-[#F2F2F2]/40';
+                    if (['BTC', 'ETH', 'SOL'].includes(p.currency)) iconColor = 'text-[#F5A623]';
+                    if (['XAU', 'XAG'].includes(p.currency)) iconColor = 'text-[#B08D57]';
+                    if (['USD', 'EUR'].includes(p.currency)) iconColor = 'text-[#2AF598]';
+
+                    const row = `<tr class="hover:bg-[#163D2C] bg-[#081B13] transition-colors cursor-pointer group" onclick="selectTradeAsset('${p.currency}')">
+                           <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-[#F2F2F2] flex items-center gap-2 group-hover:text-[#2AF598] transition-colors border-b border-[#1D4A36]">
+                               <div class="w-2 h-2 rounded-full bg-current ${iconColor}"></div>
+                               ${p.currency}
+                           </td>
+                           <td class="px-4 py-3 whitespace-nowrap text-sm text-right font-mono font-bold text-[#F2F2F2]/80 group-hover:text-[#2AF598] transition-colors border-b border-[#1D4A36]">₺${formattedPrice}</td>
+                     </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+
+                    selectOptions += `<option value="${p.currency}">${p.currency} (₺${formattedPrice})</option>`;
+                });
+
+                assetSelect.innerHTML = selectOptions;
+                calculateEstimate();
+
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center text-sm font-bold tracking-widest uppercase text-rose-500 bg-[#2A111A]">Exchange Offline</td></tr>';
+            }
+        }
+
+        async function fetchAccountData() {
+            try {
+                const response = await fetch(`/api/accounts/customer/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    userAccounts = await response.json();
+
+                    const loadingDiv = document.getElementById('loadingAccounts');
+                    const wrapper = document.getElementById('accountsWrapper');
+                    const fromAccountSelect = document.getElementById('transferFromAccount');
+
+                    if (loadingDiv) loadingDiv.remove();
+
+                    // Containers
+                    const listMAIN = document.getElementById('accounts-MAIN');
+                    const listFX = document.getElementById('accounts-FX');
+                    const listBIST100 = document.getElementById('accounts-BIST100');
+                    const listSP500 = document.getElementById('accounts-SP500');
+                    const listCRYPTO = document.getElementById('accounts-CRYPTO');
+                    const listGOLD = document.getElementById('accounts-GOLD');
+
+                    listMAIN.innerHTML = '';
+                    listFX.innerHTML = '';
+                    listBIST100.innerHTML = '';
+                    listSP500.innerHTML = '';
+                    listCRYPTO.innerHTML = '';
+                    listGOLD.innerHTML = '';
+                    fromAccountSelect.innerHTML = '';
+
+                    // Track which categories contain accounts to enable/disable checkboxes later if needed
+                    const activeCategories = new Set();
+
+                    if (userAccounts.length > 0) {
+                        // Sort so TRY is always first
+                        userAccounts.sort((a, b) => a.currency === 'TRY' ? -1 : b.currency === 'TRY' ? 1 : 0);
+
+                        userAccounts.forEach(account => {
+                            if (account.currency === 'TRY') primaryTryAccountId = account.id;
+
+                            let currentMarketPrice = livePrices[account.currency] || 1;
+                            let currentValueInTry = parseFloat(account.balance) * currentMarketPrice;
+                            let costBasisTry = parseFloat(account.cost_basis_try || 0);
+
+                            let profitStatus = 'neutral';
+                            let pnlHtml = '';
+                            if (account.currency !== 'TRY' && account.balance > 0) {
+                                if (costBasisTry > 0) {
+                                    let avgBuyPrice = costBasisTry / parseFloat(account.balance);
+                                    let pnlPercent = ((currentMarketPrice - avgBuyPrice) / avgBuyPrice) * 100;
+
+                                    if (pnlPercent > 0.01) {
+                                        profitStatus = 'profit';
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#112E22] text-[#2AF598] border border-[#1F5C45] ml-2" title="Avg Buy: ₺${avgBuyPrice.toFixed(2)}">+${pnlPercent.toFixed(2)}%</span>`;
+                                    } else if (pnlPercent < -0.01) {
+                                        profitStatus = 'loss';
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#2A111A] text-rose-500 border border-rose-900/50 ml-2" title="Avg Buy: ₺${avgBuyPrice.toFixed(2)}">${pnlPercent.toFixed(2)}%</span>`;
+                                    } else {
+                                        pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#081B13] text-gray-400 border border-[#163D2C] ml-2" title="Avg Buy: ₺${avgBuyPrice.toFixed(2)}">0.00%</span>`;
+                                    }
+                                } else {
+                                    profitStatus = 'profit';
+                                    pnlHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#112E22] text-[#2AF598] border border-[#1F5C45] ml-2" title="Return on Investment (Free/Migrated Asset)">100% (N/A)</span>`;
+                                }
+                            }
+
+                            let statusLight = '';
+                            if (profitStatus === 'profit') {
+                                statusLight = '<div class="w-2 h-2 rounded-full bg-[#2AF598] shadow-[0_0_8px_rgba(42,245,152,0.8)] animate-pulse" title="Profitable"></div>';
+                            } else if (profitStatus === 'loss') {
+                                statusLight = '<div class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)] animate-pulse" title="Loss"></div>';
+                            } else {
+                                statusLight = '<div class="w-2 h-2 rounded-full bg-[#163D2C]" title="Neutral"></div>';
+                            }
+
+                            let isFiat = ['TRY', 'USD', 'EUR', 'GBP', 'JPY'].includes(account.currency);
+                            let displayBalance = parseFloat(account.balance).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: isFiat ? 2 : 6 });
+
+                            const cardHtml = `
+                                <div class="bg-[#081B13] rounded-2xl shadow-lg border border-[#1F5C45]/30 overflow-hidden relative group hover:border-[#B08D57]/50 transition-all">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#B08D57] to-[#1F5C45]"></div>
+                                    <div class="p-5 pl-6">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <div class="flex items-center gap-2">
+                                                <h2 class="text-xs font-bold text-[#F2F2F2]/60 uppercase tracking-widest">${account.currency} Wallet</h2>
+                                                ${statusLight}
+                                            </div>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-[#112E22] text-[#B08D57] border border-[#B08D57]/20">${account.status}</span>
+                                        </div>
+                                        <div class="flex items-baseline mt-2">
+                                            <span class="text-2xl font-black text-[#F2F2F2] tracking-tight">${displayBalance}</span>
+                                            <span class="text-xs font-bold text-[#B08D57] align-baseline ml-2">${account.currency}</span>
+                                            ${pnlHtml}
+                                        </div>
+                                        <div class="mt-4 pt-4 border-t border-[#163D2C] flex flex-col gap-2">
+                                            ${account.iban ? `<div class="flex items-center justify-between">
+                                                <span class="text-[9px] uppercase font-bold text-[#F2F2F2]/40 tracking-widest">IBAN</span>
+                                                <span class="font-mono text-[10px] bg-[#112E22] px-2 py-1 rounded text-[#F2F2F2]/80 cursor-pointer hover:bg-[#163D2C] hover:text-[#2AF598] transition border border-[#1F5C45]/40"
+                                                    onclick="navigator.clipboard.writeText('${account.iban}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='${account.iban.replace(/(.{4})/g, '$1 ').trim()}', 1000)" title="Copy IBAN">${account.iban.replace(/(.{4})/g, '$1 ').trim()}</span>
+                                            </div>` : ''}
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[9px] uppercase font-bold text-[#F2F2F2]/40 tracking-widest">Sys ID</span>
+                                                <span class="font-mono text-[10px] bg-[#081B13] px-2 py-1 rounded text-[#F2F2F2]/60 cursor-pointer hover:bg-[#112E22] hover:text-[#2AF598] transition border border-[#163D2C]"
+                                                    onclick="navigator.clipboard.writeText('${account.id}')" title="Copy">${account.id.substring(0, 18)}...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                             `;
+
+                            // Categorize Asset
+                            let categoryCode = '';
+                            if (account.currency === 'TRY') {
+                                listMAIN.insertAdjacentHTML('beforeend', cardHtml);
+                                categoryCode = 'MAIN';
+                            } else if (['USD', 'EUR', 'GBP', 'JPY', 'CHF'].includes(account.currency)) {
+                                listFX.insertAdjacentHTML('beforeend', cardHtml);
+                                categoryCode = 'FX';
+                            } else if (account.currency.endsWith('.IS')) {
+                                listBIST100.insertAdjacentHTML('beforeend', cardHtml);
+                                categoryCode = 'BIST100';
+                            } else if (['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'NVDA'].includes(account.currency)) {
+                                listSP500.insertAdjacentHTML('beforeend', cardHtml);
+                                categoryCode = 'SP500';
+                            } else if (['XAU', 'XAG', 'XPT', 'XPD'].includes(account.currency)) {
+                                listGOLD.insertAdjacentHTML('beforeend', cardHtml);
+                                categoryCode = 'GOLD';
+                            } else {
+                                // Default Crypto
+                                listCRYPTO.insertAdjacentHTML('beforeend', cardHtml);
+                                categoryCode = 'CRYPTO';
+                            }
+                            
+                            activeCategories.add(categoryCode);
+                            fromAccountSelect.insertAdjacentHTML('beforeend', `<option value="${account.id}">${account.currency} - Available: ${displayBalance}</option>`);
+                        });
+                        
+                        // Apply initial filters based on checked state
+                        applyPortfolioFilters();
+
+                        fetchTransactionHistory();
+                    } else {
+                        wrapper.innerHTML = '<div class="bg-[#112E22] p-6 rounded-2xl text-center font-bold text-red-500 border border-red-900/50">Error reading wallets.</div>';
+                    }
+                } else if (response.status === 401) {
+                    logout();
+                }
+            } catch (err) {
+                console.error("Connection error", err);
+            }
+        }
+
+        function applyPortfolioFilters() {
+            const checkboxes = document.querySelectorAll('.portfolio-filter');
+            checkboxes.forEach(cb => {
+                const groupEl = document.getElementById(`group-${cb.value}`);
+                if (groupEl) {
+                    // Check if group has actual content
+                    const accountList = document.getElementById(`accounts-${cb.value}`);
+                    const hasAccounts = accountList && accountList.children.length > 0;
+
+                    if (cb.checked && hasAccounts) {
+                        groupEl.classList.remove('hidden');
+                        // Small delay to allow display block to apply before animating opacity/height
+                        setTimeout(() => {
+                            groupEl.classList.remove('opacity-0', 'h-0', 'overflow-hidden');
+                            groupEl.classList.add('flex');
+                        }, 10);
+                    } else {
+                        groupEl.classList.add('opacity-0', 'h-0', 'overflow-hidden');
+                        groupEl.classList.remove('flex');
+                        setTimeout(() => {
+                            groupEl.classList.add('hidden');
+                        }, 500); // Matches transition duration
+                    }
+                }
+            });
+        }
+
+        async function fetchTransactionHistory() {
+            if (!primaryTryAccountId) return;
+            const tbody = document.getElementById('transactionHistoryBody');
+
+            try {
+                const response = await fetch(`/api/ledger/history/${primaryTryAccountId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const history = await response.json();
+                    tbody.innerHTML = '';
+
+                    if (history.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-sm font-bold text-[#F2F2F2]/40">No activity logged for this account.</td></tr>';
+                        return;
+                    }
+
+                    history.forEach(tx => {
+                        const dateObj = new Date(tx.created_at);
+                        const dateText = `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+                        let typeSpan = '';
+                        let amountClass = '';
+                        let amountPrefix = '';
+                        let details = '';
+
+                        if (tx.transaction_type === 'DEPOSIT') {
+                            typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#112E22] text-[#2AF598] border border-[#1F5C45] uppercase tracking-wide">Deposit</span>';
+                            amountClass = 'text-[#2AF598] font-bold';
+                            amountPrefix = '+';
+                            details = 'System Funding';
+                        } else if (tx.transaction_type === 'WITHDRAWAL') {
+                            typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#2A111A] text-rose-500 border border-rose-900/50 uppercase tracking-wide">Withdraw</span>';
+                            amountClass = 'text-rose-500 font-bold';
+                            amountPrefix = '-';
+                            details = 'Cash Out';
+                        } else if (tx.transaction_type === 'TRANSFER') {
+                            if (tx.to_account_id === primaryTryAccountId) {
+                                typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#112E22] text-[#2AF598] border border-[#1F5C45] uppercase tracking-wide">Credit</span>';
+                                amountClass = 'text-[#2AF598] font-bold';
+                                amountPrefix = '+';
+                                details = `From: ${tx.from_account_id ? tx.from_account_id.substring(0, 8) + '...' : 'System / Trading'}`;
+                            } else {
+                                typeSpan = '<span class="px-2.5 py-1 text-[10px] leading-none font-bold rounded bg-[#163D2C] text-[#F2F2F2]/80 border border-[#1F5C45] uppercase tracking-wide">Debit</span>';
+                                amountClass = 'text-[#F2F2F2] font-bold';
+                                amountPrefix = '-';
+                                details = `To: ${tx.to_account_id.substring(0, 8)}...`;
+                            }
+                        }
+
+                        const row = `
+                            <tr class="hover:bg-[#163D2C] bg-[#081B13] border-b border-[#1D4A36] transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-[#F2F2F2]/60">${dateText}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${typeSpan}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#F2F2F2]">${details}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono ${amountClass}">
+                                    ${amountPrefix}₺${parseFloat(tx.amount).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </td>
+                            </tr>
+                        `;
+                        tbody.insertAdjacentHTML('beforeend', row);
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to fetch history", err);
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm font-bold text-rose-500">Failed to load transaction history.</td></tr>';
+            }
+        }
+
+        async function depositMoney(amount) {
+            if (!primaryTryAccountId) return alert("Account not loaded yet");
+            try {
+                const response = await fetch(`/api/ledger/deposit?account_id=${primaryTryAccountId}&amount=${amount}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    fetchAccountData();
+                } else {
+                    alert("Deposit failed");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // --- TRANSFER LOGIC ---
+        let isExternalMode = false;
+        let validationTimeout = null;
+        let resolvedTargetAccountId = null;
+
+        document.querySelectorAll('input[name="transfer_type"]').forEach((elem) => {
+            elem.addEventListener("change", function (event) {
+                isExternalMode = event.target.value === 'external';
+                const targetInput = document.getElementById('targetAccountId');
+                const hintElement = document.getElementById('recipientNameHint');
+
+                targetInput.value = '';
+                hintElement.classList.add('hidden');
+                document.getElementById('transferSubmitBtn').disabled = true;
+                document.getElementById('transferSubmitBtn').classList.add('opacity-60', 'cursor-not-allowed');
+                resolvedTargetAccountId = null;
+
+                if (isExternalMode) {
+                    targetInput.placeholder = "TRXX XXXX XXXX XXXX XXXX XXXX XX";
+                } else {
+                    targetInput.placeholder = "TR00 0006 1XXX XXXX XXXX XXXX XX";
+                }
+            });
+        });
+
+        document.getElementById('targetAccountId').addEventListener('input', function () {
+            let targetInput = this.value.trim().replace(/\s/g, ''); // Boşlukları temizle
+            const hintElement = document.getElementById('recipientNameHint');
+            const submitBtn = document.getElementById('transferSubmitBtn');
+
+            if (validationTimeout) {
+                clearTimeout(validationTimeout);
+            }
+            hintElement.classList.add('hidden');
+            hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#F2F2F2]/40 hidden tracking-widest";
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            submitBtn.classList.remove('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
+            resolvedTargetAccountId = null;
+
+            if (targetInput.length < 10) return;
+
+            if (isExternalMode) {
+                // For external transfers, we just validate if it looks like an IBAN and enable the button.
+                // We don't resolve against our DB.
+                if (targetInput.toUpperCase().startsWith('TR') && targetInput.length >= 24) {
+                    hintElement.textContent = `✓ Valid External IBAN format`;
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
+                } else {
+                    hintElement.textContent = "✗ Invalid IBAN format.";
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
+                }
+                hintElement.classList.remove('hidden');
+                return;
+            }
+
+            validationTimeout = setTimeout(async () => {
+                hintElement.textContent = "Verifying target format...";
+                hintElement.classList.remove('hidden');
+
+                // For internal transfers, let's just do a basic frontend check
+                // and defer the actual DB validation to the backend /ledger/transfer call.
+                if (targetInput.length >= 24 && targetInput.toUpperCase().startsWith('TR')) {
+                    // Looks like an IBAN
+                    hintElement.textContent = `✓ Valid Internal IBAN format`;
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
+                } else if (targetInput.length >= 32) {
+                    // Looks like a UUID
+                    hintElement.textContent = `✓ Valid Account ID format`;
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-[#2AF598] tracking-widest";
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    submitBtn.classList.add('hover:shadow-[0_0_15px_rgba(201,167,108,0.6)]');
+                } else {
+                    hintElement.textContent = "✗ Invalid Account ID or IBAN format.";
+                    hintElement.className = "mt-1 text-[10px] uppercase font-bold text-rose-500 tracking-widest";
+                }
+            }, 500);
+        });
+
+        document.getElementById('transferForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fromId = document.getElementById('transferFromAccount').value;
+            const targetId = resolvedTargetAccountId || document.getElementById('targetAccountId').value.trim();
+            const amount = document.getElementById('transferAmount').value;
+
+            const msgBox = document.getElementById('transferMsg');
+            const submitBtn = document.getElementById('transferSubmitBtn');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Processing...";
+
+            try {
+                let endpoint = window.API_BASE_URL + '/api/ledger/transfer';
+                let payload = {};
+
+                if (isExternalMode) {
+                    endpoint = window.API_BASE_URL + '/api/external/send';
+                    payload = {
+                        from_account_id: fromId,
+                        to_iban: document.getElementById('targetAccountId').value.trim().replace(/\s/g, ''),
+                        amount: amount
+                    };
+                } else {
+                    payload = {
+                        from_account_id: fromId,
+                        to_account_id: targetId,
+                        amount: amount
+                    };
+                }
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                msgBox.classList.remove('hidden', 'bg-red-50', 'text-[#14B8A6]', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
+
+                if (response.ok) {
+                    msgBox.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+                    msgBox.textContent = `Transfer Sent. TX: ${result.transaction_id.substring(0, 8)}`;
+                    document.getElementById('transferForm').reset();
+                    document.getElementById('recipientNameHint').classList.add('hidden');
+                    fetchAccountData();
+                } else {
+                    msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
+                    msgBox.textContent = `Declined: ${result.detail}`;
+                }
+            } catch (err) {
+                msgBox.classList.remove('hidden');
+                msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
+                msgBox.textContent = "Communication Failure.";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Send ->";
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('targetAccountId').dispatchEvent(new Event('input'));
+            }
+        });
+
+
+        // --- TRADING LOGIC ---
+        function selectTradeAsset(currency) {
+            const select = document.getElementById('tradeAsset');
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === currency) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+
+            // Add a brief highlight flash to the select box
+            select.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500');
+            setTimeout(() => {
+                select.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500');
+            }, 500);
+
+            calculateEstimate();
+        }
+
+        function calculateEstimate() {
+            const action = document.getElementById('tradeAction').value;
+            const asset = document.getElementById('tradeAsset').value;
+            const amount = document.getElementById('tradeAmount').value;
+            const display = document.getElementById('tradeEstimate');
+
+            if (livePrices[asset] && amount) {
+                const est = parseFloat(livePrices[asset]) * parseFloat(amount);
+
+                if (action === 'BUY') {
+                    display.textContent = `- ₺${est.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    display.className = "text-xl font-black text-[#14B8A6] tracking-tight";
+                } else {
+                    display.textContent = `+ ₺${est.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    display.className = "text-xl font-black text-green-500 tracking-tight";
+                }
+            } else {
+                display.textContent = "₺0.00";
+                display.className = "text-xl font-bold text-gray-500 tracking-tight";
+            }
+        }
+
+        document.getElementById('tradeAmount').addEventListener('input', calculateEstimate);
+        document.getElementById('tradeAsset').addEventListener('change', calculateEstimate);
+        document.getElementById('tradeAction').addEventListener('change', calculateEstimate);
+
+        document.getElementById('tradeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const action = document.getElementById('tradeAction').value;
+            const asset = document.getElementById('tradeAsset').value;
+            const amount = document.getElementById('tradeAmount').value;
+
+            const msgBox = document.getElementById('tradeMsg');
+            const submitBtn = document.getElementById('tradeSubmitBtn');
+
+            let fromCurrency = 'TRY';
+            let toCurrency = asset;
+
+            if (action === 'SELL') {
+                fromCurrency = asset;
+                toCurrency = 'TRY';
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-gray-900" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+            try {
+                const response = await fetch(window.API_BASE_URL + '/api/trading/trade', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        from_currency: fromCurrency,
+                        to_currency: toCurrency,
+                        amount: amount
+                    })
+                });
+
+                const result = await response.json();
+                msgBox.classList.remove('hidden', 'bg-red-50', 'text-[#14B8A6]', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
+
+                if (response.ok) {
+                    msgBox.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+                    msgBox.textContent = `Order Executed Confirmed.`;
+                    document.getElementById('tradeForm').reset();
+                    calculateEstimate();
+                    fetchAccountData();
+                } else {
+                    msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
+                    msgBox.textContent = `Order Rejected: ${result.detail}`;
+                }
+            } catch (err) {
+                msgBox.classList.remove('hidden');
+                msgBox.classList.add('bg-red-50', 'text-[#14B8A6]', 'border', 'border-red-200');
+                msgBox.textContent = "Exchange Sync Error.";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Execute Trade";
+            }
+        });
+
+        // Init page
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Seed livePrices with all markets so PnL works globally for all wallets
+                const [core, bist, sp] = await Promise.all([
+                    fetch(window.API_BASE_URL + '/api/trading/prices').then(r => r.ok ? r.json() : []),
+                    fetch(window.API_BASE_URL + '/api/trading/stocks/bist100').then(r => r.ok ? r.json() : []),
+                    fetch(window.API_BASE_URL + '/api/trading/stocks/sp500').then(r => r.ok ? r.json() : [])
+                ]);
+
+                [...(core || []), ...(bist || []), ...(sp || [])].forEach(p => {
+                    if (p.currency && p.price_in_try) {
+                        livePrices[p.currency] = p.price_in_try;
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to seed global prices", e);
+            }
+
+            await fetchMarketPrices(); // Refresh UI for active tab
+            await fetchAccountData();  // Render wallets with fully populated livePrices array
+        });
+    </script>
+</body>
+
+</html>

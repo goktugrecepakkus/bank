@@ -1,15 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import os
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from database import engine, Base
-from routers import customer, account, ledger, auth
+from rate_limiter import limiter
+from routers import customer, account, ledger, auth, trading, cards
+from routers.ws_client import ws_client
+import asyncio
 
-# Uygulama başlarken veritabanı tablolarını oluşturur
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print("Veritabanı bağlantı uyarısı (Docker çalışmıyor olabilir):", e)
+# Uygulama başlarken veritabanı bağlantısı kurulur ve tablolar oluşturulur
+print(f"Connecting to database: {engine.url.render_as_string(hide_password=True)}")
 
 app = FastAPI(
     title="Rykard Banking API",
@@ -17,23 +20,282 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Rate Limiting setup
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.on_event("startup")
+async def startup_event():
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database connection and table creation successful.")
+        
+        # Enforce Row Level Security (RLS) on audit_logs with policy
+        try:
+            from sqlalchemy import text
+            from database import engine
+            if engine.url.drivername.startswith("postgres"):
+                with engine.connect() as conn:
+                    # RLS'yi etkinleştir
+                    conn.execute(text("ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;"))
+                    # Policy: Sadece service_role (backend) erişebilir, anon/authenticated kullanıcılar erişemez
+                    conn.execute(text("""
+                        DO $$
+                        BEGIN
+                            IF NOT EXISTS (
+                                SELECT 1 FROM pg_policies
+                                WHERE tablename = 'audit_logs' AND policyname = 'service_role_only'
+                            ) THEN
+                                CREATE POLICY service_role_only ON public.audit_logs
+                                    FOR ALL
+                                    USING (current_setting('role') = 'service_role');
+                            END IF;
+                        END $$;
+                    """))
+                    conn.commit()
+                    print("[Migration] Enabled RLS + policy on public.audit_logs.")
+        except Exception as rls_err:
+            print(f"[Migration] RLS migration note: {rls_err}")
+
+        # IBAN migration: Mevcut hesaplara IBAN ata
+        try:
+            from sqlalchemy import text, inspect
+            inspector = inspect(engine)
+            columns = [col['name'] for col in inspector.get_columns('accounts')]
+            if 'iban' not in columns:
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE accounts ADD COLUMN iban VARCHAR(26) UNIQUE;"))
+                    conn.commit()
+                    print("[Migration] Added iban column to accounts table.")
+            
+            # NULL IBAN'lara değer ata
+            from models import generate_iban
+            from database import SessionLocal
+            db = SessionLocal()
+            try:
+                from sqlalchemy import text as sql_text
+                null_ibans = db.execute(sql_text("SELECT id FROM accounts WHERE iban IS NULL")).fetchall()
+                if null_ibans:
+                    for row in null_ibans:
+                        iban = generate_iban()
+                        db.execute(sql_text("UPDATE accounts SET iban = :iban WHERE id = :id"), {"iban": iban, "id": row[0]})
+                    db.commit()
+                    print(f"[Migration] Assigned IBAN to {len(null_ibans)} existing accounts.")
+            finally:
+                db.close()
+            # Card encryption length migration
+            try:
+                with engine.connect() as conn:
+                    # card_number, cvv, expiry_date (increase to allow encrypted data)
+                    card_columns = {col['name']: col['type'] for col in inspector.get_columns('cards')}
+                    
+                    if 'card_number' in card_columns and getattr(card_columns['card_number'], 'length', 0) < 255:
+                        conn.execute(text("ALTER TABLE cards ALTER COLUMN card_number TYPE VARCHAR(255);"))
+                        print("[Migration] Increased cards.card_number length to 255.")
+                    
+                    if 'cvv' in card_columns and getattr(card_columns['cvv'], 'length', 0) < 255:
+                        conn.execute(text("ALTER TABLE cards ALTER COLUMN cvv TYPE VARCHAR(255);"))
+                        print("[Migration] Increased cards.cvv length to 255.")
+                    
+                    if 'expiry_date' in card_columns and getattr(card_columns['expiry_date'], 'length', 0) < 10:
+                        conn.execute(text("ALTER TABLE cards ALTER COLUMN expiry_date TYPE VARCHAR(10);"))
+                        print("[Migration] Increased cards.expiry_date length to 10.")
+                    
+                    conn.commit()
+            except Exception as card_mig_err:
+                print(f"[Migration] Card migration note: {card_mig_err}")
+                
+        except Exception as mig_err:
+            print(f"[Migration] migration error: {mig_err}")
+            
+    except Exception as e:
+        print("Veritabanı bağlantı hatası:", e)
+
+    # Start WebSocket background task
+    asyncio.create_task(ws_client.connect())
+        
 # CORS Ayarları (Frontend'in Backend'e bağlanabilmesi için zorunlu güvenlik ayarı)
+# Prod'da CORS_ORIGINS env variable'ında domain listesi tutulmalı (virgülle ayrılmış)
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:8000,http://localhost:3000,http://127.0.0.1:8000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Geliştirme aşaması için herkese açık, prod'da domain yazılır
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# API Yollarını (Routers) Ana Uygulamaya Bağlama
-app.include_router(auth.router)
-app.include_router(customer.router)
-app.include_router(account.router)
-app.include_router(ledger.router)
+from fastapi import Request
+import traceback
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"Global exception: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "traceback": traceback.format_exc()}
+    )
+
+from fastapi import APIRouter
+
+from routers import customer, account, ledger, auth, trading, cards, external
+
+# Create a master API router strictly for Vercel prefixing
+api_router = APIRouter(prefix="/api")
+
+# Attach all sub-routers to the master /api router
+api_router.include_router(auth.router)
+api_router.include_router(customer.router)
+api_router.include_router(account.router)
+api_router.include_router(ledger.router)
+api_router.include_router(trading.router)
+api_router.include_router(cards.router)
+api_router.include_router(external.router)
+
+# Include the master router into the main FastAPI application
+app.include_router(api_router)
+
+@app.websocket("/ws/inter-bank/{sender_bank_code}")
+async def inter_bank_ws_handler(websocket: WebSocket, sender_bank_code: str):
+    """
+    ISO 20022 P2P WebSocket Server for receiving transfers from other banks.
+    """
+    await websocket.accept()
+    with open("p2p_debug.log", "a") as f:
+        f.write(f"\n[P2P] Accepted connection from: {sender_bank_code}\n")
+    print(f"[P2P] Accepted connection from bank: {sender_bank_code}")
+    
+    try:
+        while True:
+            # Receive pacs.008 XML string
+            xml_data = await websocket.receive_text()
+            print(f"[P2P DEBUG] Received {len(xml_data)} bytes of XML")
+            
+            from iso20022 import parse_pacs008_xml, generate_pacs002_xml
+            from database import SessionLocal
+            import models
+            import uuid
+            from decimal import Decimal
+            
+            try:
+                # 1. Parse the incoming pacs.008
+                with open("p2p_debug.log", "a") as f:
+                    f.write(f"[P2P] Parsing XML: {xml_data[:100]}...\n")
+                data = parse_pacs008_xml(xml_data)
+                with open("p2p_debug.log", "a") as f:
+                    f.write(f"[P2P] Parsed: {data}\n")
+                
+                # 2. Process Deposit in local DB
+                db = SessionLocal()
+                print(f"[P2P DEBUG] DB Session created. Searching for IBAN suffix...")
+                try:
+                    target_iban = data.get("to_iban")
+                    if not target_iban or len(target_iban) < 10:
+                        print(f"[P2P DEBUG] Invalid IBAN received: {target_iban}")
+                        to_account = None
+                    else:
+                        iban_suffix = target_iban[4:]
+                        print(f"[P2P DEBUG] Searching for suffix: {iban_suffix}")
+                        to_account = db.query(models.Account).filter(models.Account.iban.contains(iban_suffix)).first()
+                    
+                    print(f"[P2P DEBUG] Match result: {'Found' if to_account else 'Not Found'}")
+                    if to_account and to_account.status == models.AccountStatusEnum.active:
+                        # Convert float amount to Decimal for DB compatibility
+                        amount_decimal = Decimal(str(data["amount"]))
+                        to_account.balance += amount_decimal
+                        new_ledger_entry = models.Ledger(
+                            from_account_id=None,
+                            to_account_id=to_account.id,
+                            amount=amount_decimal,
+                            transaction_type=models.TransactionTypeEnum.deposit
+                        )
+                        db.add(new_ledger_entry)
+                        db.commit()
+                        with open("p2p_debug.log", "a") as f:
+                            f.write(f"[P2P] SUCCESS: Added {amount_decimal} to {to_account.iban}\n")
+                        
+                        # 3. Respond with pacs.002 ACK (Success)
+                        ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="ACCP")
+                        await websocket.send_text(ack_xml)
+                    else:
+                        with open("p2p_debug.log", "a") as f:
+                            f.write(f"[P2P] REJECT: Account mismatch or inactive.\n")
+                        # Respond with pacs.002 RJCT (Rejected - Account not found)
+                        ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data["tx_id"], status="RJCT")
+                        await websocket.send_text(ack_xml)
+                except Exception as db_e:
+                    db.rollback()
+                    with open("p2p_debug.log", "a") as f:
+                        f.write(f"[P2P] DB Error: {str(db_e)}\n")
+                    # Try to send a RJCT anyway
+                    try:
+                        ack_xml = generate_pacs002_xml(str(uuid.uuid4()), data.get("tx_id", "UNKNOWN"), status="RJCT")
+                        await websocket.send_text(ack_xml)
+                    except: pass
+                finally:
+                    db.close()
+            except Exception as e:
+                with open("p2p_debug.log", "a") as f:
+                    f.write(f"[P2P] ERROR: {str(e)}\n")
+                print(f"[P2P] Error processing incoming XML: {e}")
+                # Optional: Send error ACK if possible
+                
+    except WebSocketDisconnect:
+        print(f"[P2P] Bank {sender_bank_code} disconnected.")
+    except Exception as e:
+        print(f"[P2P] WebSocket Error: {e}")
 
 @app.get("/health")
 def health_check():
     return JSONResponse(status_code=200, content={"status": "healthy", "service": "banking-api"})
 
-app.mount("/", StaticFiles(directory="/frontend", html=True), name="frontend")
+@app.get("/api/debug")
+def debug_info():
+    """Vercel deployment debug endpoint"""
+    import sys
+    info = {
+        "python_version": sys.version,
+        "platform": sys.platform,
+        "vercel": os.getenv("VERCEL", "not set"),
+    }
+    
+    # Test database
+    try:
+        from database import engine
+        info["db_url"] = engine.url.render_as_string(hide_password=True)
+        with engine.connect() as conn:
+            conn.close()
+        info["db_status"] = "connected"
+    except Exception as e:
+        info["db_status"] = f"FAILED: {e}"
+    
+    # Test bcrypt
+    try:
+        from passlib.context import CryptContext
+        pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        hashed = pwd.hash("test123")
+        verified = pwd.verify("test123", hashed)
+        info["bcrypt_status"] = f"OK (verified={verified})"
+    except Exception as e:
+        info["bcrypt_status"] = f"FAILED: {e}"
+    
+    # Test bcrypt version
+    try:
+        import bcrypt
+        info["bcrypt_version"] = bcrypt.__version__
+    except Exception as e:
+        info["bcrypt_version"] = f"FAILED: {e}"
+        
+    return JSONResponse(status_code=200, content=info)
+
+
+
+# Dynamically construct frontend path and mount safely
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public"))
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+else:
+    print(f"Warning: Public directory not found at {frontend_path}. Static files will not be served.")
+
+# Trigger Vercel Deploy 2026-03-14-1: Added Forgot Password via Card Verification

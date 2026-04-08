@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rykard Banking - Login</title>
+    <!-- Tailwind CSS for rapid styling (via CDN for simplicity in this project) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
+    <style>
+        .glass-panel {
+            background: #163D2C;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-[#0F2A1D] min-h-screen flex items-center justify-center font-sans text-[#F2F2F2]">
+
+    <div class="glass-panel p-10 rounded-[2.5rem] w-full max-w-md border border-white/5 relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#B08D57]/10 blur-[100px] rounded-full"></div>
+
+        <h1 class="text-4xl font-black text-center text-[#F2F2F2] mb-2 tracking-tighter uppercase italic">Rykard<span
+                class="text-[#B08D57]">Bank</span></h1>
+        <p class="text-center text-[#F2F2F2]/60 mb-10 text-sm font-medium">Enter the Eternal Reserve</p>
+
+        <form id="loginForm" class="space-y-6 relative z-10">
+            <div>
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Identity</label>
+                <input type="text" id="username" required placeholder="Username" class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] shadow-sm placeholder-[#F2F2F2]/20
+                    focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+            <div>
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
+                <input type="password" id="password" required placeholder="••••••••" class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] shadow-sm placeholder-[#F2F2F2]/20
+                    focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+            <div>
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Security
+                    Question</label>
+                <input type="text" id="mothers_maiden_name" required placeholder="Mother's Maiden Name" class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] shadow-sm placeholder-[#F2F2F2]/20
+                    focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+
+            <div id="errorBox"
+                class="hidden bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl relative text-xs font-bold text-center"
+                role="alert"></div>
+
+            <button type="submit"
+                class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-[0_10px_20px_-10px_rgba(176,141,87,0.5)] text-sm font-black text-[#0F2A1D] bg-[#B08D57] hover:bg-[#C9A76C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B08D57] transition-all duration-200 uppercase tracking-widest active:scale-95">
+                Open Treasury
+            </button>
+        </form>
+
+        <p class="mt-8 text-center text-[10px] text-[#F2F2F2]/30 uppercase tracking-[0.1em]">
+            Don't have an inheritance? <a href="register.html"
+                class="font-bold text-[#B08D57] hover:underline transition-colors uppercase">Register
+                here</a>
+            <br><br>
+            <a href="#" id="openForgotPasswordBtn"
+                class="font-bold text-[#F2F2F2]/50 hover:text-[#B08D57] transition-colors uppercase">Forgot Password?</a>
+        </p>
+    </div>
+
+    <!-- 2FA Modal -->
+    <div id="twoFactorModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-sm border border-white/10 relative">
+            <h2 class="text-2xl font-black text-center text-[#F2F2F2] mb-6 uppercase tracking-wider">Two-Factor Auth
+            </h2>
+            <p class="text-center text-[#F2F2F2]/60 mb-6 text-xs">Enter the 6-digit code from your authenticator app.
+            </p>
+
+            <input type="hidden" id="temp_token">
+
+            <div class="mb-6">
+                <input type="text" id="otpCode" placeholder="000000" maxlength="6"
+                    class="mt-1 block w-full px-5 py-4 bg-[#0F2A1D]/80 border border-white/10 rounded-xl text-center text-2xl tracking-[0.5em] font-mono text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
+            </div>
+
+            <div id="twoFactorErrorBox"
+                class="hidden bg-red-900/40 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl mb-6 text-xs font-bold text-center">
+            </div>
+
+            <div class="flex gap-4">
+                <button type="button" id="cancel2FaBtn"
+                    class="flex-1 py-3 px-4 border border-white/20 rounded-xl text-xs font-bold text-[#F2F2F2] hover:bg-white/5 transition-all uppercase">Cancel</button>
+                <button type="button" id="verify2FaBtn"
+                    class="flex-1 py-3 px-4 bg-[#B08D57] rounded-xl text-xs font-black text-[#0F2A1D] hover:bg-[#C9A76C] transition-all uppercase shadow-[0_5px_15px_rgba(176,141,87,0.4)]">Verify</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm overflow-y-auto py-10">
+        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-md border border-white/10 relative my-auto">
+            <h2 class="text-2xl font-black text-center text-[#F2F2F2] mb-2 uppercase tracking-wider">Recover Access</h2>
+            <p class="text-center text-[#F2F2F2]/60 mb-6 text-[10px] uppercase tracking-widest">Verify with your active Card</p>
+
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-1 ml-1">Username</label>
+                    <input type="text" id="fp_username" required placeholder="Your Username" class="w-full px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-1 ml-1">Card Number</label>
+                    <input type="text" id="fp_card_number" required placeholder="0000 0000 0000 0000" maxlength="19" class="w-full px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all font-mono">
+                </div>
+                
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-1 ml-1">Expiry</label>
+                        <input type="text" id="fp_expiry" required placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all font-mono text-center">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-1 ml-1">CVV</label>
+                        <input type="password" id="fp_cvv" required placeholder="•••" maxlength="4" class="w-full px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all font-mono text-center">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-1 ml-1">New Password</label>
+                    <input type="password" id="fp_new_password" required placeholder="••••••••" class="w-full px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-1 ml-1">Confirm New Password</label>
+                    <input type="password" id="fp_confirm_password" required placeholder="••••••••" class="w-full px-4 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-xl text-sm text-[#F2F2F2] focus:outline-none focus:border-[#B08D57] transition-all">
+                </div>
+
+                <div id="fpErrorBox" class="hidden px-4 py-3 rounded-xl text-xs font-bold text-center mt-4"></div>
+
+                <div class="flex gap-4 mt-6">
+                    <button type="button" id="cancelFpBtn" class="flex-1 py-3 px-4 border border-white/20 rounded-xl text-xs font-bold text-[#F2F2F2] hover:bg-white/5 transition-all uppercase">Cancel</button>
+                    <button type="submit" id="submitFpBtn" class="flex-1 py-3 px-4 bg-[#B08D57] rounded-xl text-xs font-black text-[#0F2A1D] hover:bg-[#C9A76C] transition-all uppercase shadow-[0_5px_15px_rgba(176,141,87,0.4)]">Re-Forge</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const mothers_maiden_name = document.getElementById('mothers_maiden_name').value;
+            const errorBox = document.getElementById('errorBox');
+
+            try {
+                // FastAPI's OAuth2 expects form data format (x-www-form-urlencoded)
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+                formData.append('mothers_maiden_name', mothers_maiden_name);
+
+                const response = await fetch(window.API_BASE_URL + '/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                let result;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    result = await response.json();
+                } else {
+                    const errTxt = await response.text();
+                    console.error("Non-JSON Response", errTxt);
+                    throw new Error("Sunucu JSON döndürmedi. Lütfen siteye Live Server yerine direkt http://localhost:8000 üzerinden girdiğinize emin olun.");
+                }
+
+                if (response.ok) {
+                    if (result.requires_2fa) {
+                        // Show 2FA modal
+                        document.getElementById('twoFactorModal').classList.remove('hidden');
+                        document.getElementById('twoFactorModal').classList.add('flex');
+                        document.getElementById('temp_token').value = result.access_token;
+                    } else {
+                        // Save token to localStorage
+                        localStorage.setItem('token', result.access_token);
+                        localStorage.setItem('user_id', result.user_id);
+                        localStorage.setItem('role', result.role);
+                        // Redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    if (result.traceback) {
+                        console.error("BACKEND TRACEBACK:", result.traceback);
+                        if (result.detail && result.detail !== "Internal Server Error") {
+                            errorBox.textContent = "Sunucu çöktü! Hata: " + result.detail;
+                        } else {
+                            errorBox.textContent = "Sunucu çöktü! Hata detayı: " + result.traceback.substring(0, 300) + "...";
+                        }
+                    } else {
+                        errorBox.textContent = result.detail || "Login failed";
+                    }
+                    errorBox.classList.remove('hidden');
+                }
+            } catch (error) {
+                if (error.message === "Failed to fetch") {
+                    errorBox.textContent = "Cannot connect to server. Please ensure the backend is running on http://localhost:8000";
+                } else {
+                    errorBox.textContent = error.message || "An unexpected error occurred.";
+                }
+                errorBox.classList.remove('hidden');
+            }
+        });
+
+        // Handle 2FA submission
+        document.getElementById('verify2FaBtn').addEventListener('click', async () => {
+            const otpCode = document.getElementById('otpCode').value;
+            const tempToken = document.getElementById('temp_token').value;
+            const errorBox = document.getElementById('twoFactorErrorBox');
+
+            try {
+                const verifyResponse = await fetch(window.API_BASE_URL + '/api/auth/login/2fa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temp_token: tempToken, otp_code: otpCode })
+                });
+
+                const verifyResult = await verifyResponse.json();
+
+                if (verifyResponse.ok) {
+                    localStorage.setItem('token', verifyResult.access_token);
+                    localStorage.setItem('user_id', verifyResult.user_id);
+                    localStorage.setItem('role', verifyResult.role);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorBox.textContent = verifyResult.detail || "Invalid 2FA code";
+                    errorBox.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorBox.textContent = error.message || "An unexpected error occurred.";
+                errorBox.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('cancel2FaBtn').addEventListener('click', () => {
+            document.getElementById('twoFactorModal').classList.add('hidden');
+            document.getElementById('twoFactorModal').classList.remove('flex');
+            document.getElementById('otpCode').value = '';
+        });
+
+        // Forgot Password Logic
+        const fpModal = document.getElementById('forgotPasswordModal');
+        const openFpBtn = document.getElementById('openForgotPasswordBtn');
+        const cancelFpBtn = document.getElementById('cancelFpBtn');
+        const fpForm = document.getElementById('forgotPasswordForm');
+        const fpErrorBox = document.getElementById('fpErrorBox');
+
+        openFpBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            fpModal.classList.remove('hidden');
+            fpModal.classList.add('flex');
+        });
+
+        cancelFpBtn.addEventListener('click', () => {
+            fpModal.classList.add('hidden');
+            fpModal.classList.remove('flex');
+            fpForm.reset();
+            fpErrorBox.classList.add('hidden');
+        });
+
+        // Auto-format Card Number
+        document.getElementById('fp_card_number').addEventListener('input', function (e) {
+            let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            if (val.length > 16) val = val.slice(0, 16); // Max 16 digits
+            const parts = [];
+            for (let i = 0; i < val.length; i += 4) {
+                parts.push(val.substring(i, i + 4));
+            }
+            e.target.value = parts.join(' ');
+        });
+
+        // Auto-format Expiry Date
+        document.getElementById('fp_expiry').addEventListener('input', function (e) {
+            let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            if (val.length > 4) val = val.slice(0, 4); // Max 4 digits
+            if (val.length >= 2) {
+                e.target.value = val.substring(0, 2) + '/' + val.substring(2);
+            } else {
+                e.target.value = val;
+            }
+        });
+
+        fpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('fp_username').value;
+            // Remove spaces from card number before sending
+            const card_number = document.getElementById('fp_card_number').value.replace(/\s/g, ''); 
+            const expiry_date = document.getElementById('fp_expiry').value;
+            const cvv = document.getElementById('fp_cvv').value;
+            const new_password = document.getElementById('fp_new_password').value;
+            const confirm_password = document.getElementById('fp_confirm_password').value;
+            const submitBtn = document.getElementById('submitFpBtn');
+
+            fpErrorBox.className = 'hidden px-4 py-3 rounded-xl text-xs font-bold text-center mt-4';
+
+            if (new_password !== confirm_password) {
+                fpErrorBox.textContent = "Passwords do not match.";
+                fpErrorBox.classList.add('bg-red-900/20', 'border', 'border-red-500/50', 'text-red-400', 'block');
+                return;
+            }
+            
+            if (card_number.length < 15) {
+                fpErrorBox.textContent = "Please enter a valid card number.";
+                fpErrorBox.classList.add('bg-red-900/20', 'border', 'border-red-500/50', 'text-red-400', 'block');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Verifying...";
+
+            try {
+                const response = await fetch(window.API_BASE_URL + '/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username,
+                        card_number,
+                        expiry_date,
+                        cvv,
+                        new_password
+                    })
+                });
+
+                if (response.ok) {
+                    fpErrorBox.textContent = "Password successfully reset! You can now login.";
+                    fpErrorBox.classList.add('bg-emerald-900/20', 'border', 'border-emerald-500/50', 'text-emerald-400', 'block');
+                    setTimeout(() => {
+                        fpModal.classList.add('hidden');
+                        fpModal.classList.remove('flex');
+                        fpForm.reset();
+                        fpErrorBox.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    const data = await response.json();
+                    fpErrorBox.textContent = data.detail || "Verification failed.";
+                    fpErrorBox.classList.add('bg-red-900/20', 'border', 'border-red-500/50', 'text-red-400', 'block');
+                }
+            } catch (err) {
+                fpErrorBox.textContent = "Connection error. Please try again.";
+                fpErrorBox.classList.add('bg-red-900/20', 'border', 'border-red-500/50', 'text-red-400', 'block');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Re-Forge";
+            }
+        });
+    </script>
+</body>
+
+</html>

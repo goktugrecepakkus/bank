@@ -1,24 +1,32 @@
 import urllib.request
 import urllib.parse
+import urllib.error
 import json
+from typing import Any
 
 BASE_URL = 'http://localhost:8000'
 
-def request(url, method='GET', data=None, headers=None, is_form=False):
-    headers = headers or {}
+def request(url: str, method: str = 'GET', data: Any = None, headers: dict[str, str] | None = None, is_form: bool = False) -> tuple[int, Any]:
+    req_headers = dict(headers) if headers else {}
     if data and is_form:
-        data = urllib.parse.urlencode(data).encode('utf-8')
-        headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        req_data = urllib.parse.urlencode(data).encode('utf-8')
+        req_headers['Content-Type'] = 'application/x-www-form-urlencoded'
     elif data:
-        data = json.dumps(data).encode('utf-8')
-        headers['Content-Type'] = 'application/json'
+        req_data = json.dumps(data).encode('utf-8')
+        req_headers['Content-Type'] = 'application/json'
+    else:
+        req_data = None
         
-    req = urllib.request.Request(url, data=data, method=method, headers=headers)
+    req = urllib.request.Request(url, data=req_data, method=method, headers=req_headers)
     try:
         with urllib.request.urlopen(req) as response:
             return response.status, json.loads(response.read().decode())
     except urllib.error.HTTPError as e:
-        return e.code, json.loads(e.read().decode()) if e.read() else str(e)
+        body = e.read()
+        try:
+            return e.code, json.loads(body.decode()) if body else {"detail": str(e)}
+        except json.JSONDecodeError:
+            return e.code, {"detail": body.decode() if body else str(e)}
 
 def test_api():
     print('--- Testing Authentication ---')
@@ -36,9 +44,9 @@ def test_api():
     assert status == 200, f'Fetch accounts failed: {accounts}'
     print(f'SUCCESS: Fetched {len(accounts)} accounts')
     
-    if len(accounts) < 2:
+    while len(accounts) < 2:
         create_url = f'{BASE_URL}/accounts/'
-        status, acc = request(create_url, method='POST', data={'customer_id': customer_id, 'account_type': 'savings'}, headers=headers)
+        status, acc = request(create_url, method='POST', data={'customer_id': customer_id, 'account_type': 'SAVINGS'}, headers=headers)
         assert status == 201, f'Create account failed: {acc}'
         print('SUCCESS: Created new account')
         accounts.append(acc)
@@ -47,6 +55,12 @@ def test_api():
     account2_id = accounts[1]['id']
     
     print('\n--- Testing Transactions ---')
+    # Deposit money first so we don't get Insufficient Funds
+    deposit_url = f'{BASE_URL}/ledger/deposit?account_id={account1_id}&amount=500.0'
+    status, res = request(deposit_url, method='POST', headers=headers)
+    assert status == 200, f'Deposit failed: {res}'
+    print('SUCCESS: Deposit successful')
+
     transfer_url = f'{BASE_URL}/ledger/transfer'
     transfer_data = {'from_account_id': account1_id, 'to_account_id': account2_id, 'amount': 100.0}
     status, res = request(transfer_url, method='POST', data=transfer_data, headers=headers)
@@ -54,7 +68,7 @@ def test_api():
     print('SUCCESS: Transfer successful')
     
     print('\n--- Testing Audit Logs (Admin) ---')
-    status, admin_data = request(login_url, method='POST', data={'username': 'admin', 'password': 'admin123', 'mothers_maiden_name': 'Unknown'}, is_form=True)
+    status, admin_data = request(login_url, method='POST', data={'username': 'sysadmin', 'password': 'admin123', 'mothers_maiden_name': 'Unknown'}, is_form=True)
     assert status == 200, f'Admin login failed: {admin_data}'
     admin_token = admin_data['access_token']
     admin_headers = {'Authorization': f'Bearer {admin_token}'}
