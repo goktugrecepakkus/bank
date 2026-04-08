@@ -191,7 +191,11 @@
                 } else {
                     if (result.traceback) {
                         console.error("BACKEND TRACEBACK:", result.traceback);
-                        errorBox.textContent = "Sunucu çöktü! Hata detayı: " + result.traceback.substring(0, 300) + "...";
+                        if (result.detail && result.detail !== "Internal Server Error") {
+                            errorBox.textContent = "Sunucu çöktü! Hata: " + result.detail;
+                        } else {
+                            errorBox.textContent = "Sunucu çöktü! Hata detayı: " + result.traceback.substring(0, 300) + "...";
+                        }
                     } else {
                         errorBox.textContent = result.detail || "Login failed";
                     }

@@ -37,7 +37,7 @@ except Exception as e:
                 'headers': [[b'content-type', b'application/json']],
             })
             err_payload = json.dumps({
-                "detail": "Vercel Import Error.",
+                "detail": f"Vercel Import Error: {str(e)}",
                 "traceback": err_msg
             }).encode()
             await send({
