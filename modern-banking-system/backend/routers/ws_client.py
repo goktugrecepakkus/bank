@@ -108,12 +108,11 @@ class WSClientManager:
         
         if msg_type == "TRANSFER":
             logger.info(f"Incoming transfer received: {data}")
-            # TODO: Call Database/Service layer to add money to user account
             # Example response
             # await self.send_message({"type": "TRANSFER_ACK", "tx_id": data.get("tx_id"), "status": "SUCCESS"})
         elif msg_type == "TRANSFER_ACK":
             logger.info(f"Transfer acknowledgment received: {data}")
-            # TODO: Update local transaction state from PENDING to COMPLETED
+            pass
         else:
             logger.debug(f"Unknown message type received: {data}")
 
