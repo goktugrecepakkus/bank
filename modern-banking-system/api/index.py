@@ -22,5 +22,26 @@ try:
 except ImportError:
     pass
 
-# Vercel statik kod analizinin "app" değişkenini rahatça bulabilmesi için try-except kullanmıyoruz
-from backend.main import app
+# Vercel statik kod analizinin "app" değişkenini rahatça bulabilmesi için ASGI wrapper
+async def app(scope, receive, send):
+    try:
+        from backend.main import app as real_app
+        await real_app(scope, receive, send)
+    except Exception as e:
+        import traceback
+        err_msg = traceback.format_exc()
+        if scope['type'] == 'http':
+            import json
+            await send({
+                'type': 'http.response.start',
+                'status': 500,
+                'headers': [[b'content-type', b'application/json']],
+            })
+            err_payload = json.dumps({
+                "detail": f"Vercel Runtime Crash: {str(e)}",
+                "traceback": err_msg
+            }).encode()
+            await send({
+                'type': 'http.response.body',
+                'body': err_payload,
+            })
