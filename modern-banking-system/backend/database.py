@@ -20,6 +20,17 @@ if DATABASE_URL.startswith("postgres://"):
 elif DATABASE_URL.startswith("postgresql://") and "pg8000" not in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
 
+# pg8000 does not support the 'sslmode' keyword argument in the connection URL
+if "pg8000" in DATABASE_URL and "sslmode" in DATABASE_URL:
+    import urllib.parse as urlparse
+    parsed = urlparse.urlparse(DATABASE_URL)
+    qs = urlparse.parse_qs(parsed.query)
+    if 'sslmode' in qs:
+        del qs['sslmode']
+    new_query = urlparse.urlencode(qs, doseq=True)
+    DATABASE_URL = urlparse.urlunparse(parsed._replace(query=new_query))
+
+
 # Vercel Serverless environment is completely read-only except for the /tmp folder.
 # If no Postgres URL is provided and we are falling back to SQLite on Vercel, we MUST use /tmp.
 if os.getenv("VERCEL") == "1" and DATABASE_URL.startswith("sqlite"):
