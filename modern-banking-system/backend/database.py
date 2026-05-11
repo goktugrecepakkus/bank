@@ -55,24 +55,46 @@ try:
         conn.close()
     print(f"[DB] Successfully connected to: {engine.url.render_as_string(hide_password=True)}")
 except Exception as e:
-    print(f"[DB] ERROR: Database connection failed with URL: {DATABASE_URL[:30]}... Error: {e}")
-    
-    # Vercel'de PostgreSQL bağlantısı BAŞARISIZ olursa, sessizce SQLite'a düşME.
-    # Bu, verilerin kaybolmasına neden olur!
-    if os.getenv("VERCEL") == "1":
-        raise Exception(
-            f"CRITICAL: Supabase/PostgreSQL connection FAILED on Vercel! "
-            f"Check DATABASE_URL environment variable in Vercel Dashboard. "
-            f"Error: {e}"
-        )
-    
-    if DATABASE_URL.startswith("postgresql"):
-        raise Exception(f"Supabase/PostgreSQL Connection Failed: {e}")
-    
-    # Sadece lokal geliştirmede SQLite fallback'e izin ver
-    print("[DB] Falling back to local SQLite (local development only)...")
-    DATABASE_URL = "sqlite:///./bank.db"
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    err_str = str(e)
+    if "tenant/user" in err_str and "not found" in err_str and "." in engine.url.username:
+        print("[DB] Supavisor tenant error detected! Retrying with cleaned username...")
+        # Strip the .project_ref from the username (e.g., postgres.abc -> postgres)
+        import urllib.parse as urlparse
+        parsed = urlparse.urlparse(DATABASE_URL)
+        clean_user = parsed.username.split(".")[0]
+        # reconstruct netloc with clean username
+        new_netloc = f"{clean_user}:{parsed.password}@{parsed.hostname}"
+        if parsed.port:
+            new_netloc += f":{parsed.port}"
+        DATABASE_URL = urlparse.urlunparse(parsed._replace(netloc=new_netloc))
+        
+        try:
+            engine = create_engine(DATABASE_URL, connect_args=connect_args)
+            with engine.connect() as conn:
+                conn.close()
+            print(f"[DB] Successfully connected to fallback URL!")
+        except Exception as retry_e:
+            if os.getenv("VERCEL") == "1":
+                raise Exception(f"CRITICAL: Supabase connection FAILED on retry! Error: {retry_e}")
+            raise Exception(f"Supabase Connection Failed: {retry_e}")
+    else:
+        print(f"[DB] ERROR: Database connection failed with URL: {DATABASE_URL[:30]}... Error: {e}")
+        
+        # Vercel'de PostgreSQL bağlantısı BAŞARISIZ olursa, sessizce SQLite'a düşME.
+        if os.getenv("VERCEL") == "1":
+            raise Exception(
+                f"CRITICAL: Supabase/PostgreSQL connection FAILED on Vercel! "
+                f"Check DATABASE_URL environment variable in Vercel Dashboard. "
+                f"Error: {e}"
+            )
+        
+        if DATABASE_URL.startswith("postgresql"):
+            raise Exception(f"Supabase/PostgreSQL Connection Failed: {e}")
+        
+        # Sadece lokal geliştirmede SQLite fallback'e izin ver
+        print("[DB] Falling back to local SQLite (local development only)...")
+        DATABASE_URL = "sqlite:///./bank.db"
+        engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
