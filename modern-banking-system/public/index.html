@@ -185,6 +185,7 @@
                         localStorage.setItem('token', result.access_token);
                         localStorage.setItem('user_id', result.user_id);
                         localStorage.setItem('role', result.role);
+                        localStorage.setItem('username', username);
                         // Redirect to dashboard
                         window.location.href = 'dashboard.html';
                     }
@@ -230,6 +231,7 @@
                     localStorage.setItem('token', verifyResult.access_token);
                     localStorage.setItem('user_id', verifyResult.user_id);
                     localStorage.setItem('role', verifyResult.role);
+                    localStorage.setItem('username', document.getElementById('username').value);
                     window.location.href = 'dashboard.html';
                 } else {
                     errorBox.textContent = verifyResult.detail || "Invalid 2FA code";

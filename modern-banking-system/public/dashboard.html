@@ -461,6 +461,7 @@
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('user_id');
         const userRole = localStorage.getItem('role');
+        const username = localStorage.getItem('username') || userId;
 
         if (userRole === 'admin') {
             const adminLinkBtn = document.getElementById('adminLink');
@@ -489,6 +490,7 @@
             window.location.href = 'index.html';
         }
 
+        document.getElementById('welcomeMessage').textContent = `Hoşgeldin, ${username}`;
         document.getElementById('userIdDisplay').textContent = userId;
 
         function logout() {
