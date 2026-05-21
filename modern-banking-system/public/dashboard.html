@@ -24,6 +24,12 @@
 </head>
 
 <body class="bg-[#0F2A1D] min-h-screen font-sans text-[#F2F2F2]">
+    <!-- Full Screen Welcome Overlay -->
+    <div id="fullScreenWelcome" onclick="this.style.opacity='0'; setTimeout(() => this.style.display='none', 500)" class="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center cursor-pointer transition-opacity duration-500 ease-in-out">
+        <h1 class="text-[#F2F2F2] text-6xl md:text-9xl font-black uppercase tracking-tighter" id="hugeWelcomeText">WELCOME</h1>
+        <p class="text-[#F2F2F2]/40 mt-8 text-sm md:text-xl tracking-widest uppercase animate-pulse">Click anywhere to continue</p>
+    </div>
+
     <!-- Navbar -->
     <nav class="bg-[#163D2C] border-b border-white/5 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -491,6 +497,7 @@
         }
 
         document.getElementById('welcomeMessage').textContent = `Hoşgeldin, ${username}`;
+        document.getElementById('hugeWelcomeText').textContent = `WELCOME ${username}`;
         document.getElementById('userIdDisplay').textContent = userId;
 
         function logout() {
