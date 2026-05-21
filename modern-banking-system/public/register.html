@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rykard Banking - Register</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api_config.js"></script>
+    <style>
+        .glass-panel {
+            background: #163D2C;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-[#0F2A1D] min-h-screen flex items-center justify-center font-sans text-[#F2F2F2]">
+
+    <div
+        class="glass-panel p-10 rounded-[2.5rem] shadow-2xl w-full max-w-lg border border-white/5 relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-[#B08D57]/10 blur-[100px] rounded-full"></div>
+
+        <h1 class="text-4xl font-black text-center text-[#F2F2F2] mb-2 tracking-tighter uppercase italic">RYKARD<span
+                class="text-[#B08D57]">JOIN</span></h1>
+        <p class="text-center text-[#F2F2F2]/60 mb-10 text-sm font-medium">Create your eternal bank account</p>
+
+        <form id="registerForm" class="space-y-6 relative z-10">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">First
+                        Name</label>
+                    <input type="text" id="first_name" required minlength="2" placeholder="John"
+                        class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+                </div>
+                <div>
+                    <label
+                        class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Last
+                        Name</label>
+                    <input type="text" id="last_name" required minlength="2" placeholder="Doe"
+                        class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+                </div>
+            </div>
+            <div>
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">National
+                    ID</label>
+                <input type="text" id="national_id" required minlength="9" maxlength="11" placeholder="123456789"
+                    class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Phone
+                    Number</label>
+                <input type="text" id="phone_number" required minlength="10" maxlength="20" placeholder="05XX XXX XX XX"
+                    class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+            <div>
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Physical
+                    Address</label>
+                <input type="text" id="address" required minlength="5" placeholder="Address..."
+                    class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
+                    <input type="text" id="username" required minlength="3" placeholder="Choose"
+                        class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+                </div>
+                <div>
+                    <label
+                        class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
+                    <input type="password" id="password" required minlength="6" placeholder="••••••••"
+                        class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+                </div>
+            </div>
+            <div>
+                <label
+                    class="block text-[10px] font-bold text-[#F2F2F2]/40 uppercase tracking-[0.2em] mb-2 ml-1">Security
+                    Question</label>
+                <input type="text" id="mothers_maiden_name" required minlength="2" placeholder="Mother's Maiden Name"
+                    class="w-full px-5 py-3 bg-[#0F2A1D]/50 border border-white/5 rounded-2xl text-sm text-[#F2F2F2] placeholder-[#F2F2F2]/20 focus:outline-none focus:ring-1 focus:ring-[#B08D57] transition-all">
+            </div>
+
+            <div id="errorBox"
+                class="hidden bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl relative text-xs font-bold text-center"
+                role="alert"></div>
+            <div id="successBox"
+                class="hidden bg-emerald-900/20 border border-emerald-500/50 text-emerald-400 px-4 py-3 rounded-xl relative text-xs font-bold text-center"
+                role="alert"></div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-[0_10px_20px_-10px_rgba(176,141,87,0.5)] text-sm font-black text-[#0F2A1D] bg-[#B08D57] hover:bg-[#C9A76C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B08D57] transition-all duration-200 uppercase tracking-widest active:scale-95">
+                Initiate Account
+            </button>
+        </form>
+
+        <p class="mt-8 text-center text-[10px] text-[#F2F2F2]/30 uppercase tracking-[0.1em]">
+            Already have an inheritance? <a href="index.html"
+                class="font-bold text-[#B08D57] hover:underline transition-colors uppercase">Sign in here</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const first_name = document.getElementById('first_name').value;
+            const last_name = document.getElementById('last_name').value;
+            const national_id = document.getElementById('national_id').value;
+            const phone_number = document.getElementById('phone_number').value;
+            const address = document.getElementById('address').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const mothers_maiden_name = document.getElementById('mothers_maiden_name').value;
+            const errorBox = document.getElementById('errorBox');
+            const successBox = document.getElementById('successBox');
+            const submitBtn = document.getElementById('submitBtn');
+
+            errorBox.classList.add('hidden');
+            successBox.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registering...';
+
+            try {
+                // 1. Kullanıcıyı oluştur
+                const resCustomer = await fetch(window.API_BASE_URL + '/api/customers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        first_name, last_name, national_id, phone_number, address,
+                        username, password, mothers_maiden_name, role: "customer"
+                    })
+                });
+
+                let customerResult;
+                const contentType = resCustomer.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    customerResult = await resCustomer.json();
+                } else {
+                    const errorText = await resCustomer.text();
+                    console.error("Non-JSON Server Output:", errorText);
+                    throw new Error("Sunucu JSON döndürmedi. Lütfen siteye Live Server yerine direkt http://localhost:8000 üzerinden (veya geçerli bir Vercel URL'sinden) bağlandığınıza emin olun. Hata detayı konsola yazıldı.");
+                }
+
+                if (!resCustomer.ok) {
+                    if (customerResult.traceback) {
+                        console.error("BACKEND TRACEBACK:", customerResult.traceback);
+                        throw new Error("Sunucu çöktü! Hata detayı: " + customerResult.traceback.substring(0, 300) + "...");
+                    }
+                    throw new Error(customerResult.detail || "Registration failed. Username might be taken.");
+                }
+
+                // 2. Müşteri oluştu, otomatik olarak bir hesap (Checking) aç.
+                const resAccount = await fetch(window.API_BASE_URL + '/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_id: customerResult.id, account_type: "CHECKING" })
+                });
+
+                if (!resAccount.ok) {
+                    const accErr = await resAccount.text();
+                    console.error("Account Error", accErr);
+                    throw new Error("User created, but failed to create default bank account. " + accErr.substring(0, 100));
+                }
+
+                successBox.textContent = "Registration successful! Redirecting to login...";
+                successBox.classList.remove('hidden');
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+
+            } catch (error) {
+                if (error.message === "Failed to fetch") {
+                    errorBox.textContent = "Cannot connect to server. Please ensure the backend is running on http://localhost:8000 (uvicorn main:app --reload)";
+                } else {
+                    errorBox.textContent = error.message || "An unexpected error occurred.";
+                }
+                errorBox.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Register';
+            }
+        });
+    </script>
+</body>
+
+</html>

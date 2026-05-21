@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+SQLAlchemy
+psycopg2-binary
+pg8000
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+aiofiles
+bcrypt==4.0.1
+yfinance==0.2.37
+requests
+slowapi
+cryptography
+pyotp

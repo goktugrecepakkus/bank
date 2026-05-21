@@ -1,0 +1,18 @@
+
+[P2P] Accepted connection from: FINB
+[P2P] Parsing XML: <?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001....
+[P2P] Parsed: {'tx_id': 'TEST-TX-001', 'amount': 10.0, 'currency': 'TRY', 'from_iban': 'FINB0000000001', 'to_iban': 'GKTG69000619603995254345171'}
+[P2P] ERROR: unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'
+
+[P2P] Accepted connection from: FINB
+[P2P] Parsing XML: <?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001....
+[P2P] Parsed: {'tx_id': 'TEST-TX-001', 'amount': 10.0, 'currency': 'TRY', 'from_iban': 'FINB0000000001', 'to_iban': 'GKTG69000619603995254345171'}
+[P2P] SUCCESS: Added 10.0 to TR69000619603995254345171
+
+[P2P] Accepted connection from: FINB
+[P2P] Parsing XML: <?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001....
+[P2P] Parsed: {'tx_id': 'TEST-TX-001', 'amount': 10.0, 'currency': 'TRY', 'from_iban': 'FINB0000000001', 'to_iban': 'FINB69000619603995254345171'}
+[P2P] SUCCESS: Added 10.0 to TR69000619603995254345171

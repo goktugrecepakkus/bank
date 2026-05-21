@@ -6,15 +6,40 @@ import schemas
 from passlib.context import CryptContext
 from security import get_current_user
 
-router = APIRouter(prefix="/customers", tags=["Customers"])
+router = APIRouter(tags=["Customers"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.post("/", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/customers", response_model=schemas.CustomerResponse, status_code=status.HTTP_201_CREATED)
 def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db)):
-    # Kullanıcı adı daha önce alınmış mı kontrol et
+    print("======> CREATE CUSTOMER HIT")
+    
+    def validate_tc_kimlik(tc: str) -> bool:
+        if len(tc) != 11 or not tc.isdigit() or tc[0] == '0':
+            return False
+            
+        digits = [int(d) for d in tc]
+        
+        sum_odd = sum(digits[i] for i in range(0, 9, 2))
+        sum_even = sum(digits[i] for i in range(1, 8, 2))
+        if (sum_odd * 7 - sum_even) % 10 != digits[9]:
+            return False
+            
+        if sum(digits[i] for i in range(10)) % 10 != digits[10]:
+            return False
+            
+        return True
+
+    if not validate_tc_kimlik(customer.national_id):
+        raise HTTPException(status_code=400, detail="Invalid National ID format")
+        
+    # Kullanıcı adı veya TC Kimlik numarası daha önce alınmış mı kontrol et
     db_customer = db.query(models.Customer).filter(models.Customer.username == customer.username).first()
     if db_customer:
         raise HTTPException(status_code=400, detail="Username already registered")
+        
+    db_national_id = db.query(models.Customer).filter(models.Customer.national_id == customer.national_id).first()
+    if db_national_id:
+        raise HTTPException(status_code=400, detail="National ID already registered")
     
     # Şifreyi hashle
     hashed_password = pwd_context.hash(customer.password)
@@ -22,6 +47,11 @@ def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_
     new_customer = models.Customer(
         username=customer.username,
         password_hash=hashed_password,
+        first_name=customer.first_name,
+        last_name=customer.last_name,
+        address=customer.address,
+        phone_number=customer.phone_number,
+        national_id=customer.national_id,
         mothers_maiden_name=customer.mothers_maiden_name,
         role=customer.role
     )
@@ -31,14 +61,14 @@ def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_
     db.refresh(new_customer)
     return new_customer
 
-@router.get("/{customer_id}", response_model=schemas.CustomerResponse)
+@router.get("/customers/{customer_id}", response_model=schemas.CustomerResponse)
 def get_customer(customer_id: str, db: Session = Depends(get_db)):
     customer = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
     return customer
 
-@router.put("/password")
+@router.put("/customers/password")
 def change_password(
     password_data: schemas.CustomerUpdatePassword,
     db: Session = Depends(get_db),
@@ -55,6 +85,14 @@ def change_password(
         
     # 3. Şifreyi güncelle ve kaydet
     current_user.password_hash = pwd_context.hash(password_data.new_password)
+    
+    audit_log = models.AuditLog(
+        customer_id=current_user.id,
+        action="PASSWORD_CHANGE",
+        details="User changed password",
+        ip_address="Unknown" # Request client IP would be nice to have here but omitted for brevity
+    )
+    db.add(audit_log)
     db.commit()
     
     return {"message": "Password updated successfully"}
